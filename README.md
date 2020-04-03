@@ -1,5 +1,8 @@
-# Python Scripts
-Various python scripts for basic tasks
+# Python Programs
+Various python programs for making my life easier.
 
-## Financial record CSV formatter
-Designed to take read in credit card transcation data given in specific format, then reformat relevant data into a CSV file for financial records.
+## python-manager
+Manage a collection of todo lists that track priority, deadlines, and item details.
+
+## financial-analysis
+Designed to give a visualization of yearly transactions consolidated into a CSV file.
