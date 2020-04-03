@@ -1,4 +1,2 @@
-# simple-manager
-A recreation of my Electron based to-do app. Much simpler to maintain in Python using Tkinter.
-
-## Valid Commands
+# python-manager
+Manage a collection of todo lists that track priority, deadlines, and item details.
