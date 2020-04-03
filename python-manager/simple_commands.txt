@@ -1,0 +1,26 @@
+ADD
+$ add blah blah blah    <-- for adding a list
+X add blah blah blah
+X add xx/xx/xxxx blah blah blah
+X add tuesday blah blah blah
+X add +/-xx blah blah blah
+
+EDIT
+# edit blah blah blah
+X edit blah blah blah
+
+DELETE (then confirmation)
+# del
+X del
+
+PRIORITY
+# prio x
+# prio +
+# prio -
+
+DATE
+# date xx/xx/xxxx
+# date tuesday
+# date + 
+# date - 
+# date +/-xx
