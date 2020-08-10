@@ -2,13 +2,13 @@
 # imported modules
 from tkinter import *       # gui library
 from tkinter import filedialog       # gui library
-from controller import * # gui controller logic
+from controller import Controller # gui controller logic
 
 # global variables
 window = Tk() 
 status_bind = StringVar()
-list_area = Listbox(window, exportselection=False)
-item_area = Listbox(window, exportselection=False)
+list_area = Frame(window)
+item_area = Frame(window)
 console = Entry(window) 
 
 # create instance of controller class
@@ -25,14 +25,13 @@ def main():
     sidebar_title = Label(window, text='Lists')
     sidebar_title.grid(row=0, column=0)
     list_area.grid(row=1, column=0, sticky=N+S+E+W)
-    list_area.bind('<<ListboxSelect>>', listClick)
 
     # create content area 
     content_title = Label(window, text='Items')
     content_title.grid(row=0, column=1)
     item_area.grid(row=1, column=1, columnspan=2, sticky=N+S+E+W)
     item_area.bind('<<ListboxSelect>>', itemClick)
-
+  
     # create status area
     status_label = Label(window, textvariable=status_bind, fg='white', bg='black')
     status_bind.set('Status')
@@ -66,8 +65,10 @@ def main():
 
 # handle when the user enters a command
 def consoleEntry(self):
-    controller.parseCommand(console.get())
-    draw()
+    for slave in item_area.pack_slaves():
+        slave.destroy()
+    #controller.parseCommand(console.get())
+    #draw()
 
 # refresh the GUI with updated data model
 def draw():
@@ -78,26 +79,49 @@ def draw():
 
 # display sidebar items
 def drawLists():
-    list_area.delete(0, END)
     i = 0
     for item in controller.getLists():
         prefix = '-' + '{:02}'.format(i) + ' '
-        list_area.insert(END, prefix + item)
         i = i + 1
-    list_area.selection_set(0)
+        list_grid = Frame(list_area, bg="yellow")
+        list_grid.pack(fill="x")
+        list_grid.columnconfigure(0, weight=1)
+        list_grid.columnconfigure(1, weight=10)
+ 
+        label1 = Label(list_grid, text=prefix)
+        label1.grid(row=0, column=0, sticky=N+S+E+W)
+        label2 = Label(list_grid, text=item)
+        label2.bind("<Button-1>", itemClick)
+        label2.grid(row=0, column=1, sticky=N+S+E+W)
 
 # display main content items
 def drawItems():
     # get active list name and clear main content area
-    list_title = list_area.get(list_area.curselection())
-    list_title = list_title[4:]   # get rid of letter index
-    item_area.delete(0, END)
+    items = controller.getFormattedItemStrings("L1")
 
     # add formatted string to main content area
-    items = controller.getFormattedItemStrings(list_title)
     for item in items:
-        item_area.insert(END, item)
-    item_area.selection_set(0)
+        item_grid = Frame(item_area, bg="yellow")
+        item_grid.pack(fill="x")
+        item_grid.columnconfigure(0, weight=1)
+        item_grid.columnconfigure(1, weight=10)
+        item_grid.columnconfigure(2, weight=5)
+        item_grid.columnconfigure(3, weight=1)
+        item_grid.columnconfigure(4, weight=1)
+ 
+        item = item.split(" ")
+        label1 = Label(item_grid, text=item[0])
+        label1.grid(row=0, column=0, sticky=N+S+E+W)
+        label2 = Label(item_grid, text=item[1])
+        label2.bind("<Button-1>", itemClick)
+        label2.grid(row=0, column=1, sticky=N+S+E+W)
+        label3 = Label(item_grid, text=item[2])
+        label3.grid(row=0, column=2, sticky=N+S+E+W)
+        label4 = Label(item_grid, text=item[3])
+        label4.grid(row=0, column=3, sticky=N+S+E+W)
+        label5 = Label(item_grid, text=item[4])
+        label5.grid(row=0, column=4, sticky=N+S+E+W)
+
 
 # get save file location
 def saveFile():
@@ -118,9 +142,10 @@ def listClick(event):
 
 # handle content click
 def itemClick(event):
-    w = event.widget
-    contentIndex = int(w.curselection()[0])
-    contentValue = w.get(contentIndex)
+    print("yes")
+    #w = event.widget
+    #contentIndex = int(w.curselection()[0])
+    #contentValue = w.get(contentIndex)
 
 # start the program by running the main function
 if __name__ == '__main__':
