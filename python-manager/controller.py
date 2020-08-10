@@ -2,7 +2,7 @@
 from model import Model, Status
 import pickle
 from datetime import date
-from parser import parse
+from c_parser import parse
 
 # controller class for view (leverages Model class)
 class Controller():
