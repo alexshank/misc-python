@@ -1,30 +1,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.fftpack
-
-# style the plots so they're not so generic
 plt.style.use('fivethirtyeight')
 
-# plot fft of sampled signal
+
 def fftPlot(axis, xf, yf, fs):
     axis.plot(xf, yf)
     axis.set(xlabel='Frequency (Hz)', ylabel='Real')
 
-# plot original sin wave with samples shown
+
 def samplePlot(axis, x, y, fs, f_sin):
     # display first three periods of original signal
     fs_ideal = 10000
-    n_display = fs_ideal / f_sin * 3
-    x_ideal = np.linspace(0, 1.0 * n_display / fs_ideal, n_display - 1)
+    n_display = int(fs_ideal / f_sin) * 3
+    x_ideal = np.linspace(0, n_display / fs_ideal, n_display - 1)
     y_ideal = np.sin(f_sin * 2 * np.pi * x_ideal)
     axis.plot(x_ideal, y_ideal)
 
-    # display samples taken from three periods of signal 
-    n_display = 3 * fs / f_sin
+    # display samples taken from three periods of signal
+    n_display = 3 * int(fs / f_sin)
     axis.plot(x[:n_display + 1], y[:n_display + 1], 'ro')
     axis.set(xlabel='Time (sec)', ylabel='Amplitude')
 
-# sample a given sin wave and create its FFT
+
 def getSamplesAndFFT(N, fs, f_sin):
     # create wave from parameters
     x = np.linspace(0, N / fs, N - 1)
@@ -37,8 +35,9 @@ def getSamplesAndFFT(N, fs, f_sin):
     yf = scipy.fftpack.fftshift(yf)
     return [x, y, xf, yf]
 
+
 # sampling 500 hz sin wave at 4000 hz
-N = 8000 
+N = 8000
 f_sin = 500
 fs1 = 4000
 [x, y, xf, yf] = getSamplesAndFFT(N, fs1, f_sin)
