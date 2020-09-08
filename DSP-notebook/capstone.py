@@ -1,12 +1,14 @@
 # needed libraries
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy
+from scipy import signal
 
 # TODO could make this a brute force least squared error problem (even using window functions)
 # controllable parameters
-Fs = 1000
-M = 512 
-N = 512 
+Fs = 1200
+M = 250 
+N = 512
 notes = [82.41, 110.00, 146.83, 196.00, 246.94, 329.63]
 #notes = [82, 110, 146, 196, 246, 330]
 
@@ -65,12 +67,32 @@ for i in range(0, len(largestErrors)):
     print('{} - {}'.format(numFormat(notes[i]), numFormat(largestErrors[i])))
 print('Worst total error: {} Hz\n'.format(numFormat(sum(largestErrors))))
 
-# show theoretical resolution
+# create a test signal with two close frequencies and high freq noise
 t = np.arange(0, M / Fs, 1 / Fs)
-testDiff = 4
-toneTest = lambda t: np.cos(80 * 2 * np.pi * t) + np.cos((80 + testDiff) * 2 * np.pi * t)
-y_freq = abs(np.fft.fft(toneTest(t), N)) 
-y_freq = y_freq[25:round(N/2) - 200] / N * 2 # normalize one sided fft amplitude
-x_freq = np.fft.fftfreq(N, d=1/Fs)[25:round(N/2) - 200]
-plt.plot(x_freq, y_freq)
+testDiff = 4.5 
+toneTest = lambda t: np.cos(80 * 2 * np.pi * t) + np.cos((80 + testDiff) * 2 * np.pi * t) + np.cos(1600 * 2 * np.pi * t)
+
+# design least-squared error FIR filter
+taps = 31
+bands = [0, 500, 550, 600]
+desired = [1, 1, 0, 0]
+coeffs = signal.firls(taps, bands, desired, fs=Fs)
+freq, response = signal.freqz(coeffs)
+plt.subplot(131)
+plt.plot(freq*Fs/2/np.pi, abs(response))
+
+# take samples and filter them (filter is useless...)
+samples = toneTest(t)
+samples = signal.lfilter(coeffs, 1, samples)
+
+# show theoretical resolution and filtering effects
+plt.subplot(132)
+y_freq = abs(np.fft.fft(samples, N)) 
+y_freq = y_freq[:round(N/2)] / N * 2 # normalize one sided fft amplitude
+x_freq = np.fft.fftfreq(N, d=1/Fs)[:round(N/2)]
+plt.plot(x_freq, y_freq)#, 'bo')
+plt.subplot(133)
+y_freq = y_freq[25:round(N/2) - 200]
+x_freq = x_freq[25:round(N/2) - 200]
+plt.plot(x_freq, y_freq)#, 'bo')
 plt.show()
