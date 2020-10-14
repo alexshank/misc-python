@@ -2,37 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
-from math import log10
-
-### START UTIL FUNCTIONS ###
-# util printing function
-def printVal(text, val):
-    print(text + ': {val}'.format(val=round(val, 2)))
-
-# determine which bin frequency is closest to given note
-def closestBin(note):
-    lowestDiff = 10e4
-    closestIndex = 0
-    for i in range(0, len(binFreqs[0:int(N/2)])):
-        if(abs(note - binFreqs[i]) < lowestDiff):
-            lowestDiff = abs(note - binFreqs[i])
-            closestIndex = i
-    return closestIndex
-
-# create cosines using time vector t and given frequencies
-def createTones(t, frequencies):
-    result = np.zeros(np.size(t))
-    for frequency in frequencies:
-        result = result + np.cos(frequency * 2 * np.pi * t)
-    return result
-    
-# return N length one-sided FFT of passed in samples
-def getOneSidedFFT(samples, N):
-    y_freq = np.abs(np.fft.fft(samples, N))
-    y_freq = y_freq[:round(N/2)] / N * 2
-    x_freq = np.fft.fftfreq(N, d=1/Fs)[:round(N/2)]
-    return [x_freq, y_freq]
-### END UTIL FUNCTIONS ###
+from math import log10, inf
+import helpers as h
 
 # controllable sampling parameters
 human_resolution = 3.6                  # humans can notice 3.6 Hz differences
@@ -49,23 +20,26 @@ binSize = Fs / N
 worstError = binSize / 2
 
 # display FFT chracteristics
-printVal('NyQuist (Hz)', NyQuist)
-printVal('Fs (Hz)', Fs)
-printVal('Sampling period (sec)', samplingPeriod)
-printVal('Samples (N)', N)
-printVal('Total sample time (sec)', sampling_time)
-printVal('Bin size (Hz)', binSize)
-printVal('Worst Error (+-Hz)', worstError)
-printVal('Rect -3dB Res (Hz)', human_resolution)
+h.printVal('NyQuist (Hz)', NyQuist)
+h.printVal('Fs (Hz)', Fs)
+h.printVal('Sampling period (sec)', samplingPeriod)
+h.printVal('Samples (N)', N)
+h.printVal('Total sample time (sec)', sampling_time)
+h.printVal('Bin size (Hz)', binSize)
+h.printVal('Worst Error (+-Hz)', worstError)
+h.printVal('Rect -3dB Res (Hz)', human_resolution)
 print()
 
 # print bins that note frequencies should fall in 
 criticalIndices = []
 for note in notes:
-    closestIndex = closestBin(note)
+    closestIndex = h.closestBin(note, binFreqs)
     criticalIndices.append(closestIndex)
-    print('Closest bins to {} are [{}][{}][{}]'.format(
-        note, round(binFreqs[closestIndex - 1], 1), round(binFreqs[closestIndex], 1), round(binFreqs[closestIndex + 1], 1)))
+    print('Closest bins to {}: '.format(note), end='')
+    for i in range(-1, 2, 1):
+        index = closestIndex + i
+        print('[({}) {}]'.format(index, round(binFreqs[index], 1)), end='')
+    print()
 print()
 
 
@@ -76,38 +50,46 @@ desired = [1, 1, 0, 0]
 coeffs = signal.firls(taps, bands, desired, fs=Fs)
 freq, response = signal.freqz(coeffs)
 plt.figure(1)
-plt.plot(freq*Fs/2/np.pi, abs(response))
+plt.plot(freq*Fs/2/np.pi, 20*np.log10(abs(response) / max(abs(response))))
 plt.title('FIR Filter Response (N={})'.format(taps))
 plt.xlabel('Frequency (Hz)')
-plt.ylabel('Magnitude Response')
+plt.ylabel('Magnitude Response (dB)')
+
+# print filter coefficients
+print('FIR LP Filter Coefficients')
+for coeff in coeffs:
+    print(coeff)
+print()
 
 # create test samples and filter them
 t = np.arange(0, sampling_time, samplingPeriod)
-samples = createTones(t, [30, 500, 600])
+samples = h.createTones(t, [20, 500, 700])
 filteredSamples = signal.lfilter(coeffs, 1, samples)
 
 # plot filtering effects
-[x_freq, y_freq] = getOneSidedFFT(samples, N)
-[x_freq_filtered, y_freq_filtered] = getOneSidedFFT(filteredSamples, N)
+[x_freq, y_freq] = h.getOneSidedFFT(samples, N, Fs)
+[x_freq_filtered, y_freq_filtered] = h.getOneSidedFFT(filteredSamples, N, Fs)
 fig, ax = plt.subplots(2)
 ax[0].plot(x_freq, y_freq)
 ax[1].plot(x_freq_filtered, y_freq_filtered)
 fig.suptitle('Test Signal Filtering Effect')
 for ax in ax.flat:
-    ax.set(xlabel='Frequency (Hz)', ylabel='Magnitude Response')
+    ax.set(xlabel='Frequency (Hz)', ylabel='Magnitude Response (dB)')
     ax.label_outer()
 
 # create test samples that are close together
 t = np.arange(0, sampling_time, samplingPeriod)
-samples = createTones(t, [80, 85])
-[x_freq, y_freq] = getOneSidedFFT(samples, N)
+samples = h.createTones(t, [80.5, 82.5])
+[x_freq, y_freq] = h.getOneSidedFFT(samples, N, Fs)
 
 # plot frequency resolution
 plt.figure(3)
 y_freq = y_freq[25:round(N/2) - 225]
 x_freq = x_freq[25:round(N/2) - 225]
-plt.plot(x_freq, y_freq, 'bo')
-plt.title('Frequency Resolution of FFT')
+plt.plot(x_freq, y_freq, 'b-', label='FFT Result')
+plt.plot([79, 86], [-3, -3], label='-3 dB Cutoff')
+plt.title('Frequency Resolution of FFT (81.5 & 82.5 Hz Tones)')
 plt.xlabel('Frequency (Hz)')
-plt.ylabel('Magnitude Response')
+plt.ylabel('Magnitude Response (dB)')
+plt.legend(loc='upper left')
 plt.show()
