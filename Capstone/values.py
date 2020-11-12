@@ -72,7 +72,28 @@ t = np.linspace(0, 512 * 1 / Fs, 512, endpoint=False)
 plt.figure(1)
 signal = 0.2 * np.cos(2 * np.pi * 500 * t) + 0.250
 plt.plot(t[300:350], signal[300:350], label='Generated Signal')
-plt.plot(t[300:350], experimental[300:350], 'g', label='Sampled Signal')
+plt.plot(t[300:350], experimental[300:350], label='Sampled Signal')
 plt.legend(loc='upper right')
+plt.xlabel('Time (Seconds)')
+plt.ylabel('Voltage (V)')
 plt.title('ADC Verification (500 Hz Sin Wave)')
+
+# get one sided FFT of passed in signal
+def getOneSidedFFT(samples, N, Fs):
+    x_fft = np.fft.fftfreq(N, d=1/Fs)           # bin frequencies
+    y_fft = np.abs(np.fft.fft(samples, N))      # ignore phase
+    y_fft = y_fft / N * 2                       # double energy because left side eliminated
+    y_fft = 20*np.log10(y_fft / max(y_fft))     # normalized dB magnitude
+    return [x_fft[:round(N/2)], y_fft[:round(N/2)]]     # return only the right side
+
+# plot FFTs to verify samples
+plt.figure(2)
+[x, y] = getOneSidedFFT(signal, len(signal), Fs)
+plt.plot(x, y, label='Generated Signal')
+[x1, y1] = getOneSidedFFT(experimental, len(experimental), Fs)
+plt.plot(x1, y1, label='Sampled Signal')
+plt.legend(loc='upper right')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Normalized Magnitude (dB)')
+plt.title('ADC Verification (500 Hz Sin Wave FFT)')
 plt.show()
