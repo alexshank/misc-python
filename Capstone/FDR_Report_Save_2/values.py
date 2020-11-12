@@ -65,7 +65,6 @@ for row in dataRows:
     else:
         dec = int(row[1])
 
-
     f.write(str(dec) + ', '),
     voltage = voltageRead(dec)  # voltage based off sample dec value
     f.write(str(voltage))
@@ -74,42 +73,30 @@ for row in dataRows:
 f.close()
 
 # plot results
-plotTest = True 
-Fs = 32768 / 8      # ADC is configured to this sample rate
-N = 1024 
-t = np.linspace(0, N * 1 / Fs, N, endpoint=False)
-if plotTest:
-    signal = 1.0 * np.cos(2 * np.pi * 500 * t) + 2.0
-
+Fs = 32768 / 4      # ADC is configured to this sample rate
+t = np.linspace(0, 512 * 1 / Fs, 512, endpoint=False)
 fig, ax = plt.subplots(2)
 ax[0].plot(t, experimental, label='Sampled Signal')
 ax[1].plot(t[300:350], experimental[300:350], label='Sampled Signal Zoomed')
-if plotTest: 
-    ax[1].plot(t[300:350], signal[300:350], label='Generated Signal Zoomed')
-    ax[1].legend(loc='upper right')
-
-ax[0].title.set_text('ADC Verification (500 Hz Sin Wave)')
+ax[0].title.set_text('Microphone Verification (500 Hz Sin Wave)')
 for ax in ax.flat:
     ax.set(xlabel='Time (Seconds)', ylabel='Voltage (V)')
     ax.label_outer()
 
 # get one sided FFT of passed in signal
 def getOneSidedFFT(samples, N, Fs):
-    x_fft = np.fft.fftfreq(N, d=1/Fs)                       # bin frequencies
-    y_fft = np.abs(np.fft.fft(samples, N))                  # ignore phase
-    y_fft = y_fft / N * 2                                   # double energy because left side eliminated
-    y_fft = 20*np.log10(y_fft / max(y_fft))                 # normalized dB magnitude
-    return [x_fft[0:round(N/2)], y_fft[0:round(N/2)]]       # return only the right side
+    x_fft = np.fft.fftfreq(N, d=1/Fs)           # bin frequencies
+    y_fft = np.abs(np.fft.fft(samples, N))      # ignore phase
+    y_fft = y_fft / N * 2                       # double energy because left side eliminated
+    y_fft = 20*np.log10(y_fft / max(y_fft))     # normalized dB magnitude
+    return [x_fft[:round(N/2)], y_fft[:round(N/2)]]     # return only the right side
 
 # plot FFTs to verify samples
 plt.figure(2)
-if plotTest:
-    [x, y] = getOneSidedFFT(signal, N, Fs)
-    plt.plot(x, y, label='Generated Signal')
-[x1, y1] = getOneSidedFFT(experimental, N, Fs)
+[x1, y1] = getOneSidedFFT(experimental, len(experimental), Fs)
 plt.plot(x1, y1, label='Sampled Signal')
 plt.legend(loc='upper right')
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Normalized Magnitude (dB)')
-plt.title('ADC Verification (500 Hz Sin Wave FFT)')
+plt.title('Microphone Verification (500 Hz Sin Wave FFT)')
 plt.show()
