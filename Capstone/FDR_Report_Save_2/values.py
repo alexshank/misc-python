@@ -13,7 +13,7 @@ import numpy as np
 from scipy import signal
 
 # open the input file (that is manually copied from CCS Online)
-with open('./Capstone/input.html', 'r') as f:
+with open('./Capstone/FDR_Report_Save_2/input.html', 'r') as f:
     data = f.read()
 soup = BeautifulSoup(data, 'html.parser')
 
@@ -75,9 +75,12 @@ f.close()
 # plot results
 Fs = 32768 / 4      # ADC is configured to this sample rate
 t = np.linspace(0, 512 * 1 / Fs, 512, endpoint=False)
+signal = 0.12 * np.cos(2 * np.pi * 500 * t) + 1.650
 fig, ax = plt.subplots(2)
 ax[0].plot(t, experimental, label='Sampled Signal')
+ax[1].plot(t[300:350], signal[300:350], label='Generated Signal Zoomed')
 ax[1].plot(t[300:350], experimental[300:350], label='Sampled Signal Zoomed')
+ax[1].legend(loc='upper right')
 ax[0].title.set_text('Microphone Verification (500 Hz Sin Wave)')
 for ax in ax.flat:
     ax.set(xlabel='Time (Seconds)', ylabel='Voltage (V)')
@@ -93,7 +96,9 @@ def getOneSidedFFT(samples, N, Fs):
 
 # plot FFTs to verify samples
 plt.figure(2)
+[x, y] = getOneSidedFFT(signal, len(signal), Fs)
 [x1, y1] = getOneSidedFFT(experimental, len(experimental), Fs)
+plt.plot(x, y, label='Generated Signal')
 plt.plot(x1, y1, label='Sampled Signal')
 plt.legend(loc='upper right')
 plt.xlabel('Frequency (Hz)')
