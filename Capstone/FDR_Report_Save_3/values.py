@@ -13,7 +13,7 @@ import numpy as np
 from scipy import signal
 
 # open the input file (that is manually copied from CCS Online)
-with open('./Capstone/input.html', 'r') as f:
+with open('./Capstone/FDR_Report_Save_3/input.html', 'r') as f:
     data = f.read()
 soup = BeautifulSoup(data, 'html.parser')
 
