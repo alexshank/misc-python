@@ -13,7 +13,7 @@ import numpy as np
 from scipy import signal
 
 # open the input file (that is manually copied from CCS Online)
-with open('./Capstone/FDR_Report_Save_2/input.html', 'r') as f:
+with open('./Capstone/FDR_Report/FDR_Report_Save_2/input.html', 'r') as f:
     data = f.read()
 soup = BeautifulSoup(data, 'html.parser')
 
@@ -49,8 +49,13 @@ def voltageRead(dec):
     V_In = V_In + VR_Neg - (VR_Pos - VR_Neg) / 8192
     return V_In
 
+f = open("./Capstone/FDR_Report/FDR_Report_Save_2/temp.txt", "w")
+for row in dataRows:
+    f.write(row[1] + '\n')      # hex value of sample
+f.close()
+
 # write CSV data to output file
-f = open("./Capstone/output.csv", "w")
+f = open("./Capstone/FDR_Report/FDR_Report_Save_2/output.csv", "w")
 f.write('index, memory location, data type, hex value, dec, voltage\n')
 experimental = []   # holds samples converted to voltages
 for row in dataRows:
