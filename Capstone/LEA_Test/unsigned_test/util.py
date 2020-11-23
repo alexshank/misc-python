@@ -78,46 +78,4 @@ def fftMagnitudes(samples):
     while i < limit:
         result.append(math.sqrt(samples[i]**2 + samples[i+1]**2))
         i = i + 2
-    #result = np.array(result)
-    #result = 20*np.log10(result / max(result))
     return result
-
-
-
-
-
-
-
-
-
-# get FFT of passed in signal
-def getFFT(samples):
-    N = len(samples)
-    return np.abs(np.fft.fft(samples, N)/ (N / 2))      # ignore phase
-
-# plot one sided FFT of passed in signal
-def plotFFT(samples, samples2):
-    N = len(samples)
-    y_fft = np.abs(np.fft.fft(samples, N)) / (N / 2)     # ignore phase
-    y_fft_2 = np.abs(np.fft.fft(samples2, N)) / (N / 2)     # ignore phase
-    plt.plot(y_fft)
-    plt.plot(y_fft_2)
-
-
-# convert from decimal to fixed point representation
-def convertToIq(num):
-    return Fxp(num, signed=True, n_word=16, n_frac=15)
-
-# compute signed int from given hex value
-# (deprecated: unsigned ints now being used)
-def twos_complement(hexstr,bits=16):
-    value = int(hexstr,16)
-    if value & (1 << (bits-1)):
-        value -= 1 << bits
-    return value
-
-
-# convert from decimal to fixed point representation
-def convertToDecimal(n):
-    signed_n = twos_complement(hex(n))
-    return signed_n*(2**-15)
