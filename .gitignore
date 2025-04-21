@@ -1,2 +1,8 @@
 __pycache__/
 *.py[cod]
+
+# do not commit personal data
+softball-linear-optimization/inputs
+softball-linear-optimization/inputs/*
+softball-linear-optimization/outputs
+softball-linear-optimization/outputs/*
