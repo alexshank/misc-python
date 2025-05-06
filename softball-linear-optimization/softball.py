@@ -39,42 +39,35 @@ class Player:
     is_girl: int
     batting_skill: int
     attendance_0421: int
-    attendance_0428: int
-    will_infield: int
-    preferred_position_1: Optional[int] # e.g., 6 = shortstop
-    preferred_position_2: Optional[int] # e.g., 6 = shortstop
-    preferred_position_3: Optional[int] # e.g., 6 = shortstop
-    # these two fields are just "not is_girl"
-    can_1b: int
-    can_3b: int
-
+    # attendance_0428: int
+    attendance_0505: int
+    possibilities: dict
 
 def yes_no_to_int(value: str) -> int:
     return 1 if value.lower() == 'yes' else 0
 
-def parse_preferred_position(value) -> Optional[int]:
-    return int(value) if value else None
 
 def read_in_roster() -> list[Player]:
-    roster_file = os.path.join(os.path.dirname(__file__), "./inputs/04-28-2025-roster.csv")
+    roster_file = os.path.join(os.path.dirname(__file__), "./inputs/05-05-2025-roster.csv")
     players = []
 
     with open(roster_file, mode='r') as file:
         reader = csv.DictReader(file)
         for row in reader:
+
+            possibilities = {}
+            for i in range(1, 11):
+                possibilities[str(i)] = yes_no_to_int(row[f"{i}"])
+
             player = Player(
                 name=row['Name'],
                 email=row['Email'],
                 is_girl=yes_no_to_int(row['Is Girl?']),
                 batting_skill=int(row['Batting Skill']),
                 attendance_0421=yes_no_to_int(row['Attendance 04/21?']),
-                attendance_0428=yes_no_to_int(row['Attendance 04/28?']),
-                will_infield=yes_no_to_int(row['Will Infield?']),
-                preferred_position_1=parse_preferred_position(row['Preferred Position 1']),
-                preferred_position_2=parse_preferred_position(row['Preferred Position 2']),
-                preferred_position_3=parse_preferred_position(row['Preferred Position 3']),
-                can_1b=1 if not yes_no_to_int(row['Is Girl?']) else 0,
-                can_3b=1 if not yes_no_to_int(row['Is Girl?']) else 0,
+                # attendance_0428=yes_no_to_int(row['Attendance 04/28?']),
+                attendance_0505=yes_no_to_int(row['Attendance 05/05?']),
+                possibilities=possibilities,
             )
             players.append(player)
 
@@ -91,8 +84,9 @@ def create_multiple_fielding_positions(players, num_configurations=9):
     player_uses = {player.name: 0 for player in players}
 
     for config_index in range(num_configurations):
+        # TODO date we're running for should be passed in as a CLI arg
         # Filter players who have true "attendance_0421" field
-        filtered_players = [player for player in players if player.attendance_0428]
+        filtered_players = [player for player in players if player.attendance_0505]
         num_players = len(filtered_players)
 
         # Define fielding positions (10 positions)
@@ -106,18 +100,23 @@ def create_multiple_fielding_positions(players, num_configurations=9):
 
         # Extract skill levels and preferred positions
         skill_levels = [player.batting_skill for player in filtered_players]
-        first_preferred_positions = [player.preferred_position_1 for player in filtered_players]
-        second_preferred_positions = [player.preferred_position_2 for player in filtered_players]
-        third_preferred_positions = [player.preferred_position_3 for player in filtered_players]
+
+
+
+        # first_preferred_positions = [player.preferred_position_1 for player in filtered_players]
+        # second_preferred_positions = [player.preferred_position_2 for player in filtered_players]
+        # third_preferred_positions = [player.preferred_position_3 for player in filtered_players]
 
         # Objective: Maximize skill level, match preferred positions, and reward unused players
         fielding_problem += pulp.lpSum(
             # assume batting skill also translates to fielding skill
             skill_levels[i] * x[i][j] +
+
             # Add preference weights for preferred positions
-            (10 if first_preferred_positions[i] == j else 0) * x[i][j] +
-            (5 if second_preferred_positions[i] == j else 0) * x[i][j] +
-            (2 if third_preferred_positions[i] == j else 0) * x[i][j] +
+            # (10 if first_preferred_positions[i] == j else 0) * x[i][j] +
+            # (5 if second_preferred_positions[i] == j else 0) * x[i][j] +
+            # (2 if third_preferred_positions[i] == j else 0) * x[i][j] +
+
             # get players on field that haven't been used much
             2000 * (num_configurations - player_uses[filtered_players[i].name]) * x[i][j] +
             # encourage players who were not used in the last inning
@@ -135,19 +134,18 @@ def create_multiple_fielding_positions(players, num_configurations=9):
         for j in positions:
             fielding_problem += pulp.lpSum(x[i][j] for i in range(num_players)) == 1
 
+        # TODO should be constant at top, not magic number 4
         # Gender constraints: Ensure at least 4 females are on the field
         genders = [player.is_girl for player in filtered_players]
         fielding_problem += pulp.lpSum(genders[i] * x[i][j] for i in range(num_players) for j in positions) >= 4
 
-        # Constraint: A player can only be assigned to an infield position if their "will_infield" field is true
+        # Constraint: A player can only be assigned to their preferred positions
         for i in range(num_players):
-            for j in INFIELDING_POSITIONS:
-                fielding_problem += x[i][j] <= filtered_players[i].will_infield
-
-        # Constraint: only boys will pitch
-        for i in range(num_players):
-            # Pitcher = 1
-            fielding_problem += x[i][1] <= (0 if filtered_players[i].is_girl else 1)
+            for j in positions:
+                if str(j) not in filtered_players[i].possibilities:
+                    continue
+                if filtered_players[i].possibilities[str(j)] == 0:
+                    fielding_problem += x[i][j] == 0
 
         # Solve the problem
         status = fielding_problem.solve()
@@ -180,8 +178,9 @@ def create_multiple_fielding_positions(players, num_configurations=9):
 
 
 def create_batting_order(players) -> list[Player]:
+    # TODO date we're running for should be passed in as a CLI arg
     # Filter players who have true "attendance_0421" field
-    filtered_players = [player for player in players if player.attendance_0428]
+    filtered_players = [player for player in players if player.attendance_0505]
     num_batters = len(filtered_players)
 
     # Create a MILP problem for maximizing some objective (e.g., total skill level)
