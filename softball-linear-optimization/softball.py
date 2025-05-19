@@ -41,7 +41,8 @@ class Player:
     attendance_0421: int
     # attendance_0428: int
     # attendance_0505: int
-    attendance_0512: int
+    # attendance_0512: int
+    attendance_0519: int
     possibilities: dict
 
 def yes_no_to_int(value: str) -> int:
@@ -49,7 +50,7 @@ def yes_no_to_int(value: str) -> int:
 
 
 def read_in_roster() -> list[Player]:
-    roster_file = os.path.join(os.path.dirname(__file__), "./inputs/05-12-2025-roster.csv")
+    roster_file = os.path.join(os.path.dirname(__file__), "./inputs/05-19-2025-roster.csv")
     players = []
 
     with open(roster_file, mode='r') as file:
@@ -68,7 +69,8 @@ def read_in_roster() -> list[Player]:
                 attendance_0421=yes_no_to_int(row['Attendance 04/21?']),
                 # attendance_0428=yes_no_to_int(row['Attendance 04/28?']),
                 # attendance_0505=yes_no_to_int(row['Attendance 05/05?']),
-                attendance_0512=yes_no_to_int(row['Attendance 05/12?']),
+                # attendance_0512=yes_no_to_int(row['Attendance 05/12?']),
+                attendance_0519=yes_no_to_int(row['Attendance 05/19?']),
                 possibilities=possibilities,
             )
             players.append(player)
@@ -88,7 +90,7 @@ def create_multiple_fielding_positions(players, num_configurations=9):
     for config_index in range(num_configurations):
         # TODO date we're running for should be passed in as a CLI arg
         # Filter players who have true "attendance_0421" field
-        filtered_players = [player for player in players if player.attendance_0512]
+        filtered_players = [player for player in players if player.attendance_0519]
         num_players = len(filtered_players)
 
         # Define fielding positions (10 positions)
@@ -182,7 +184,7 @@ def create_multiple_fielding_positions(players, num_configurations=9):
 def create_batting_order(players) -> list[Player]:
     # TODO date we're running for should be passed in as a CLI arg
     # Filter players who have true "attendance_0421" field
-    filtered_players = [player for player in players if player.attendance_0512]
+    filtered_players = [player for player in players if player.attendance_0519]
     num_batters = len(filtered_players)
 
     # Create a MILP problem for maximizing some objective (e.g., total skill level)
