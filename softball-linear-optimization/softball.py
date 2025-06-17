@@ -27,35 +27,43 @@ def yes_no_to_int(value: str) -> int:
     return 1 if value.lower() == "yes" else 0
 
 
+def parse_position_possibilities(row: dict) -> dict:
+    """Parse position possibilities from CSV row columns 1-10."""
+    return {str(i): yes_no_to_int(row[f"{i}"]) for i in range(1, 11)}
+
+
+def parse_player_from_row(row: dict) -> Player:
+    """Create a Player object from a CSV row."""
+    return Player(
+        name=row["Name"],
+        email=row["Email"],
+        is_girl=yes_no_to_int(row["Is Girl?"]),
+        batting_skill=int(row["Batting Skill"]),
+        attendance_0421=yes_no_to_int(row["Attendance 04/21?"]),
+        attendance_0428=yes_no_to_int(row["Attendance 04/28?"]),
+        attendance_0505=yes_no_to_int(row["Attendance 05/05?"]),
+        attendance_0512=yes_no_to_int(row["Attendance 05/12?"]),
+        attendance_0519=yes_no_to_int(row["Attendance 05/19?"]),
+        attendance_0609=yes_no_to_int(row["Attendance 06/09?"]),
+        possibilities=parse_position_possibilities(row),
+    )
+
+
+def normalize_batting_skills(players: list[Player]) -> None:
+    """Reverse and scale batting skill levels for optimization (lower CSV values = better)."""
+    for player in players:
+        player.batting_skill = 100 * (1 + (len(players) - player.batting_skill))
+
+
 def read_in_roster() -> list[Player]:
     roster_file = os.path.join(os.path.dirname(__file__), INPUT_FILE)
     players = []
 
     with open(roster_file, mode="r") as file:
         reader = csv.DictReader(file)
+        players = [parse_player_from_row(row) for row in reader]
 
-        # create players from each CSV row
-        for row in reader:
-            possibilities = {str(i): yes_no_to_int(row[f"{i}"]) for i in range(1, 11)}
-            player = Player(
-                name=row["Name"],
-                email=row["Email"],
-                is_girl=yes_no_to_int(row["Is Girl?"]),
-                batting_skill=int(row["Batting Skill"]),
-                attendance_0421=yes_no_to_int(row["Attendance 04/21?"]),
-                attendance_0428=yes_no_to_int(row["Attendance 04/28?"]),
-                attendance_0505=yes_no_to_int(row["Attendance 05/05?"]),
-                attendance_0512=yes_no_to_int(row["Attendance 05/12?"]),
-                attendance_0519=yes_no_to_int(row["Attendance 05/19?"]),
-                attendance_0609=yes_no_to_int(row["Attendance 06/09?"]),
-                possibilities=possibilities,
-            )
-            players.append(player)
-
-        # reverse the player skill level for optimization
-        for player in players:
-            player.batting_skill = 100 * (1 + (len(players) - player.batting_skill))
-
+    normalize_batting_skills(players)
     return players
 
 
