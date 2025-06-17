@@ -40,23 +40,30 @@ def generate_html(players, output_filename="output.html"):
             else:
                 benched.append(player["name"])
 
-        # HTML representation of field layout
+        # HTML representation using CSS grid layout
         return f"""
         <div class="inning">
             <h2>Inning {inning_idx + 1}</h2>
-            <div class="field">
-                <div class="position cf">{positions["CF"]}</div>
-                <div class="position lf">{positions["LF"]}</div>
-                <div class="position rf">{positions["RF"]}</div>
-                <div class="position ss">{positions["SS"]}</div>
-                <div class="position 2b">{positions["2B"]}</div>
-                <div class="position 3b">{positions["3B"]}</div>
-                <div class="position 1b">{positions["1B"]}</div>
-                <div class="position p">{positions["P"]}</div>
-                <div class="position c">{positions["C"]}</div>
-                <div class="position rv">{positions["RV"]}</div>
+            <div class="field-container">
+                <div class="field">
+                    <div class="position-area p">{positions["P"] or "P"}</div>
+                    <div class="position-area c">{positions["C"] or "C"}</div>
+                    <div class="position-area first">{positions["1B"] or "1B"}</div>
+                    <div class="position-area second">{positions["2B"] or "2B"}</div>
+                    <div class="position-area third">{positions["3B"] or "3B"}</div>
+                    <div class="position-area ss">{positions["SS"] or "SS"}</div>
+                    <div class="position-area lf">{positions["LF"] or "LF"}</div>
+                    <div class="position-area cf">{positions["CF"] or "CF"}</div>
+                    <div class="position-area rf">{positions["RF"] or "RF"}</div>
+                    <div class="position-area rc">{positions["RV"] or "RC/RV"}</div>
+                    <div class="home-plate"></div>
+                    <div class="base first-base"></div>
+                    <div class="base second-base"></div>
+                    <div class="base third-base"></div>
+                    <div class="pitchers-mound"></div>
+                </div>
                 <div class="bench">
-                    <strong>Benched:</strong> {', '.join(benched)}
+                    <strong>Benched:</strong> {', '.join(benched) if benched else 'None'}
                 </div>
             </div>
         </div>
@@ -72,43 +79,131 @@ def generate_html(players, output_filename="output.html"):
             table { border-collapse: collapse; margin-bottom: 40px; width: 100%; }
             th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
             .inning { margin-bottom: 60px; }
-            .field {
-                position: relative;
-                width: 500px;
-                height: 400px;
+            
+            /* Field container */
+            .field-container {
                 margin: auto;
-                background: #d4edda;
-                border: 2px solid #333;
-                border-radius: 10px;
-                padding: 20px;
+                width: 800px;
             }
-            .position {
+            
+            /* Field grid layout */
+            .field {
+                display: grid;
+                grid-template-columns: repeat(50, 1fr);
+                grid-template-rows: repeat(50, 1fr);
+                width: 800px;
+                height: 800px;
+                background: #8bbc84; /* Green grass color */
+                position: relative;
+                border-radius: 50% 50% 0 0; /* Create the outfield curve */
+                border: 2px solid #333;
+                margin: 0 auto;
+                overflow: hidden;
+            }
+            
+            /* Infield dirt */
+            .field:before {
+                content: "";
                 position: absolute;
-                width: 80px;
-                text-align: center;
-                font-weight: bold;
-                background: #fff;
-                border: 1px solid #333;
+                width: 60%;
+                height: 60%;
+                background: #c2996c; /* Infield dirt color */
+                bottom: 0;
+                left: 20%;
+                clip-path: polygon(50% 0%, 100% 70%, 100% 100%, 0 100%, 0 70%);
+            }
+            
+            /* Common position area styling */
+            .position-area {
+                background: rgba(255, 255, 255, 0.8);
+                border: 2px solid #333;
                 border-radius: 8px;
                 padding: 5px;
+                text-align: center;
+                font-weight: bold;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10;
             }
-            .p   { top: 150px; left: 210px; }
-            .c   { top: 270px; left: 210px; }
-            .1b  { top: 180px; left: 360px; }
-            .2b  { top: 100px; left: 300px; }
-            .3b  { top: 100px; left: 120px; }
-            .ss  { top: 140px; left: 200px; }
-            .lf  { top: 30px; left: 80px; }
-            .cf  { top: 20px; left: 210px; }
-            .rf  { top: 30px; left: 340px; }
-            .rv  { top: 320px; left: 400px; background: #ffeb3b; }
+            
+            /* Occupied position highlighting */
+            .position-area:not(:empty) {
+                background: #ffeb3b; /* Yellow highlight for filled positions */
+            }
+            
+            /* Position-specific grid areas */
+            .p { grid-area: 30 / 24 / 33 / 27; }
+            .c { grid-area: 45 / 24 / 48 / 27; }
+            .first { grid-area: 37 / 34 / 40 / 38; }
+            .second { grid-area: 27 / 30 / 30 / 34; }
+            .third { grid-area: 37 / 16 / 40 / 20; }
+            .ss { grid-area: 27 / 20 / 30 / 24; }
+            .lf { grid-area: 12 / 10 / 16 / 17; }
+            .cf { grid-area: 5 / 22 / 9 / 29; }
+            .rf { grid-area: 12 / 33 / 16 / 40; }
+            .rc { grid-area: 10 / 27 / 14 / 34; background: rgba(255, 230, 59, 0.8); }
+            
+            /* Base styling */
+            .base {
+                width: 20px;
+                height: 20px;
+                background: white;
+                position: absolute;
+                transform: rotate(45deg);
+                border: 1px solid #333;
+                z-index: 5;
+            }
+            
+            .home-plate {
+                width: 20px;
+                height: 20px;
+                background: white;
+                position: absolute;
+                bottom: 15%;
+                left: 50%;
+                transform: translateX(-50%);
+                clip-path: polygon(0 0, 50% 100%, 100% 0);
+                z-index: 5;
+            }
+            
+            .first-base {
+                bottom: 40%;
+                right: 30%;
+            }
+            
+            .second-base {
+                bottom: 60%;
+                left: 50%;
+                transform: translateX(-50%) rotate(45deg);
+            }
+            
+            .third-base {
+                bottom: 40%;
+                left: 30%;
+            }
+            
+            .pitchers-mound {
+                width: 15px;
+                height: 15px;
+                background: #c2996c;
+                border: 1px solid #866a4b;
+                border-radius: 50%;
+                position: absolute;
+                top: 60%;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
             .bench {
                 margin-top: 20px;
                 font-style: italic;
                 background: #eee;
                 padding: 10px;
                 border-radius: 6px;
+                text-align: center;
             }
+            
             /* Add styling for position cells in table */
             .position-cell {
                 text-align: center;
@@ -172,9 +267,10 @@ def generate_html(players, output_filename="output.html"):
             <li>LF - Left Field</li>
             <li>CF - Center Field</li>
             <li>RF - Right Field</li>
-            <li>RV - Rover</li>
+            <li>RC/RV - Right Center/Rover</li>
         </ul>
-        <p>Positions highlighted in red indicate the player is benched for that inning.</p>
+        <p>Positions highlighted in red in the table indicate the player is benched for that inning.</p>
+        <p>Positions highlighted in yellow on the field indicate they are occupied by a player in that inning.</p>
     </div>
     </body></html>"""
 
