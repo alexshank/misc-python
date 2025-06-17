@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 INPUT_FILE = "./inputs/06-09-2025-roster.csv"
-ATTENDANCE_KEY = "attendance_0609"
+ATTENDANCE_KEY = "06/09"
 MIN_NUMBER_GIRLS = 4
 FIELDING_POSITION_NAMES = {
     1: "P",  # Pitcher
@@ -36,17 +36,20 @@ def parse_position_possibilities(row: dict) -> dict:
 
 def parse_player_from_row(row: dict) -> Player:
     """Create a Player object from a CSV row."""
+    attendance = {
+        "04/21": yes_no_to_int(row["Attendance 04/21?"]),
+        "04/28": yes_no_to_int(row["Attendance 04/28?"]),
+        "05/05": yes_no_to_int(row["Attendance 05/05?"]),
+        "05/12": yes_no_to_int(row["Attendance 05/12?"]),
+        "05/19": yes_no_to_int(row["Attendance 05/19?"]),
+        "06/09": yes_no_to_int(row["Attendance 06/09?"])
+    }
     return Player(
         name=row["Name"],
         email=row["Email"],
         is_girl=yes_no_to_int(row["Is Girl?"]),
         batting_skill=int(row["Batting Skill"]),
-        attendance_0421=yes_no_to_int(row["Attendance 04/21?"]),
-        attendance_0428=yes_no_to_int(row["Attendance 04/28?"]),
-        attendance_0505=yes_no_to_int(row["Attendance 05/05?"]),
-        attendance_0512=yes_no_to_int(row["Attendance 05/12?"]),
-        attendance_0519=yes_no_to_int(row["Attendance 05/19?"]),
-        attendance_0609=yes_no_to_int(row["Attendance 06/09?"]),
+        attendance=attendance,
         possibilities=parse_position_possibilities(row),
     )
 
@@ -59,7 +62,7 @@ def normalize_batting_skills(players: list[Player]) -> None:
 
 def filter_players_by_attendance(players: list[Player], attendance_key: str) -> list[Player]:
     """Filter players based on their attendance for a specific game."""
-    return [player for player in players if getattr(player, attendance_key, 0)]
+    return [player for player in players if player.attendance.get(attendance_key, 0)]
 
 
 def read_in_roster() -> list[Player]:
