@@ -1,5 +1,6 @@
 import pulp
 from models.player import Player
+from results_printer import ResultsPrinter
 import csv
 import os
 import json
@@ -157,7 +158,7 @@ def create_multiple_fielding_positions(players, num_configurations=9):
         status = fielding_problem.solve()
 
         # Print results
-        print(f"Status for configuration {config_index + 1}: {pulp.LpStatus[status]}")
+        ResultsPrinter.print_optimization_status(pulp.LpStatus[status], config_index + 1)
         used_players = set()
         fielding_assignment = {}
         for i in range(num_players):
@@ -169,20 +170,9 @@ def create_multiple_fielding_positions(players, num_configurations=9):
 
         all_configurations.append(fielding_assignment)
 
-        print()
-        print("*" * 40)
-        print(f"Results for Configuration {config_index + 1}")
-        print("*" * 40)
-        print("Fielding Positions:")
-        for position, player in fielding_assignment.items():
-            position_name = FIELDING_POSITION_NAMES.get(
-                position, f"Unknown ({position})"
-            )
-            print(
-                f"Position {position_name}: {player.name} (Gender: {'Girl' if player.is_girl else 'Guy'}) (Skill: {player.batting_skill})"
-            )
-        print(f"Objective value: {pulp.value(fielding_problem.objective)}")
-        print()
+        ResultsPrinter.print_fielding_results(
+            config_index + 1, fielding_assignment, pulp.value(fielding_problem.objective), FIELDING_POSITION_NAMES
+        )
 
     return all_configurations
 
@@ -251,47 +241,28 @@ def create_batting_order(players) -> list[Player]:
 
     # Print results
     # TODO throw exceptin if this status is bad (lookup possible status codes)
-    print(f"Status: {pulp.LpStatus[status]}")
+    ResultsPrinter.print_optimization_status(pulp.LpStatus[status])
     order = [None] * num_batters
     for i in range(num_batters):
         for j in range(num_batters):
             if pulp.value(x[i][j]) == 1:
                 order[j] = i
 
-    print()
-    print("*" * 40)
-    print("Final Results")
-    print("*" * 40)
-    print("Batting Order:")
-    for position, player_index in enumerate(order):
-        print(
-            f"{position + 1}: {filtered_players[player_index].name} (Gender: {'Girl' if filtered_players[player_index].is_girl else 'Guy'}) (Skill: {filtered_players[player_index].batting_skill})"
-        )
-    print(f"Objective value: {pulp.value(batting_problem.objective)}")
-    print()
+    batting_order_players = [filtered_players[i] for i in order]
+    ResultsPrinter.print_batting_results(batting_order_players, pulp.value(batting_problem.objective))
 
-    return [filtered_players[i] for i in order]
+    return batting_order_players
 
 
 def main():
-    print("*" * 40)
-    print("Softball Batting Order Optimization")
-    print("*" * 40)
-    print("*" * 40)
-    print("Reading in Roster")
-    print("*" * 40)
+    ResultsPrinter.print_main_header()
     players = read_in_roster()
-    for player in players:
-        print(json.dumps(player.__dict__, indent=4))
+    ResultsPrinter.print_player_roster(players)
 
-    print("*" * 40)
-    print("Order Optimization")
-    print("*" * 40)
+    ResultsPrinter.print_batting_order_header()
     batting_order = create_batting_order(players)
 
-    print("*" * 40)
-    print("Field Optimization")
-    print("*" * 40)
+    ResultsPrinter.print_fielding_header()
     fielding_configurations = create_multiple_fielding_positions(players)
 
     # Create a table-like data structure
