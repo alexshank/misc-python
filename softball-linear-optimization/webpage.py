@@ -55,7 +55,7 @@ def generate_html(players, output_filename="output.html"):
                     <div class="position-area lf">{positions["LF"] or "LF"}</div>
                     <div class="position-area cf">{positions["CF"] or "CF"}</div>
                     <div class="position-area rf">{positions["RF"] or "RF"}</div>
-                    <div class="position-area rc">{positions["RV"] or "RC/RV"}</div>
+                    <div class="position-area rv">{positions["RV"] or "RC/RV"}</div>
                     <div class="home-plate"></div>
                     <div class="base first-base"></div>
                     <div class="base second-base"></div>
@@ -140,9 +140,11 @@ def generate_html(players, output_filename="output.html"):
             .third { grid-area: 37 / 16 / 40 / 20; }
             .ss { grid-area: 27 / 20 / 30 / 24; }
             .lf { grid-area: 12 / 10 / 16 / 17; }
+            /* Adjust CF to be properly centered at the top */
             .cf { grid-area: 5 / 22 / 9 / 29; }
             .rf { grid-area: 12 / 33 / 16 / 40; }
-            .rc { grid-area: 10 / 27 / 14 / 34; background: rgba(255, 230, 59, 0.8); }
+            /* Position RV as right-center field */
+            .rv { grid-area: 18 / 29 / 12 / 36; }
             
             /* Base styling */
             .base {
