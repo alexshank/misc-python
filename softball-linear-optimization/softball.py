@@ -29,8 +29,9 @@ def yes_no_to_int(value: str) -> int:
 
 
 def parse_position_possibilities(row: dict) -> dict:
-    """Parse position possibilities from CSV row columns 1-10."""
-    return {str(i): yes_no_to_int(row[f"{i}"]) for i in range(1, 11)}
+    """Parse position possibilities from CSV row position columns."""
+    position_columns = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "RV"]
+    return {str(i+1): yes_no_to_int(row[pos]) for i, pos in enumerate(position_columns)}
 
 
 def parse_player_from_row(row: dict) -> Player:
@@ -56,6 +57,11 @@ def normalize_batting_skills(players: list[Player]) -> None:
         player.batting_skill = 100 * (1 + (len(players) - player.batting_skill))
 
 
+def filter_players_by_attendance(players: list[Player], attendance_key: str) -> list[Player]:
+    """Filter players based on their attendance for a specific game."""
+    return [player for player in players if getattr(player, attendance_key, 0)]
+
+
 def read_in_roster() -> list[Player]:
     roster_file = os.path.join(os.path.dirname(__file__), INPUT_FILE)
     players = []
@@ -74,10 +80,7 @@ def create_multiple_fielding_positions(players, num_configurations=9):
     player_uses = {player.name: 0 for player in players}
 
     for config_index in range(num_configurations):
-        # filter players who have true "attendance_0421" field
-        filtered_players = [
-            player for player in players if getattr(player, ATTENDANCE_KEY, 0)
-        ]
+        filtered_players = filter_players_by_attendance(players, ATTENDANCE_KEY)
         num_players = len(filtered_players)
 
         # Define fielding positions (10 positions)
@@ -178,10 +181,7 @@ def create_multiple_fielding_positions(players, num_configurations=9):
 
 
 def create_batting_order(players) -> list[Player]:
-    # filter players who have true "attendance_0421" field
-    filtered_players = [
-        player for player in players if getattr(player, ATTENDANCE_KEY, 0)
-    ]
+    filtered_players = filter_players_by_attendance(players, ATTENDANCE_KEY)
     num_batters = len(filtered_players)
 
     # Create a MILP problem for maximizing some objective (e.g., total skill level)
