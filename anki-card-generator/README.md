@@ -47,9 +47,11 @@ Used Claude.ai (or reasoning model) to generate detailed specification.
 **Status**: Completed
 **Date**: 2025-10-01
 
-Generated comprehensive specification with all requirements.
+Generated comprehensive specification and implementation plan.
 
-**Output**: `spec.md` (created)
+**Outputs**:
+- `spec.md` (comprehensive specification)
+- `prompt_plan.md` (12 numbered implementation prompts)
 
 **Key Changes from Initial Plan**:
 - Phase 1 now outputs individual markdown files (one per section), not a JSON file
@@ -64,7 +66,16 @@ Generated comprehensive specification with all requirements.
 - Parent-child indented bullets SHOULD be grouped to preserve context
 - The entire markdown section remains in `source_markdown` even if some bullets don't generate Q&A
 
-**Next Step**: Generate `prompt_plan.md` with numbered implementation steps
+**Implementation Plan**:
+- 12 prompts total (see `prompt_plan.md`)
+- Each prompt includes TDD requirements, validation, and commit message
+- Prompts 1-3: Phase 1 (markdown splitting)
+- Prompts 4-7: Phase 2 (Gemini Q&A generation)
+- Prompts 8-9: Phase 3 (Anki formatting)
+- Prompts 10-11: Integration (all command, pre-commit hooks)
+- Prompt 12: Real-world testing with actual Gemini API
+
+**Next Step**: Begin implementation with Prompt 1
 
 ---
 
