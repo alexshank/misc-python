@@ -151,14 +151,41 @@ All commits must pass:
 
 ## Usage
 
-*Note: Application is under active development. Usage instructions will be updated as features are implemented.*
+### Processing Real Data
+
+Complete pipeline for processing the AWS study notes:
 
 ```bash
-# Basic usage (coming soon)
-pipenv run python -m anki_generator.main input.md output.apkg
+# Phase 1: Parse markdown into section files
+pipenv run python -m anki_generator.main phase1 data/all-sections-08-15-2025.md output/phase1
 
-# With custom config
-pipenv run python -m anki_generator.main input.md output.apkg --config custom_config.ini
+# Validate Phase 1 output
+pipenv run python -m anki_generator.main validate1 output/phase1
+
+# TODO: Phase 2: Generate Q&A pairs from sections using Gemini API
+# pipenv run python -m anki_generator.main phase2 output/phase1 output/phase2
+
+# TODO: Validate Phase 2 output
+# pipenv run python -m anki_generator.main validate2 output/phase2
+
+# TODO: Phase 3: Format Q&A pairs as Anki cards
+# pipenv run python -m anki_generator.main phase3 output/phase2 output/phase3
+
+# TODO: Validate Phase 3 output
+# pipenv run python -m anki_generator.main validate3 output/phase3
+
+# TODO: Run all phases in sequence (convenience command)
+# pipenv run python -m anki_generator.main all data/all-sections-08-15-2025.md output/
+```
+
+### Individual Commands
+
+```bash
+# Phase 1: Parse markdown into sections
+pipenv run python -m anki_generator.main phase1 <input.md> <output_dir>
+
+# Validate Phase 1 output
+pipenv run python -m anki_generator.main validate1 <output_dir>
 ```
 
 ---
