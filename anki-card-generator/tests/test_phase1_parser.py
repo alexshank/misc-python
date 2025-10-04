@@ -223,6 +223,89 @@ More content
         assert output_dir.exists()
         assert output_dir.is_dir()
 
+    def test_parse_cleans_existing_output_directory(self, tmp_path: Path) -> None:
+        """Test that existing output directory is cleaned before parsing."""
+        input_file = tmp_path / "input.md"
+        input_file.write_text("## New Section\nNew content", encoding="utf-8")
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create old files from previous run
+        old_section = output_dir / "01_old_section.md"
+        old_section.write_text("## Old Section\nOld content", encoding="utf-8")
+
+        old_manifest = output_dir / "manifest.txt"
+        old_manifest.write_text("01_old_section.md", encoding="utf-8")
+
+        # Create a non-section file to verify complete cleanup
+        other_file = output_dir / "README.md"
+        other_file.write_text("Some other file", encoding="utf-8")
+
+        # Run parser
+        section_files = parse_markdown_file(input_file, output_dir)
+
+        # Verify old files are removed
+        assert not old_section.exists()
+        assert not other_file.exists()
+
+        # Verify only new section exists
+        assert len(section_files) == 1
+        assert section_files[0] == "01_new_section.md"
+        assert (output_dir / "01_new_section.md").exists()
+
+    def test_parse_cleans_subdirectories(self, tmp_path: Path) -> None:
+        """Test that subdirectories are also removed during cleanup."""
+        input_file = tmp_path / "input.md"
+        input_file.write_text("## Test\nContent", encoding="utf-8")
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create a subdirectory with files
+        subdir = output_dir / "old_subdir"
+        subdir.mkdir()
+        (subdir / "file.txt").write_text("content", encoding="utf-8")
+
+        # Run parser
+        parse_markdown_file(input_file, output_dir)
+
+        # Verify subdirectory is removed
+        assert not subdir.exists()
+        assert output_dir.exists()
+
+    def test_parse_handles_fewer_sections_on_rerun(self, tmp_path: Path) -> None:
+        """Test that rerunning with fewer sections removes old files."""
+        # First run: 3 sections
+        input_file = tmp_path / "input.md"
+        input_file.write_text(
+            """## Section One
+Content one
+
+## Section Two
+Content two
+
+## Section Three
+Content three
+""",
+            encoding="utf-8",
+        )
+
+        output_dir = tmp_path / "output"
+        section_files = parse_markdown_file(input_file, output_dir)
+        assert len(section_files) == 3
+
+        # Second run: only 1 section
+        input_file.write_text("## Single Section\nContent", encoding="utf-8")
+        section_files = parse_markdown_file(input_file, output_dir)
+
+        # Verify only 1 section file exists
+        assert len(section_files) == 1
+        assert len(list(output_dir.glob("*.md"))) == 1
+        assert (output_dir / "01_single_section.md").exists()
+        assert not (output_dir / "02_section_two.md").exists()
+        assert not (output_dir / "03_section_three.md").exists()
+
 
 class TestCreateManifest:
     """Tests for manifest creation function."""
