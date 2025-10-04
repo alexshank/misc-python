@@ -29,7 +29,6 @@
    - ruff-format (auto-format code)
    - ruff-check (lint with --fix)
    - mypy (strict type checking)
-   - pytest (full test suite with 90% coverage)
 8. Create `.gitignore` (include: `config.ini`, `*.pyc`, `__pycache__/`, `.pytest_cache/`, `output/`, `api_cache/`, `.env`, `.coverage`, `htmlcov/`)
 9. Create `config.ini.example` with template configuration
 10. **Write tests FIRST for `config.py`** (test loading, validation, missing values, invalid paths)
@@ -65,12 +64,12 @@ Setup project with strict code quality infrastructure
 - Added dependencies in requirements.txt
 - Configured strict mypy (strict mode with all warnings)
 - Configured comprehensive ruff linting (20+ rule categories)
-- Configured pre-commit hooks (format, lint, type check, test)
+- Configured pre-commit hooks (format, lint, type check)
 - Implemented config.py with full type annotations and docstrings
 - Created data models (QAPair, AnkiCard) with type annotations
 - Added .gitignore and config.ini.example
 
-Pre-commit enforces: ruff format, ruff check, mypy strict, pytest 90%+
+Pre-commit enforces: ruff format, ruff check, mypy strict
 Tests: 100% coverage for config.py
 
 ```
@@ -90,17 +89,14 @@ Tests: 100% coverage for config.py
 - **Linting**: All code must pass `ruff check .` with all 20+ rule categories enabled
 - **Formatting**: All code must be auto-formatted with `ruff format .`
 - **Coverage**: Maintain 90%+ test coverage at all times (`pytest --cov=src/anki_generator --cov-fail-under=90`)
-- **Pre-commit Hooks**: ALL commits MUST pass pre-commit hooks (format, lint, type check, test)
+- **Pre-commit Hooks**: ALL commits MUST pass pre-commit hooks (format, lint, type check)
 - **Documentation**: All functions, classes, and modules must have Google-style docstrings
 - **Type Annotations**: All functions must have complete parameter and return type annotations
 
 ## Workflow
 
 - Run tests after each prompt: `pytest --cov=src/anki_generator --cov-fail-under=90`
-- Run type check: `mypy src/` (strict mode)
-- Run linter: `ruff check .`
-- Run formatter: `ruff format .`
-- Verify pre-commit: `pre-commit run --all-files`
+- Verify format/lint/types: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
