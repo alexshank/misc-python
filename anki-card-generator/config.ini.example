@@ -1,0 +1,17 @@
+[api]
+# Your Google Gemini API key
+gemini_api_key = YOUR_API_KEY_HERE
+
+[paths]
+# Directory to cache API responses (optional, default: api_cache/)
+cache_dir = api_cache/
+
+# Output directory for generated Anki cards (optional, default: output/)
+output_dir = output/
+
+[generation]
+# Gemini model to use (optional, default: gemini-1.5-flash)
+model = gemini-1.5-flash
+
+# Maximum retries for API calls (optional, default: 3)
+max_retries = 3

@@ -1,0 +1,104 @@
+[project]
+name = "anki-card-generator"
+version = "0.1.0"
+description = "Generate Anki flashcards from markdown content using Gemini API"
+requires-python = ">=3.10"
+dependencies = [
+    "google-generativeai>=0.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+strict_concatenate = true
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+no_implicit_reexport = true
+strict_optional = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "YTT",    # flake8-2020
+    "ASYNC",  # flake8-async
+    "S",      # flake8-bandit
+    "BLE",    # flake8-blind-except
+    "B",      # flake8-bugbear
+    "A",      # flake8-builtins
+    "C4",     # flake8-comprehensions
+    "DTZ",    # flake8-datetimez
+    "T10",    # flake8-debugger
+    "EM",     # flake8-errmsg
+    "ISC",    # flake8-implicit-str-concat
+    "ICN",    # flake8-import-conventions
+    "G",      # flake8-logging-format
+    "PIE",    # flake8-pie
+    "T20",    # flake8-print
+    "PT",     # flake8-pytest-style
+    "Q",      # flake8-quotes
+    "RSE",    # flake8-raise
+    "RET",    # flake8-return
+    "SIM",    # flake8-simplify
+    "TID",    # flake8-tidy-imports
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib
+    "ERA",    # eradicate
+    "PL",     # pylint
+    "TRY",    # tryceratops
+    "RUF",    # ruff-specific rules
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src/anki_generator",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-fail-under=90",
+]
+testpaths = ["tests"]
+pythonpath = ["src"]
