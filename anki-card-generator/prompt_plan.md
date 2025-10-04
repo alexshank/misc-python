@@ -4,7 +4,9 @@ This document contains numbered implementation prompts following Harper Reed's s
 
 ---
 
-## Prompt 1: Project Setup with Strict Code Quality Infrastructure ⬜
+## Prompt 1: Project Setup with Strict Code Quality Infrastructure
+
+**Completed?** No.
 
 **Objective**: Set up the Python project structure, configuration management, strict code quality tooling, and pre-commit hooks following NFR3 requirements.
 
@@ -79,11 +81,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 1 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 1 as completed
 
 ---
 
-## Prompt 2: Phase 1 - Markdown Section Parser (TDD with Strict Typing) ⬜
+## Prompt 2: Phase 1 - Markdown Section Parser (TDD with Strict Typing)
+
+**Completed?** No.
 
 **Objective**: Implement Phase 1 functionality to split large markdown file into individual section files with full type annotations and docstrings.
 
@@ -142,11 +146,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 2 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 2 as completed
 
 ---
 
-## Prompt 3: Phase 1 - Validator and CLI Integration (Strict Typing) ⬜
+## Prompt 3: Phase 1 - Validator and CLI Integration (Strict Typing)
+
+**Completed?** No.
 
 **Objective**: Add validation for Phase 1 output and integrate into CLI with full type annotations.
 
@@ -208,11 +214,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 3 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 3 as completed
 
 ---
 
-## Prompt 4: Gemini API Client (TDD with Mocks and Strict Typing) ⬜
+## Prompt 4: Gemini API Client (TDD with Mocks and Strict Typing)
+
+**Completed?** No.
 
 **Objective**: Implement Gemini API client wrapper with error handling, retry logic, and full type annotations.
 
@@ -270,11 +278,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 4 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 4 as completed
 
 ---
 
-## Prompt 5: API Request Caching System (TDD) ⬜
+## Prompt 5: API Request Caching System (TDD)
+
+**Completed?** No.
 
 **Objective**: Implement hash-based API request caching to avoid redundant Gemini API calls (FR2A).
 
@@ -334,11 +344,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 5 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 5 as completed
 
 ---
 
-## Prompt 6: Gemini Prompt Template ⬜
+## Prompt 6: Gemini Prompt Template
+
+**Completed?** No.
 
 **Objective**: Create the Gemini prompt template for Q&A generation.
 
@@ -370,11 +382,13 @@ Add Gemini prompt template for Q&A generation
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 6 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 6 as completed
 
 ---
 
-## Prompt 7: Phase 2 - Q&A Generator with Caching (TDD) ⬜
+## Prompt 7: Phase 2 - Q&A Generator with Caching (TDD)
+
+**Completed?** No.
 
 **Objective**: Implement Phase 2 functionality to generate Q&A pairs from section files using Gemini with API caching integration.
 
@@ -448,11 +462,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 7 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 7 as completed
 
 ---
 
-## Prompt 8: Phase 2 - Validator and CLI Integration (Strict Typing) ⬜
+## Prompt 8: Phase 2 - Validator and CLI Integration (Strict Typing)
+
+**Completed?** No.
 
 **Objective**: Add validation for Phase 2 output and integrate into CLI with full type annotations.
 
@@ -523,11 +539,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 8 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 8 as completed
 
 ---
 
-## Prompt 9: Phase 3 - Anki Formatter (TDD with Strict Typing) ⬜
+## Prompt 9: Phase 3 - Anki Formatter (TDD with Strict Typing)
+
+**Completed?** No.
 
 **Objective**: Implement Phase 3 functionality to convert Q&A pairs into Anki-compatible tab-separated format with full type annotations.
 
@@ -585,11 +603,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 9 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 9 as completed
 
 ---
 
-## Prompt 10: Phase 3 - Validator and CLI Integration (Strict Typing) ⬜
+## Prompt 10: Phase 3 - Validator and CLI Integration (Strict Typing)
+
+**Completed?** No.
 
 **Objective**: Add validation for Phase 3 output and integrate into CLI with full type annotations.
 
@@ -651,11 +671,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 10 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 10 as completed
 
 ---
 
-## Prompt 11: "All" Command (Strict Typing) ⬜
+## Prompt 11: "All" Command (Strict Typing)
+
+**Completed?** No.
 
 **Objective**: Add "all" command to run entire pipeline sequentially with validation gates (pre-commit hooks already configured in Prompt 1).
 
@@ -708,11 +730,13 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 11 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 11 as completed
 
 ---
 
-## Prompt 12: Integration Testing and Documentation (Strict Typing) ⬜
+## Prompt 12: Integration Testing and Documentation (Strict Typing)
+
+**Completed?** No.
 
 **Objective**: Create end-to-end integration tests, finalize documentation, and ensure all quality standards met.
 
@@ -772,11 +796,13 @@ Pre-commit: All hooks passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 12 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 12 as completed
 
 ---
 
-## Prompt 13: Real-World Testing and Refinement ⬜
+## Prompt 13: Real-World Testing and Refinement
+
+**Completed?** No.
 
 **Objective**: Test with real Gemini API and real markdown notes, verify cache performance, refine based on results.
 
@@ -843,11 +869,13 @@ All quality checks passing:
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 13 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 13 as completed
 
 ---
 
-## Prompt 14: Pipeline Statistics Reporting (TDD) ⬜
+## Prompt 14: Pipeline Statistics Reporting (TDD)
+
+**Completed?** No.
 
 **Objective**: Implement comprehensive pipeline statistics reporting via `stats` command (FR7).
 
@@ -922,11 +950,11 @@ Linting: ruff with all rules passing
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-**Update prompt_plan.md**: Mark Prompt 14 as ✅ completed
+**Update prompt_plan.md**: Mark Prompt 14 as completed
 
 ---
 
-## Implementation Complete! 🎉
+## Implementation Complete!
 
 All prompts completed. The Anki Card Generator is ready to use with strict code quality standards.
 
@@ -959,15 +987,15 @@ All prompts completed. The Anki Card Generator is ready to use with strict code 
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the checkbox (⬜ → ✅) after committing
+- Update the prompt status ("Completed?") after committing
 - Pause after each prompt for review before continuing to the next
 
 ### Quality Standards
 **NO commits are allowed without:**
-1. ✅ All tests passing
-2. ✅ 90%+ code coverage
-3. ✅ mypy strict mode passing (zero type errors)
-4. ✅ ruff passing with all rules (zero linting errors)
-5. ✅ Code auto-formatted with ruff format
+1. All tests passing
+2. 90%+ code coverage
+3. mypy strict mode passing (zero type errors)
+4. ruff passing with all rules (zero linting errors)
+5. Code auto-formatted with ruff format
 
 Pre-commit hooks enforce these standards automatically.
