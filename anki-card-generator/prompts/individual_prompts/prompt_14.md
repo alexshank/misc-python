@@ -39,9 +39,9 @@
    - Add `stats` command to CLI
    - Call statistics functions and display formatted output
 5. Ensure all code passes:
-   - `mypy src/` (strict mode)
-   - `ruff check .`
-   - `pytest --cov=src/anki_generator --cov-fail-under=90`
+   - `pipenv run mypy src/` (strict mode)
+   - `pipenv run ruff check .`
+   - `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 
 ## Validation
 
@@ -85,18 +85,18 @@ Implement pipeline statistics reporting with strict typing
 ## Development Requirements (CRITICAL)
 
 - **TDD MANDATORY**: Write tests FIRST for every prompt, then implement
-- **Type Checking**: All code must pass `mypy src/` in strict mode (no type errors allowed)
-- **Linting**: All code must pass `ruff check .` with all 20+ rule categories enabled
-- **Formatting**: All code must be auto-formatted with `ruff format .`
-- **Coverage**: Maintain 90%+ test coverage at all times (`pytest --cov=src/anki_generator --cov-fail-under=90`)
+- **Type Checking**: All code must pass `pipenv run mypy src/` in strict mode (no type errors allowed)
+- **Linting**: All code must pass `pipenv run ruff check .` with all 20+ rule categories enabled
+- **Formatting**: All code must be auto-formatted with `pipenv run ruff format .`
+- **Coverage**: Maintain 90%+ test coverage at all times (`pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`)
 - **Pre-commit Hooks**: ALL commits MUST pass pre-commit hooks (format, lint, type check)
 - **Documentation**: All functions, classes, and modules must have Google-style docstrings
 - **Type Annotations**: All functions must have complete parameter and return type annotations
 
 ## Workflow
 
-- Run tests after each prompt: `pytest --cov=src/anki_generator --cov-fail-under=90`
-- Verify format/lint/types: `pre-commit run --all-files`
+- Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
+- Verify format/lint/types: `pipenv run pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next

@@ -37,21 +37,21 @@
     - **Google-style docstrings** for all functions
     - Configuration loading and validation from `config.ini`
 12. Create `src/anki_generator/models.py` with **fully type-annotated** data classes: `QAPair`, `AnkiCard`
-13. Install pre-commit hooks: `pre-commit install`
+13. Install pre-commit hooks: `pipenv run pre-commit install`
 14. Run all quality checks to verify setup:
-    - `ruff format .`
-    - `ruff check .`
-    - `mypy src/`
-    - `pytest --cov=src/anki_generator --cov-fail-under=90`
+    - `pipenv run ruff format .`
+    - `pipenv run ruff check .`
+    - `pipenv run mypy src/`
+    - `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 
 ## Validation
 
 - All tests pass (`pytest`)
 - 90%+ coverage achieved
-- No type errors (`mypy src/` passes in strict mode)
-- No linting errors (`ruff check .` passes)
-- All code auto-formatted (`ruff format .` makes no changes)
-- Pre-commit hooks installed and working (test with `pre-commit run --all-files`)
+- No type errors (`pipenv run mypy src/` passes in strict mode)
+- No linting errors (`pipenv run ruff check .` passes)
+- All code auto-formatted (`pipenv run ruff format .` makes no changes)
+- Pre-commit hooks installed and working (test with `pipenv run pre-commit run --all-files`)
 - Configuration loads successfully from `config.ini.example`
 - Missing/invalid config raises appropriate errors
 
@@ -85,18 +85,18 @@ Tests: 100% coverage for config.py
 ## Development Requirements (CRITICAL)
 
 - **TDD MANDATORY**: Write tests FIRST for every prompt, then implement
-- **Type Checking**: All code must pass `mypy src/` in strict mode (no type errors allowed)
-- **Linting**: All code must pass `ruff check .` with all 20+ rule categories enabled
-- **Formatting**: All code must be auto-formatted with `ruff format .`
-- **Coverage**: Maintain 90%+ test coverage at all times (`pytest --cov=src/anki_generator --cov-fail-under=90`)
+- **Type Checking**: All code must pass `pipenv run mypy src/` in strict mode (no type errors allowed)
+- **Linting**: All code must pass `pipenv run ruff check .` with all 20+ rule categories enabled
+- **Formatting**: All code must be auto-formatted with `pipenv run ruff format .`
+- **Coverage**: Maintain 90%+ test coverage at all times (`pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`)
 - **Pre-commit Hooks**: ALL commits MUST pass pre-commit hooks (format, lint, type check)
 - **Documentation**: All functions, classes, and modules must have Google-style docstrings
 - **Type Annotations**: All functions must have complete parameter and return type annotations
 
 ## Workflow
 
-- Run tests after each prompt: `pytest --cov=src/anki_generator --cov-fail-under=90`
-- Verify format/lint/types: `pre-commit run --all-files`
+- Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
+- Verify format/lint/types: `pipenv run pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
