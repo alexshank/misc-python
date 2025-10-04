@@ -616,7 +616,241 @@ qa_pairs.json → Phase3Formatter → anki_import.txt
 **Coverage Target**: 90%+ for all modules
 **Mocking**: Use `unittest.mock` for Gemini API calls
 
-### NFR3: Security
+### NFR3: Code Quality and Pre-commit Enforcement
+
+**WHEN** setting up the development environment
+**THEN** the strictest possible settings for type checking, linting, and formatting SHALL be enforced
+
+**WHEN** configuring type checking (mypy)
+**THEN** `pyproject.toml` SHALL include the following strict mypy configuration:
+```toml
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_unimported = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+check_untyped_defs = true
+strict_equality = true
+```
+
+**WHEN** configuring linting (ruff)
+**THEN** `pyproject.toml` SHALL include strict ruff configuration:
+```toml
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "ANN",    # flake8-annotations
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "DTZ",    # flake8-datetimez
+    "T10",    # flake8-debugger
+    "EM",     # flake8-errmsg
+    "ISC",    # flake8-implicit-str-concat
+    "ICN",    # flake8-import-conventions
+    "PIE",    # flake8-pie
+    "PT",     # flake8-pytest-style
+    "RET",    # flake8-return
+    "SIM",    # flake8-simplify
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib
+    "PL",     # pylint
+    "RUF",    # ruff-specific rules
+]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["ANN", "ARG"]  # Allow missing annotations in tests
+```
+
+**WHEN** configuring code formatting (ruff format)
+**THEN** `pyproject.toml` SHALL include:
+```toml
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+```
+
+**WHEN** configuring pytest
+**THEN** `pyproject.toml` SHALL include:
+```toml
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src/anki_generator",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-fail-under=90",
+]
+```
+
+**WHEN** configuring pre-commit hooks
+**THEN** `.pre-commit-config.yaml` SHALL include ALL of the following hooks in order:
+```yaml
+repos:
+  - repo: local
+    hooks:
+      # Code formatting (must run first)
+      - id: ruff-format
+        name: Ruff Format
+        entry: ruff format
+        language: system
+        types: [python]
+        pass_filenames: true
+
+      # Import sorting and linting
+      - id: ruff-check
+        name: Ruff Lint
+        entry: ruff check --fix
+        language: system
+        types: [python]
+        pass_filenames: true
+
+      # Type checking (strict)
+      - id: mypy
+        name: mypy (strict type checking)
+        entry: mypy
+        language: system
+        types: [python]
+        pass_filenames: false
+        args: ["src/"]
+
+      # Run all tests with coverage
+      - id: pytest
+        name: pytest (with coverage)
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+```
+
+**WHEN** a developer attempts to commit code
+**THEN** the pre-commit hooks SHALL run automatically in the following order:
+1. **Ruff Format**: Auto-format all Python code
+2. **Ruff Lint**: Check and auto-fix linting issues
+3. **Mypy**: Perform strict type checking (no auto-fix)
+4. **Pytest**: Run full test suite with 90%+ coverage requirement
+
+**IF** any pre-commit hook fails
+**THEN** the commit SHALL be blocked
+**AND** the developer SHALL see detailed error messages
+**AND** the developer MUST fix all issues before committing
+
+**WHEN** mypy type checking fails
+**THEN** the error SHALL display:
+- File path and line number
+- Type mismatch details
+- Expected vs. actual types
+
+**WHEN** pytest fails
+**THEN** the error SHALL display:
+- Which tests failed
+- Failure reasons with full tracebacks
+- Coverage percentage if below 90%
+
+**WHEN** ruff linting fails
+**THEN** the error SHALL display:
+- File path and line number
+- Rule code (e.g., "E501", "ANN001")
+- Description of the violation
+
+**Type Annotation Requirements**:
+
+**WHEN** writing any function or method
+**THEN** it MUST include:
+- Type hints for all parameters
+- Return type annotation
+- No use of `Any` type unless absolutely necessary with justification comment
+
+**Example of properly typed function**:
+```python
+from pathlib import Path
+from typing import List
+
+def parse_markdown_file(input_path: Path, output_dir: Path) -> List[str]:
+    """Parse markdown file and return list of section filenames.
+
+    Args:
+        input_path: Path to input markdown file
+        output_dir: Directory to write section files
+
+    Returns:
+        List of created section filenames
+
+    Raises:
+        FileNotFoundError: If input_path does not exist
+        ValueError: If markdown has no ## headers
+    """
+    # Implementation here
+    pass
+```
+
+**WHEN** writing any class
+**THEN** all attributes MUST be type-annotated using dataclasses or explicit annotations
+
+**Documentation Requirements**:
+
+**WHEN** writing any module, class, or function
+**THEN** it MUST include a docstring following Google style:
+- One-line summary
+- Detailed description (if needed)
+- Args section with types
+- Returns section with type
+- Raises section with exception types
+
+**Code Style Requirements**:
+
+**WHEN** writing Python code
+**THEN** it MUST follow:
+- PEP 8 style guide (enforced by ruff)
+- Maximum line length: 100 characters
+- Double quotes for strings
+- 4-space indentation (no tabs)
+- Blank line at end of file
+- No trailing whitespace
+
+**Continuous Integration Notes**:
+
+**WHEN** setting up CI/CD (future)
+**THEN** the same checks SHALL run:
+```bash
+# Run in CI pipeline
+ruff format --check .
+ruff check .
+mypy src/
+pytest --cov=src/anki_generator --cov-fail-under=90
+```
+
+**CRITICAL RULE**:
+**NO commits SHALL EVER be made without:**
+1. All type checks passing (mypy strict mode)
+2. All linting checks passing (ruff with all rules)
+3. All tests passing (pytest)
+4. 90%+ code coverage
+
+**Enforcement**: Pre-commit hooks are MANDATORY and MUST be installed immediately after project setup.
+
+### NFR4: Security
 
 **WHEN** handling API keys
 **THEN** the system SHALL:
@@ -643,7 +877,7 @@ api_cache/
 - Limit file size (max 10MB)
 - Validate UTF-8 encoding
 
-### NFR4: Performance
+### NFR5: Performance
 
 **WHEN** processing sections with Gemini
 **THEN** the system SHALL:
@@ -662,7 +896,7 @@ api_cache/
 - Phase 2: ~2-3 seconds per section (Gemini API latency)
 - Phase 3: <2 seconds for 1000 Q&A pairs
 
-### NFR5: Error Handling and Logging
+### NFR6: Error Handling and Logging
 
 **WHEN** any error occurs
 **THEN** the system SHALL:
@@ -702,7 +936,7 @@ api_cache/
 }
 ```
 
-### NFR6: Dependencies
+### NFR7: Dependencies
 
 **Required Python Version**: 3.9+
 
@@ -736,8 +970,12 @@ pip install -r requirements.txt
 ### SC2: Quality Assurance
 - [ ] 90%+ test coverage across all modules
 - [ ] All tests pass before any commit (enforced by pre-commit hooks)
-- [ ] No linting errors (ruff check passes)
-- [ ] No type errors (mypy passes)
+- [ ] No linting errors (ruff check with strict rules passes)
+- [ ] No type errors (mypy strict mode passes)
+- [ ] Pre-commit hooks installed and blocking commits that fail checks
+- [ ] All code auto-formatted with ruff format
+- [ ] All functions and classes fully type-annotated (no Any types)
+- [ ] All public APIs have Google-style docstrings
 
 ### SC3: Usability
 - [ ] User can run entire pipeline with single `python -m anki_generator.main all` command
@@ -752,10 +990,11 @@ pip install -r requirements.txt
 - [ ] Tab-separated format is valid for Anki import
 
 ### SC5: Maintainability
-- [ ] Code follows PEP 8 style guidelines
-- [ ] All functions have type hints
-- [ ] All modules have docstrings
+- [ ] Code follows PEP 8 style guidelines (100-char line length)
+- [ ] All functions have complete type hints (strict mypy compliance)
+- [ ] All modules, classes, and functions have Google-style docstrings
 - [ ] Configuration is externalized (no hardcoded paths or API keys)
+- [ ] Pre-commit hooks prevent any non-compliant code from being committed
 
 ---
 
