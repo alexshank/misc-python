@@ -1,146 +1,71 @@
-# Anki Card Generator - Spec-Driven Development Log
+# Anki Card Generator
 
-## Project Overview
-Python application that generates Anki flashcards from text file notes using Google Gemini API for natural language processing and generation.
+Python application that generates Anki flashcards from markdown content using Google Gemini API for natural language processing and Q&A generation.
 
-**Development Approach**: Harper Reed's Spec-First Workflow (#1 from research document)
+> **Development Approach**: This project follows [Harper Reed's Spec-First Workflow](spec/harper-spec-approach.md), emphasizing TDD, strict code quality, and atomic implementation steps. This is Alex Shank's first attempt at using AI coding tools with a spec-driven development workflow. Manual code changes were avoided as much as possible.
+
+---
+
+## Features
+
+- Parse markdown files into logical sections
+- Generate Q&A pairs from content using Gemini API
+- Cache API responses for efficiency
+- Export flashcards in Anki-compatible format
+- Comprehensive test coverage (90%+ required)
+- Strict type checking and linting
+
+---
 
 ## Prerequisites
-- Python 3.x
-- Google Gemini API key
-- Git repository initialized
-- Claude Code v2 installed
 
-## Development Workflow Steps
+- **Python 3.12+**
+- **pipenv** (for virtual environment management)
+- **Google Gemini API key**
+- **Git** (for version control)
 
-### Phase 1: Generate Comprehensive Specification ✅
+---
 
-**Status**: Completed
-**Date**: 2025-10-01
+## Installation
 
-Used Claude.ai (or reasoning model) to generate detailed specification.
+### 1. Clone the Repository
 
-**Command**:
 ```bash
-# Created spec.md using Claude.ai with the following prompt:
-# "Create a detailed specification for a Python application that generates
-# Anki flashcards from text file notes using Google Gemini API for natural
-# language processing and generation.
-#
-# Include:
-# - Overview and purpose
-# - Functional requirements (use EARS format: WHEN/IF/THEN)
-# - Non-functional requirements (architecture, security, performance)
-# - Technology stack with specific libraries
-# - Data models
-# - Success criteria
-#
-# Use Mermaid diagrams for architecture visualization."
+git clone <repository-url>
+cd anki-card-generator
 ```
 
-**Output**: `spec.md` (generated and saved to project root)
+### 2. Install Dependencies
 
----
-
-### Phase 2: Generate Numbered Prompt Plan ✅
-
-**Status**: Completed
-**Date**: 2025-10-01
-
-Generated comprehensive specification and implementation plan.
-
-**Outputs**:
-- `spec.md` (comprehensive specification)
-- `prompt_plan.md` (12 numbered implementation prompts)
-
-**Key Changes from Initial Plan**:
-- Phase 1 now outputs individual markdown files (one per section), not a JSON file
-- Each section file is named with pattern: `{index:02d}_{sanitized_header}.md`
-- A `manifest.txt` file tracks all created section files
-- Phase 2 reads these markdown files directly and passes unaltered content to Gemini
-
-**Question Generation Strategy Clarifications**:
-- NOT every bullet point needs a Q&A pair - use intelligent judgment
-- Skip commentary/meta-notes (e.g., "covered this before", "not going through basics")
-- Skip bullets that lack context when isolated from parent bullets
-- Parent-child indented bullets SHOULD be grouped to preserve context
-- The entire markdown section remains in `source_markdown` even if some bullets don't generate Q&A
-
-**Implementation Plan**:
-- 12 prompts total (see `prompt_plan.md`)
-- Each prompt includes TDD requirements, validation, and commit message
-- Prompts 1-3: Phase 1 (markdown splitting)
-- Prompts 4-7: Phase 2 (Gemini Q&A generation)
-- Prompts 8-9: Phase 3 (Anki formatting)
-- Prompts 10-11: Integration (all command, pre-commit hooks)
-- Prompt 12: Real-world testing with actual Gemini API
-
-**Next Step**: Begin implementation with Prompt 1
-
----
-
-### Phase 3: Setup Defensive Coding Infrastructure ⏳
-
-**Status**: Pending
-
-Install and configure pre-commit hooks for automated testing.
-
-**Commands**:
 ```bash
-# Install pre-commit
-pip install pre-commit
+# Install pipenv if not already installed
+pip install pipenv
 
-# Create .pre-commit-config.yaml (see configuration below)
+# Install project dependencies
+pipenv install --dev
 
-# Install hooks
-pre-commit install
+# Install pre-commit hooks
+pipenv run pre-commit install
 ```
 
-**Pre-commit Configuration** (`.pre-commit-config.yaml`):
-```yaml
-repos:
-  - repo: local
-    hooks:
-      - id: tests
-        name: Run tests
-        entry: pytest
-        language: system
-        pass_filenames: false
+### 3. Configure API Key
 
-      - id: lint
-        name: Run linter
-        entry: ruff check
-        language: system
-        pass_filenames: false
+Create a `config.ini` file in the project root:
 
-      - id: typecheck
-        name: Type check
-        entry: mypy .
-        language: system
-        pass_filenames: false
+```ini
+[api]
+gemini_api_key = your-api-key-here
+
+[paths]
+cache_dir = api_cache/
+output_dir = output/
+
+[generation]
+model = gemini-1.5-flash
+max_retries = 3
 ```
 
----
-
-### Phase 4: Execute with Master Prompt ⏳
-
-**Status**: Pending
-
-Start Claude Code implementation loop.
-
-**Master Prompt**:
-```
-1. Open @prompt_plan.md and identify any prompts not marked as completed.
-2. For each incomplete prompt:
-   - Double-check if it's truly unfinished (if uncertain, ask for clarification)
-   - If you confirm it's already done, skip it.
-   - Otherwise, implement it as described.
-   - Make sure the tests pass, and the program builds/runs
-   - Commit the changes to your repository with a clear commit message.
-   - Update @prompt_plan.md to mark this prompt as completed.
-3. After you finish each prompt, pause and wait for user review or feedback.
-4. Repeat with the next unfinished prompt as directed by the user.
-```
+**Note**: Add `config.ini` to `.gitignore` to avoid committing your API key.
 
 ---
 
@@ -148,136 +73,190 @@ Start Claude Code implementation loop.
 
 ```
 anki-card-generator/
-├── README.md                          # This file - development log
-├── spec.md                            # Comprehensive specification
-├── prompt_plan.md                     # Numbered implementation steps
-├── .pre-commit-config.yaml            # Pre-commit hook configuration
-├── .gitignore                         # Git ignore rules
-├── requirements.txt                   # Python dependencies
-├── pyproject.toml                     # Python project configuration
-├── src/                               # Source code
+├── README.md                          # This file
+├── spec/
+│   ├── harper-spec-approach.md        # Development methodology docs
+│   └── spec.md                        # Comprehensive specification
+├── prompt_plan.md                     # Implementation roadmap
+├── Pipfile                            # Dependency management
+├── pyproject.toml                     # Project configuration
+├── .pre-commit-config.yaml            # Pre-commit hooks
+├── config.ini                         # Configuration (gitignored)
+├── prompts/
+│   └── implementation_status.md       # Progress tracking
+├── src/
 │   └── anki_generator/
 │       ├── __init__.py
-│       ├── main.py
-│       ├── gemini_client.py
-│       ├── note_parser.py
-│       └── card_generator.py
-└── tests/                             # Test suite
+│       ├── config.py                  # Configuration loading
+│       └── models/                    # Data models
+│           ├── __init__.py
+│           ├── anki_card.py
+│           ├── config.py
+│           ├── config_error.py
+│           └── qa_pair.py
+└── tests/
     ├── __init__.py
-    ├── test_gemini_client.py
-    ├── test_note_parser.py
-    └── test_card_generator.py
+    ├── test_config.py
+    └── test_models.py
 ```
 
 ---
 
-## Dependencies Installed
+## Development
 
-### Python Packages
-```bash
-# Core dependencies
-pip install google-generativeai  # Google Gemini API
-pip install genanki              # Anki deck generation
-pip install pytest               # Testing framework
-pip install ruff                 # Linting
-pip install mypy                 # Type checking
-pip install pre-commit           # Git hooks
-
-# Save to requirements.txt
-pip freeze > requirements.txt
-```
-
----
-
-## Git Commits Log
-
-Track all commits made during development:
-
-```bash
-# Initial commit
-git add .
-git commit -m "Initial commit: Project setup with spec-driven workflow"
-
-# (Additional commits will be added here as development progresses)
-```
-
----
-
-## Testing Commands
+### Running Tests
 
 ```bash
 # Run all tests
-pytest
+pipenv run pytest
 
-# Run tests with coverage
-pytest --cov=src/anki_generator
+# Run tests with coverage report
+pipenv run pytest --cov=src/anki_generator
 
 # Run specific test file
-pytest tests/test_gemini_client.py
-
-# Run linter
-ruff check .
-
-# Run type checker
-mypy src/
+pipenv run pytest tests/test_config.py
 ```
 
----
-
-## Running the Application
+### Code Quality Checks
 
 ```bash
-# Basic usage (to be updated as implementation progresses)
-python -m src.anki_generator.main input_notes.txt output_deck.apkg
+# Type checking (mypy strict mode)
+pipenv run mypy src/
 
-# With custom options
-python -m src.anki_generator.main input_notes.txt output_deck.apkg --gemini-api-key YOUR_KEY
+# Linting (ruff)
+pipenv run ruff check .
+
+# Auto-format code
+pipenv run ruff format .
 ```
 
----
+### Pre-commit Hooks
 
-## Environment Variables
+Pre-commit hooks automatically run on every commit to enforce quality standards:
 
 ```bash
-# Create .env file (add to .gitignore)
-GEMINI_API_KEY=your_api_key_here
+# Install hooks (one-time setup)
+pipenv run pre-commit install
+
+# Manually run all hooks
+pipenv run pre-commit run --all-files
+```
+
+All commits must pass:
+- **ruff format**: Code formatting
+- **ruff check**: Linting (20+ rule categories)
+- **mypy**: Strict type checking
+
+---
+
+## Usage
+
+*Note: Application is under active development. Usage instructions will be updated as features are implemented.*
+
+```bash
+# Basic usage (coming soon)
+pipenv run python -m anki_generator.main input.md output.apkg
+
+# With custom config
+pipenv run python -m anki_generator.main input.md output.apkg --config custom_config.ini
 ```
 
 ---
 
-## Development Sessions
+## Configuration File Format
 
-### Session 1: 2025-10-01
-- Created README.md structure
-- Set up spec-driven workflow documentation
-- Status: Ready to generate spec.md
+The `config.ini` file uses INI format with three sections:
 
----
+### `[api]`
+- `gemini_api_key` (required): Your Google Gemini API key
 
-## Notes & Learnings
+### `[paths]`
+- `cache_dir` (optional, default: `api_cache/`): Directory for API response cache
+- `output_dir` (optional, default: `output/`): Directory for generated output
 
-### Key Insights from Harper Reed's Approach
-- "THE ROBOTS LOVE TDD" - TDD is crucial for preventing hallucination
-- Pre-commit hooks catch issues before they hit CI/CD
-- Small, atomic prompts prevent scope drift
-- Pause after each prompt for human review
-
-### Adaptations Made
-(Document any deviations from the standard workflow here)
+### `[generation]`
+- `model` (optional, default: `gemini-1.5-flash`): Gemini model to use
+- `max_retries` (optional, default: `3`): Maximum API request retries
 
 ---
 
-## Next Steps
+## Quality Standards
 
-1. [ ] Generate `spec.md` using Claude.ai or reasoning model
-2. [ ] Review and refine specification
-3. [ ] Generate `prompt_plan.md` from spec
-4. [ ] Install pre-commit and configure hooks
-5. [ ] Begin execution loop with master prompt
+This project maintains strict quality standards enforced by pre-commit hooks:
+
+- **Test Coverage**: 90% minimum (enforced by pytest-cov)
+- **Type Checking**: mypy strict mode with zero errors
+- **Linting**: ruff with comprehensive rule sets (E, W, F, I, N, UP, YTT, ASYNC, S, BLE, B, A, C4, DTZ, T10, EM, ISC, ICN, G, PIE, T20, PT, Q, RSE, RET, SIM, TID, ARG, PTH, ERA, PL, TRY, RUF)
+- **Documentation**: Google-style docstrings required for all public APIs
+
+**No commits are allowed without passing all quality checks.**
+
+---
+
+## Contributing
+
+### Implementation Status
+
+See `prompts/implementation_status.md` for current development progress.
+
+Current status: **1/14 prompts completed**
+
+### Development Workflow
+
+1. Check `prompts/implementation_status.md` for next incomplete prompt
+2. Implement feature following TDD principles (write tests first!)
+3. Ensure all quality checks pass:
+   ```bash
+   pipenv run pytest              # All tests passing
+   pipenv run mypy src/           # Zero type errors
+   pipenv run ruff check .        # Zero linting errors
+   ```
+4. Commit changes (pre-commit hooks will enforce quality)
+5. Update `prompts/implementation_status.md` to mark prompt complete
+6. Move to next prompt
+
+### Adding Dependencies
+
+```bash
+# Add production dependency
+pipenv install package-name
+
+# Add development dependency
+pipenv install --dev package-name
+```
+
+---
+
+## Architecture
+
+### Data Models
+
+- **`Config`**: Application configuration (frozen dataclass)
+- **`QAPair`**: Question-answer pair (frozen dataclass)
+- **`AnkiCard`**: Anki flashcard format (frozen dataclass)
+- **`ConfigError`**: Configuration error exception
+
+All models use frozen dataclasses for immutability and are strictly typed.
+
+### Pipeline Phases
+
+1. **Phase 1**: Markdown section parsing
+2. **Phase 2**: Q&A generation via Gemini API with caching
+3. **Phase 3**: Anki card formatting and export
+
+Each phase includes comprehensive tests, validation, and CLI integration.
+
+---
+
+## License
+
+*License information to be added*
 
 ---
 
 ## References
-- Research Document: `claude-web-spec-driven-design-research.md`
-- Harper Reed's Workflow: Lines 15-104 in research doc
-- Harper Reed's GitHub Example: github.com/harperreed/basic
+
+- [Harper Reed's Spec-First Workflow](spec/harper-spec-approach.md)
+- [Project Specification](spec/spec.md)
+- [Implementation Plan](prompt_plan.md)
+- [Progress Tracking](prompts/implementation_status.md)
