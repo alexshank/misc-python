@@ -265,6 +265,25 @@ class TestCreateManifest:
         content = manifest_path.read_text(encoding="utf-8")
         assert content.strip() == "01_new_section.md"
 
+    def test_create_manifest_trailing_newline(self, tmp_path: Path) -> None:
+        """Test that manifest ends with trailing newline for POSIX compliance."""
+        section_files = ["01_section.md", "02_section.md"]
+        create_manifest(section_files, tmp_path)
+
+        manifest_path = tmp_path / "manifest.txt"
+        content = manifest_path.read_text(encoding="utf-8")
+
+        # Verify trailing newline exists
+        assert content.endswith("\n")
+
+        # Verify line count matches file count (wc -l compatibility)
+        lines = content.splitlines()
+        assert len(lines) == len(section_files)
+
+        # Verify actual content
+        assert lines[0] == "01_section.md"
+        assert lines[1] == "02_section.md"
+
 
 class TestParseMarkdownFileIntegration:
     """Integration tests using the sample_notes.md fixture."""
