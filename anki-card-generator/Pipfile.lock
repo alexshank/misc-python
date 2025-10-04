@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "08d8f844066d11637456a2325c44e82b0682297fface9a0fa66c988e61978004"
+            "sha256": "0167d050cc519b7205b4e7fbdf14e6a846f8bb6f6ab001bea27a46759f965b3e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,10 @@
         ]
     },
     "default": {
+        "anki-card-generator": {
+            "editable": true,
+            "file": "."
+        },
         "annotated-types": {
             "hashes": [
                 "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53",

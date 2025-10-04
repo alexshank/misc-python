@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 google-generativeai = ">=0.3.0"
+anki-card-generator = {file = ".", editable = true}
 
 [dev-packages]
 pytest = ">=7.0.0"
