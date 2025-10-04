@@ -67,8 +67,10 @@ A Python command-line application that transforms markdown study notes into Anki
 - Read the section markdown file from `{output_dir}/phase1_sections/`
 - Load the Gemini prompt template from `prompts/generate_qa.txt`
 - Inject the entire markdown content (unaltered) into the prompt
-- Send individual API request to Google Gemini
+- Check API cache for identical request before making API call
+- Send individual API request to Google Gemini (if not cached)
 - Parse structured JSON response
+- Store request and response in API cache
 
 **WHEN** Gemini returns a response
 **THEN** the response SHALL contain a JSON array with objects having fields:
@@ -90,6 +92,15 @@ A Python command-line application that transforms markdown study notes into Anki
 
 **WHEN** Phase 2 completes
 **THEN** the system SHALL write output to `{output_dir}/phase2_qa_pairs/qa_pairs.json`
+**AND** the system SHALL write processing statistics to `{output_dir}/phase2_qa_pairs/stats.json`
+
+**WHEN** writing Phase 2 statistics
+**THEN** the stats.json file SHALL contain:
+- `total_sections`: Total number of sections processed (integer)
+- `cache_hits`: Number of cached responses used (integer)
+- `cache_misses`: Number of new API calls made (integer)
+- `failures`: Number of failed API calls (integer)
+- `total_qa_pairs`: Total Q&A pairs generated (integer)
 
 **WHEN** Phase 2 validation runs
 **THEN** the system SHALL verify:
@@ -107,6 +118,69 @@ A Python command-line application that transforms markdown study notes into Anki
 **IF** Phase 2 validation passes
 **THEN** the system SHALL allow manual review before Phase 3
 **AND** Phase 3 MAY proceed even if manual review is skipped
+
+---
+
+### FR2A: API Request Caching
+
+**WHEN** preparing to send a Gemini API request in Phase 2
+**THEN** the system SHALL compute a hash of the request inputs
+
+**WHEN** computing the request hash
+**THEN** the hash SHALL include:
+- The complete prompt text (after markdown content injection)
+- The Gemini model name from configuration
+- Any API parameters (temperature, token limits, etc.)
+
+**WHEN** a request hash is computed
+**THEN** the system SHALL check if a cache file exists at `api_cache/{hash}.json`
+
+**IF** a cache file exists for the request hash
+**THEN** the system SHALL:
+- Load the cached response from the JSON file
+- Use the cached response instead of making an API call
+- Log that a cached response was used (e.g., "Using cached response for section 3")
+
+**IF** no cache file exists for the request hash
+**THEN** the system SHALL:
+- Make the Gemini API call as normal
+- Store both the request inputs and response in `api_cache/{hash}.json`
+- Log that a new API call was made and cached
+
+**WHEN** storing a cache entry
+**THEN** the JSON file SHALL contain:
+- `request_hash`: The computed hash (string)
+- `timestamp`: When the request was made (ISO 8601 format)
+- `model`: The Gemini model name used (string)
+- `prompt`: The complete prompt sent to Gemini (string)
+- `response`: The raw JSON response from Gemini (array of Q&A objects)
+- `section_file`: The source section filename for reference (string)
+
+**WHEN** the application starts
+**THEN** the system SHALL create the `api_cache/` directory if it does not exist
+
+**WHEN** computing hashes
+**THEN** the system SHALL use SHA-256 algorithm for consistent, collision-resistant hashing
+
+**Cache File Example** (`api_cache/a3f2b9c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1.json`):
+```json
+{
+  "request_hash": "a3f2b9c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1",
+  "timestamp": "2025-10-01T14:25:03Z",
+  "model": "gemini-1.5-flash",
+  "prompt": "You are an expert at creating Anki flashcards...\n\n---\n## IAM\n\n- policy deep dive...",
+  "response": [
+    {
+      "q": "What is the Confused Deputy Problem?",
+      "a": "When a lesser-privileged role coerces another role to perform an action.",
+      "aws_service": "IAM"
+    }
+  ],
+  "section_file": "01_IAM.md"
+}
+```
+
+**Note**: The `api_cache/` directory SHOULD be git-ignored to avoid committing potentially large cache files, but MAY be committed if caching across machines is desired.
 
 ---
 
@@ -285,6 +359,9 @@ python -m anki_generator.main all
 python -m anki_generator.main validate1
 python -m anki_generator.main validate2
 python -m anki_generator.main validate3
+
+# Display statistics for all phases
+python -m anki_generator.main stats
 ```
 
 **WHEN** user runs `phase2` without `phase1` completion
@@ -310,7 +387,112 @@ python -m anki_generator.main validate3
 
 ---
 
-### FR7: Gemini Prompt Template
+### FR7: Pipeline Statistics Reporting
+
+**WHEN** the user runs `python -m anki_generator.main stats`
+**THEN** the system SHALL analyze all phase outputs and display comprehensive statistics
+
+**WHEN** computing Phase 1 statistics
+**THEN** the system SHALL report:
+- Total number of section files created
+- List of section filenames with their sizes (in lines or bytes)
+
+**WHEN** computing Phase 2 statistics
+**THEN** the system SHALL report:
+- Total number of sections processed
+- Number of successful API calls (new requests)
+- Number of cached responses used (cache hits)
+- Number of failed API calls
+- Total Q&A pairs generated
+- Average Q&A pairs per section
+- Breakdown by AWS service (count of Q&A pairs per service)
+
+**WHEN** computing Phase 3 statistics
+**THEN** the system SHALL report:
+- Total number of Anki cards formatted
+- Total number of unique tags generated
+- File size of anki_import.txt
+
+**WHEN** computing cache statistics
+**THEN** the system SHALL report:
+- Total number of cached API responses in `api_cache/`
+- Total cache size (in MB)
+- Oldest and newest cache entries (by timestamp)
+
+**WHEN** displaying statistics
+**THEN** the output SHALL be formatted as a clean, readable table or structured text
+
+**Statistics Output Format**:
+```
+=============================================================
+ANKI CARD GENERATOR - PIPELINE STATISTICS
+=============================================================
+
+PHASE 1: MARKDOWN SECTION EXTRACTION
+-------------------------------------------------------------
+Total Sections Created:        18
+Average Section Size:          45 lines
+
+Section Files:
+  01_IAM.md                    32 lines
+  02_08-15-2025_Reviewing...   58 lines
+  03_IAM_Policies.md           41 lines
+  ...
+
+=============================================================
+PHASE 2: Q&A GENERATION (GEMINI API)
+=============================================================
+
+Processing Summary:
+  Total Sections Processed:    18
+  Successful API Calls:        12  (new requests)
+  Cached Responses Used:       6   (cache hits)
+  Failed API Calls:            0
+
+Q&A Pair Generation:
+  Total Q&A Pairs Generated:   187
+  Average per Section:         10.4
+
+Breakdown by AWS Service:
+  IAM:                         45 cards
+  S3:                          32 cards
+  EC2:                         28 cards
+  ...
+
+=============================================================
+PHASE 3: ANKI FORMATTING
+=============================================================
+
+Output Summary:
+  Total Anki Cards:            187
+  Unique Tags:                 25
+  Output File Size:            24.5 KB
+
+=============================================================
+API CACHE STATISTICS
+=============================================================
+
+Cache Summary:
+  Total Cached Responses:      12
+  Total Cache Size:            156 KB
+  Cache Hit Rate:              33.3%
+
+Cache Age:
+  Oldest Entry:                2025-10-01 14:25:03
+  Newest Entry:                2025-10-03 09:15:42
+
+=============================================================
+```
+
+**IF** any phase has not been run yet
+**THEN** the system SHALL display "Not yet run" for that phase's statistics
+
+**IF** the output directory does not exist
+**THEN** the system SHALL display error: "No pipeline data found. Run phases first."
+
+---
+
+### FR8: Gemini Prompt Template
 
 **Prompt Template Location**: `prompts/generate_qa.txt`
 
@@ -369,6 +551,8 @@ src/anki_generator/
 ├── phase2_generator.py     # Gemini API integration and Q&A generation
 ├── phase3_formatter.py     # Anki format conversion
 ├── gemini_client.py        # Gemini API client wrapper
+├── api_cache.py            # API request/response caching with hash-based lookup
+├── statistics.py           # Statistics computation and reporting
 ├── validators.py           # Validation logic for each phase
 └── models.py               # Data models (Section, QAPair, etc.)
 ```
@@ -377,7 +561,7 @@ src/anki_generator/
 ```
 config.ini → Config object
 input.md → Phase1Parser → sections.json
-sections.json → Phase2Generator → GeminiClient → qa_pairs.json
+sections.json → Phase2Generator → ApiCache (check) → GeminiClient (if cache miss) → ApiCache (store) → qa_pairs.json
 qa_pairs.json → Phase3Formatter → anki_import.txt
 ```
 
@@ -449,6 +633,7 @@ config.ini
 __pycache__/
 .pytest_cache/
 output/
+api_cache/
 .env
 ```
 
@@ -642,6 +827,8 @@ anki-card-generator/
 │       ├── phase2_generator.py
 │       ├── phase3_formatter.py
 │       ├── gemini_client.py
+│       ├── api_cache.py
+│       ├── statistics.py
 │       ├── validators.py
 │       └── models.py
 ├── tests/
@@ -651,10 +838,14 @@ anki-card-generator/
 │   ├── test_phase2_generator.py
 │   ├── test_phase3_formatter.py
 │   ├── test_gemini_client.py
+│   ├── test_api_cache.py
+│   ├── test_statistics.py
 │   ├── test_validators.py
 │   └── fixtures/
 │       ├── sample_notes.md            # Test markdown input
 │       └── sample_gemini_response.json # Mock Gemini responses
+├── api_cache/                         # API request/response cache (git-ignored)
+│   └── {hash}.json                    # Cached API responses by request hash
 └── output/                            # Created at runtime (git-ignored)
     ├── phase1_sections/
     │   └── sections.json
