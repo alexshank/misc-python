@@ -1,6 +1,7 @@
 """Phase 1: Markdown section parser for splitting files into individual sections."""
 
 import re
+import shutil
 from pathlib import Path
 
 
@@ -83,7 +84,9 @@ def parse_markdown_file(input_path: Path, output_dir: Path) -> list[str]:
         msg = "No sections found in markdown file (no ## headers)"
         raise ValueError(msg)
 
-    # Create output directory if it doesn't exist
+    # Clean output directory if it exists, then create fresh
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     section_files: list[str] = []
