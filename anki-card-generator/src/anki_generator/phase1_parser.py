@@ -123,6 +123,6 @@ def create_manifest(section_files: list[str], output_dir: Path) -> None:
     """
     manifest_path = output_dir / "manifest.txt"
 
-    # Write each filename on a separate line
-    content = "\n".join(section_files)
+    # Write each filename on a separate line with trailing newline
+    content = "\n".join(section_files) + "\n"
     manifest_path.write_text(content, encoding="utf-8")

@@ -252,7 +252,7 @@ class TestCreateManifest:
         assert manifest_path.exists()
 
         content = manifest_path.read_text(encoding="utf-8")
-        assert content == ""
+        assert content == "\n"
 
     def test_create_manifest_overwrites_existing(self, tmp_path: Path) -> None:
         """Test that manifest overwrites existing file."""
