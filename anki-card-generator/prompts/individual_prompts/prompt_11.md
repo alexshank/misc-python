@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Add "all" command to run entire pipeline sequentially with validation gates (pre-commit hooks already configured in Prompt 1).
 
 ## Tasks
@@ -52,7 +54,9 @@ Add 'all' command to run entire pipeline with strict typing
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 11 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 11 checkbox as complete: change `- [ ] **Prompt 11**:` to `- [x] **Prompt 11**:`
+2. Update the completed count: change `**Completed**: 10/14` to `**Completed**: 11/14`
 
 ---
 
@@ -75,7 +79,7 @@ Add 'all' command to run entire pipeline with strict typing
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards

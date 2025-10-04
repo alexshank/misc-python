@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Implement Phase 3 functionality to convert Q&A pairs into Anki-compatible tab-separated format with full type annotations.
 
 ## Tasks
@@ -57,7 +59,9 @@ Implement Phase 3: Anki format conversion with strict typing
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 9 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 9 checkbox as complete: change `- [ ] **Prompt 9**:` to `- [x] **Prompt 9**:`
+2. Update the completed count: change `**Completed**: 8/14` to `**Completed**: 9/14`
 
 ---
 
@@ -80,7 +84,7 @@ Implement Phase 3: Anki format conversion with strict typing
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards

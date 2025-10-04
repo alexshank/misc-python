@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Implement Phase 1 functionality to split large markdown file into individual section files with full type annotations and docstrings.
 
 ## Tasks
@@ -58,7 +60,9 @@ Implement Phase 1: Markdown section extraction with strict typing
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 2 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 2 checkbox as complete: change `- [ ] **Prompt 2**:` to `- [x] **Prompt 2**:`
+2. Update the completed count: change `**Completed**: 1/14` to `**Completed**: 2/14`
 
 ---
 
@@ -81,7 +85,7 @@ Implement Phase 1: Markdown section extraction with strict typing
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards

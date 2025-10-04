@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Create the Gemini prompt template for Q&A generation.
 
 ## Tasks
@@ -35,7 +37,9 @@ Add Gemini prompt template for Q&A generation
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 6 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 6 checkbox as complete: change `- [ ] **Prompt 6**:` to `- [x] **Prompt 6**:`
+2. Update the completed count: change `**Completed**: 5/14` to `**Completed**: 6/14`
 
 ---
 
@@ -58,7 +62,7 @@ Add Gemini prompt template for Q&A generation
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards

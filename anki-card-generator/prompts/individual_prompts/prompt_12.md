@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Create end-to-end integration tests, finalize documentation, and ensure all quality standards met.
 
 ## Tasks
@@ -61,7 +63,9 @@ Pre-commit: All hooks passing
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 12 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 12 checkbox as complete: change `- [ ] **Prompt 12**:` to `- [x] **Prompt 12**:`
+2. Update the completed count: change `**Completed**: 11/14` to `**Completed**: 12/14`
 
 ---
 
@@ -84,7 +88,7 @@ Pre-commit: All hooks passing
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards
