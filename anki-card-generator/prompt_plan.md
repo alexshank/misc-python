@@ -73,12 +73,7 @@ Setup project with strict code quality infrastructure
 
 Pre-commit enforces: ruff format, ruff check, mypy strict, pytest 90%+
 Tests: 100% coverage for config.py
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 1 as completed
@@ -137,13 +132,7 @@ Implement Phase 1: Markdown section extraction with strict typing
 - Full type annotations using pathlib.Path
 - Google-style docstrings for all functions
 
-Tests: 15 tests passing, 95%+ coverage
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 2 as completed
@@ -205,13 +194,7 @@ Add Phase 1 validation and CLI integration with strict typing
 - Full type annotations using pathlib.Path and dataclasses
 - Google-style docstrings for all public APIs
 
-Tests: 12 new tests, all passing, 92%+ coverage
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 3 as completed
@@ -270,12 +253,7 @@ Implement Gemini API client with retry logic and strict typing
 - Google-style docstrings for all public methods
 
 Tests: 10 tests passing, 100% coverage for gemini_client.py
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 4 as completed
@@ -336,12 +314,7 @@ Implement API request caching with SHA-256 hashing
 - Google-style docstrings for all functions
 
 Tests: 9 tests passing, 100% coverage for api_cache.py
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 5 as completed
@@ -377,9 +350,7 @@ Add Gemini prompt template for Q&A generation
 - Includes rules for skipping commentary and grouping bullets
 - Template ready for markdown content injection
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 6 as completed
@@ -453,13 +424,7 @@ Implement Phase 2: Q&A generation with API caching
 - Full type annotations using pathlib.Path
 - Google-style docstrings for all functions
 
-Tests: 15 tests passing, 95%+ coverage
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 7 as completed
@@ -530,13 +495,7 @@ Add Phase 2 validation and CLI integration with strict typing
 - Full type annotations using pathlib.Path
 - Google-style docstrings for all functions
 
-Tests: 12 new tests, all passing, 91%+ coverage
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 8 as completed
@@ -594,13 +553,7 @@ Implement Phase 3: Anki format conversion with strict typing
 - Full type annotations using pathlib.Path
 - Google-style docstrings for all functions
 
-Tests: 10 tests passing, 95%+ coverage
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 9 as completed
@@ -662,13 +615,7 @@ Add Phase 3 validation and CLI integration with strict typing
 - Full type annotations using pathlib.Path
 - Google-style docstrings for all functions
 
-Tests: 8 new tests, all passing, 92%+ coverage
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 10 as completed
@@ -721,13 +668,7 @@ Add 'all' command to run entire pipeline with strict typing
 - Full type annotations for all command logic
 - Google-style docstrings
 
-Tests: 5 new tests, all passing, 93%+ coverage
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 11 as completed
@@ -786,14 +727,10 @@ Add integration tests and finalize documentation with strict quality standards
 - Updated README.md with usage instructions and quality standards
 - All NFR3 requirements met (strict typing, comprehensive linting, enforcement)
 
-Tests: All tests passing, 92%+ coverage
-Type checking: mypy strict mode 100% passing
 Linting: ruff with all rules 100% passing
 Pre-commit: All hooks passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 12 as completed
@@ -864,9 +801,7 @@ All quality checks passing:
 - ruff all rules: 100%
 - pytest coverage: 92%+
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 13 as completed
@@ -941,13 +876,7 @@ Implement pipeline statistics reporting with strict typing
 - Full type annotations using pathlib.Path and typed dicts
 - Google-style docstrings for all functions
 
-Tests: 12 tests passing, 95%+ coverage
-Type checking: mypy strict mode passing
-Linting: ruff with all rules passing
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Update prompt_plan.md**: Mark Prompt 14 as completed
