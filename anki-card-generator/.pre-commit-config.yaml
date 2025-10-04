@@ -4,13 +4,15 @@ repos:
     hooks:
       - id: ruff-format
         name: ruff-format
+        files: ^anki-card-generator/
       - id: ruff
         name: ruff-check
         args: [--fix]
+        files: ^anki-card-generator/
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.13.0
     hooks:
       - id: mypy
         name: mypy
         args: [--strict]
-        files: ^src/
+        files: ^anki-card-generator/src/
