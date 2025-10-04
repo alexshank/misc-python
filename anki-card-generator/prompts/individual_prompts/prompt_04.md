@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Implement Gemini API client wrapper with error handling, retry logic, and full type annotations.
 
 ## Tasks
@@ -58,7 +60,9 @@ Tests: 10 tests passing, 100% coverage for gemini_client.py
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 4 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 4 checkbox as complete: change `- [ ] **Prompt 4**:` to `- [x] **Prompt 4**:`
+2. Update the completed count: change `**Completed**: 3/14` to `**Completed**: 4/14`
 
 ---
 
@@ -81,7 +85,7 @@ Tests: 10 tests passing, 100% coverage for gemini_client.py
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards

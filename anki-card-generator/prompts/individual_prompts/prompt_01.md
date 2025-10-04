@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Set up the Python project structure, configuration management, strict code quality tooling, and pre-commit hooks following NFR3 requirements.
 
 ## Tasks
@@ -75,7 +77,9 @@ Tests: 100% coverage for config.py
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 1 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 1 checkbox as complete: change `- [ ] **Prompt 1**:` to `- [x] **Prompt 1**:`
+2. Update the completed count: change `**Completed**: 0/14` to `**Completed**: 1/14`
 
 ---
 
@@ -98,7 +102,7 @@ Tests: 100% coverage for config.py
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards

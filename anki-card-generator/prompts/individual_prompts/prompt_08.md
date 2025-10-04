@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Add validation for Phase 2 output and integrate into CLI with full type annotations.
 
 ## Tasks
@@ -70,7 +72,9 @@ Add Phase 2 validation and CLI integration with strict typing
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 8 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 8 checkbox as complete: change `- [ ] **Prompt 8**:` to `- [x] **Prompt 8**:`
+2. Update the completed count: change `**Completed**: 7/14` to `**Completed**: 8/14`
 
 ---
 
@@ -93,7 +97,7 @@ Add Phase 2 validation and CLI integration with strict typing
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards

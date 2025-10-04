@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Test with real Gemini API and real markdown notes, verify cache performance, refine based on results.
 
 ## Tasks
@@ -70,7 +72,9 @@ All quality checks passing:
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 13 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 13 checkbox as complete: change `- [ ] **Prompt 13**:` to `- [x] **Prompt 13**:`
+2. Update the completed count: change `**Completed**: 12/14` to `**Completed**: 13/14`
 
 ---
 
@@ -93,7 +97,7 @@ All quality checks passing:
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards

@@ -2,6 +2,8 @@
 
 **Completed?** No.
 
+**Before Starting**: Check @implementation_status.md to verify this prompt hasn't been completed yet and to see overall project progress.
+
 **Objective**: Implement hash-based API request caching to avoid redundant Gemini API calls (FR2A).
 
 ## Tasks
@@ -60,7 +62,9 @@ Tests: 9 tests passing, 100% coverage for api_cache.py
 
 ## Next Steps
 
-**Update implementation_status.md**: Mark Prompt 5 as completed
+**Update @implementation_status.md**:
+1. Mark Prompt 5 checkbox as complete: change `- [ ] **Prompt 5**:` to `- [x] **Prompt 5**:`
+2. Update the completed count: change `**Completed**: 4/14` to `**Completed**: 5/14`
 
 ---
 
@@ -83,7 +87,7 @@ Tests: 9 tests passing, 100% coverage for api_cache.py
 - Run formatter: `ruff format .`
 - Verify pre-commit: `pre-commit run --all-files`
 - Commit after each prompt completion (hooks will run automatically)
-- Update the prompt status ("Completed?") after committing
+- Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
 
 ## Quality Standards
