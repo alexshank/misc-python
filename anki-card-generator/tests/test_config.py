@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from anki_generator.config import Config, ConfigError, load_config
+from anki_generator.config import load_config
+from anki_generator.models import Config, ConfigError
 
 
 class TestLoadConfig:
