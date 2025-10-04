@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: anki-card-generator
+Version: 0.1.0
+Summary: Generate Anki flashcards from markdown content using Gemini API
+Requires-Python: >=3.10
+Requires-Dist: google-generativeai>=0.3.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: pre-commit>=3.0.0; extra == "dev"
