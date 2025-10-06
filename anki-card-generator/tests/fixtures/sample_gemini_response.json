@@ -1,0 +1,30 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```json\n[\n  {\n    \"question\": \"What is EC2?\",\n    \"answer\": \"EC2 (Elastic Compute Cloud) is Amazon's virtual server service that provides scalable computing capacity in the AWS cloud.\"\n  },\n  {\n    \"question\": \"What is a benefit of EC2 On-demand instances?\",\n    \"answer\": \"On-demand instances allow you to pay only for the compute capacity you use.\"\n  },\n  {\n    \"question\": \"How does EC2 accommodate different computing needs?\",\n    \"answer\": \"EC2 offers multiple instance types optimized for different use cases and is easy to scale up or down based on demand.\"\n  }\n]\n```"
+          }
+        ],
+        "role": "model"
+      },
+      "finish_reason": "STOP",
+      "index": 0
+    }
+  ],
+  "parsed_qa_pairs": [
+    {
+      "question": "What is EC2?",
+      "answer": "EC2 (Elastic Compute Cloud) is Amazon's virtual server service that provides scalable computing capacity in the AWS cloud."
+    },
+    {
+      "question": "What is a benefit of EC2 On-demand instances?",
+      "answer": "On-demand instances allow you to pay only for the compute capacity you use."
+    },
+    {
+      "question": "How does EC2 accommodate different computing needs?",
+      "answer": "EC2 offers multiple instance types optimized for different use cases and is easy to scale up or down based on demand."
+    }
+  ]
+}
