@@ -1,6 +1,7 @@
 """Tests for CLI main entry point."""
 
 import json
+import logging
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -221,8 +222,6 @@ class TestPhase2Command:
         self, tmp_path: Path, caplog: pytest.LogCaptureFixture
     ) -> None:
         """Test phase2 command displays cache statistics."""
-        import logging
-
         sections_dir = tmp_path / "sections"
         sections_dir.mkdir()
         output_dir = tmp_path / "output"
