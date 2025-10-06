@@ -10,8 +10,8 @@ cache_dir = api_cache/
 output_dir = output/
 
 [generation]
-# Gemini model to use (optional, default: gemini-1.5-flash)
-model = gemini-1.5-flash
+# Gemini model to use (optional, default: gemini-2.5-flash)
+model = gemini-2.5-flash
 
 # Maximum retries for API calls (optional, default: 3)
 max_retries = 3
