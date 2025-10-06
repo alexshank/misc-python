@@ -8,8 +8,9 @@
 
 ## Tasks
 
-1. Create `tests/fixtures/sample_gemini_response.json` with mock Gemini JSON response
-2. **Write tests FIRST for `gemini_client.py`**:
+1. Work interactively with the developer to test real API calls to the Gemini API.
+2. Create `tests/fixtures/sample_gemini_response.json` with mock Gemini JSON response
+3. **Write tests FIRST for `gemini_client.py`**:
    - Test: Successful API call with valid response (use unittest.mock)
    - Test: Parse structured JSON response correctly
    - Test: Handle network errors (retry with exponential backoff)
@@ -18,7 +19,7 @@
    - Test: Handle empty response from Gemini
    - Test: Timeout after 30 seconds
    - Test: API key from config is used correctly
-3. Implement `src/anki_generator/gemini_client.py` with:
+4. Implement `src/anki_generator/gemini_client.py` with:
    - **Full type annotations for all methods and functions**
    - **Google-style docstrings** for class and all methods
    - Class: `GeminiClient` with `__init__(api_key: str, model: str) -> None`
@@ -27,7 +28,7 @@
    - Implement 30-second timeout
    - Parse JSON response and return as typed list of dicts
    - Use proper exception types with type annotations
-4. Ensure all code passes:
+5. Ensure all code passes:
    - `pipenv run mypy src/` (strict mode)
    - `pipenv run ruff check .`
    - `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
