@@ -7,6 +7,7 @@ src/anki_card_generator.egg-info/requires.txt
 src/anki_card_generator.egg-info/top_level.txt
 src/anki_generator/__init__.py
 src/anki_generator/config.py
+src/anki_generator/gemini_client.py
 src/anki_generator/main.py
 src/anki_generator/phase1_parser.py
 src/anki_generator/validators.py
@@ -16,6 +17,7 @@ src/anki_generator/models/config.py
 src/anki_generator/models/config_error.py
 src/anki_generator/models/qa_pair.py
 tests/test_config.py
+tests/test_gemini_client.py
 tests/test_main.py
 tests/test_models.py
 tests/test_phase1_parser.py
