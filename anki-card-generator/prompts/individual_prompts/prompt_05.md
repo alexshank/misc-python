@@ -63,6 +63,7 @@ Tests: 9 tests passing, 100% coverage for api_cache.py
 ## Next Steps
 
 **Update @implementation_status.md**:
+
 1. Mark Prompt 5 checkbox as complete: change `- [ ] **Prompt 5**:` to `- [x] **Prompt 5**:`
 2. Update the completed count: change `**Completed**: 4/14` to `**Completed**: 5/14`
 
@@ -83,6 +84,7 @@ Tests: 9 tests passing, 100% coverage for api_cache.py
 
 - Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 - Verify format/lint/types: `pipenv run pre-commit run --all-files`
+- Create a new git branch called "<current-branch-name>-prompt-X", where X is the prompt number being implemented
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
@@ -90,6 +92,7 @@ Tests: 9 tests passing, 100% coverage for api_cache.py
 ## Quality Standards
 
 **NO commits are allowed without:**
+
 1. All tests passing
 2. 90%+ code coverage
 3. mypy strict mode passing (zero type errors)

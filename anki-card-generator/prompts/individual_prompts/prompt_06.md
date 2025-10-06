@@ -38,6 +38,7 @@ Add Gemini prompt template for Q&A generation
 ## Next Steps
 
 **Update @implementation_status.md**:
+
 1. Mark Prompt 6 checkbox as complete: change `- [ ] **Prompt 6**:` to `- [x] **Prompt 6**:`
 2. Update the completed count: change `**Completed**: 5/14` to `**Completed**: 6/14`
 
@@ -58,6 +59,7 @@ Add Gemini prompt template for Q&A generation
 
 - Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 - Verify format/lint/types: `pipenv run pre-commit run --all-files`
+- Create a new git branch called "<current-branch-name>-prompt-X", where X is the prompt number being implemented
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
@@ -65,6 +67,7 @@ Add Gemini prompt template for Q&A generation
 ## Quality Standards
 
 **NO commits are allowed without:**
+
 1. All tests passing
 2. 90%+ code coverage
 3. mypy strict mode passing (zero type errors)

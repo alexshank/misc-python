@@ -64,6 +64,7 @@ Pre-commit: All hooks passing
 ## Next Steps
 
 **Update @implementation_status.md**:
+
 1. Mark Prompt 12 checkbox as complete: change `- [ ] **Prompt 12**:` to `- [x] **Prompt 12**:`
 2. Update the completed count: change `**Completed**: 11/14` to `**Completed**: 12/14`
 
@@ -84,6 +85,7 @@ Pre-commit: All hooks passing
 
 - Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 - Verify format/lint/types: `pipenv run pre-commit run --all-files`
+- Create a new git branch called "<current-branch-name>-prompt-X", where X is the prompt number being implemented
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
@@ -91,6 +93,7 @@ Pre-commit: All hooks passing
 ## Quality Standards
 
 **NO commits are allowed without:**
+
 1. All tests passing
 2. 90%+ code coverage
 3. mypy strict mode passing (zero type errors)
