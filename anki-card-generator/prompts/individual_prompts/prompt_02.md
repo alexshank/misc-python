@@ -61,6 +61,7 @@ Implement Phase 1: Markdown section extraction with strict typing
 ## Next Steps
 
 **Update @implementation_status.md**:
+
 1. Mark Prompt 2 checkbox as complete: change `- [ ] **Prompt 2**:` to `- [x] **Prompt 2**:`
 2. Update the completed count: change `**Completed**: 1/14` to `**Completed**: 2/14`
 
@@ -81,6 +82,7 @@ Implement Phase 1: Markdown section extraction with strict typing
 
 - Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 - Verify format/lint/types: `pipenv run pre-commit run --all-files`
+- Create a new git branch called "<current-branch-name>-prompt-X", where X is the prompt number being implemented
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
@@ -88,6 +90,7 @@ Implement Phase 1: Markdown section extraction with strict typing
 ## Quality Standards
 
 **NO commits are allowed without:**
+
 1. All tests passing
 2. 90%+ code coverage
 3. mypy strict mode passing (zero type errors)

@@ -77,6 +77,7 @@ Implement pipeline statistics reporting with strict typing
 ## Next Steps
 
 **Update @implementation_status.md**:
+
 1. Mark Prompt 14 checkbox as complete: change `- [ ] **Prompt 14**:` to `- [x] **Prompt 14**:`
 2. Update the completed count: change `**Completed**: 13/14` to `**Completed**: 14/14`
 
@@ -97,6 +98,7 @@ Implement pipeline statistics reporting with strict typing
 
 - Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 - Verify format/lint/types: `pipenv run pre-commit run --all-files`
+- Create a new git branch called "<current-branch-name>-prompt-X", where X is the prompt number being implemented
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
@@ -104,6 +106,7 @@ Implement pipeline statistics reporting with strict typing
 ## Quality Standards
 
 **NO commits are allowed without:**
+
 1. All tests passing
 2. 90%+ code coverage
 3. mypy strict mode passing (zero type errors)

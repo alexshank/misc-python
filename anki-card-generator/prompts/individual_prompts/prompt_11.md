@@ -55,6 +55,7 @@ Add 'all' command to run entire pipeline with strict typing
 ## Next Steps
 
 **Update @implementation_status.md**:
+
 1. Mark Prompt 11 checkbox as complete: change `- [ ] **Prompt 11**:` to `- [x] **Prompt 11**:`
 2. Update the completed count: change `**Completed**: 10/14` to `**Completed**: 11/14`
 
@@ -75,6 +76,7 @@ Add 'all' command to run entire pipeline with strict typing
 
 - Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 - Verify format/lint/types: `pipenv run pre-commit run --all-files`
+- Create a new git branch called "<current-branch-name>-prompt-X", where X is the prompt number being implemented
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
@@ -82,6 +84,7 @@ Add 'all' command to run entire pipeline with strict typing
 ## Quality Standards
 
 **NO commits are allowed without:**
+
 1. All tests passing
 2. 90%+ code coverage
 3. mypy strict mode passing (zero type errors)

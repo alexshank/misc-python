@@ -64,6 +64,7 @@ Add Phase 3 validation and CLI integration with strict typing
 ## Next Steps
 
 **Update @implementation_status.md**:
+
 1. Mark Prompt 10 checkbox as complete: change `- [ ] **Prompt 10**:` to `- [x] **Prompt 10**:`
 2. Update the completed count: change `**Completed**: 9/14` to `**Completed**: 10/14`
 
@@ -84,6 +85,7 @@ Add Phase 3 validation and CLI integration with strict typing
 
 - Run tests after each prompt: `pipenv run pytest --cov=src/anki_generator --cov-fail-under=90`
 - Verify format/lint/types: `pipenv run pre-commit run --all-files`
+- Create a new git branch called "<current-branch-name>-prompt-X", where X is the prompt number being implemented
 - Commit after each prompt completion (hooks will run automatically)
 - Update @implementation_status.md (mark checkbox as complete and increment count)
 - Pause after each prompt for review before continuing to the next
@@ -91,6 +93,7 @@ Add Phase 3 validation and CLI integration with strict typing
 ## Quality Standards
 
 **NO commits are allowed without:**
+
 1. All tests passing
 2. 90%+ code coverage
 3. mypy strict mode passing (zero type errors)
