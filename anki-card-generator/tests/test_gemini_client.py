@@ -217,9 +217,9 @@ class TestRetryLogic:
     @patch("anki_generator.gemini_client.time.sleep")
     def test_network_error_retry(
         self,
-        mock_sleep: MagicMock,
+        mock_sleep: MagicMock,  # noqa: ARG002
         mock_genai: MagicMock,
-        gemini_client: GeminiClient,  # noqa: ARG002
+        gemini_client: GeminiClient,
     ) -> None:
         """Test retry on network errors."""
         mock_model = MagicMock()
@@ -258,9 +258,9 @@ class TestRetryLogic:
     @patch("anki_generator.gemini_client.time.sleep")
     def test_service_unavailable_max_retries(
         self,
-        mock_sleep: MagicMock,
+        mock_sleep: MagicMock,  # noqa: ARG002
         mock_genai: MagicMock,
-        gemini_client: GeminiClient,  # noqa: ARG002
+        gemini_client: GeminiClient,
     ) -> None:
         """Test service unavailable error after max retries."""
         mock_model = MagicMock()
