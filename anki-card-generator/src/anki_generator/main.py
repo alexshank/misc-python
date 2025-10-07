@@ -9,7 +9,12 @@ from anki_generator.config import load_config
 from anki_generator.gemini_client import GeminiClient
 from anki_generator.phase1_parser import create_manifest, parse_markdown_file
 from anki_generator.phase2_generator import load_prompt_template, process_sections
-from anki_generator.validators import validate_phase1_output, validate_phase2_output
+from anki_generator.phase3_formatter import format_anki_cards
+from anki_generator.validators import (
+    validate_phase1_output,
+    validate_phase2_output,
+    validate_phase3_output,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -196,6 +201,90 @@ def validate2_command(output_dir: str) -> None:
     logger.info("Validation passed!")
 
 
+def phase3_command(phase2_dir: str, output_dir: str) -> None:
+    """Execute Phase 3: Format Q&A pairs as Anki-compatible TSV.
+
+    Args:
+        phase2_dir: Directory containing Phase 2 output (qa_pairs.json).
+        output_dir: Directory where Phase 3 output will be saved.
+
+    Raises:
+        FileNotFoundError: If Phase 2 output not found.
+
+    Example:
+        >>> phase3_command("phase2_output/", "phase3_output/")
+        # Creates anki_import.txt
+    """
+    phase2_path = Path(phase2_dir)
+    output_path = Path(output_dir)
+
+    # Check Phase 2 completion
+    qa_file = phase2_path / "qa_pairs.json"
+    if not qa_file.exists():
+        msg = f"Phase 2 output not found: {qa_file}. Run phase2 command first."
+        raise FileNotFoundError(msg)
+
+    logger.info("Starting Phase 3: Anki format conversion")
+    logger.info("Phase 2 directory: %s", phase2_path)
+    logger.info("Output directory: %s", output_path)
+
+    # Create output directory if needed
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Format Q&A pairs as Anki cards
+    anki_file = output_path / "anki_import.txt"
+    format_anki_cards(phase2_path, anki_file)
+
+    logger.info("=" * 60)
+    logger.info("Phase 3 Complete!")
+    logger.info("  Anki import file: %s", anki_file)
+    logger.info("  Next step: Import %s into Anki", anki_file.name)
+    logger.info("=" * 60)
+
+
+def validate3_command(output_dir: str, phase2_dir: str) -> None:
+    """Validate Phase 3 output directory and files.
+
+    Args:
+        output_dir: Directory containing Phase 3 output to validate.
+        phase2_dir: Directory containing Phase 2 output (for count validation).
+
+    Raises:
+        ValueError: If validation fails.
+
+    Example:
+        >>> validate3_command("phase3_output/", "phase2_output/")
+        # Validates anki_import.txt
+    """
+    output_path = Path(output_dir)
+    phase2_path = Path(phase2_dir)
+
+    logger.info("Validating Phase 3 output: %s", output_path)
+
+    result = validate_phase3_output(output_path, phase2_path)
+
+    # Display warnings
+    if result.warnings:
+        for warning in result.warnings:
+            logger.warning(warning)
+
+    # Check validation result
+    if not result.success:
+        logger.error("Validation failed with %d errors:", len(result.errors))
+        for error in result.errors:
+            logger.error("  - %s", error)
+
+        # Show validation_failures.txt location
+        failures_file = output_path / "validation_failures.txt"
+        if failures_file.exists():
+            logger.error("Detailed validation report: %s", failures_file)
+
+        msg = "Validation failed"
+        raise ValueError(msg)
+
+    logger.info("Validation passed!")
+
+
 def main() -> None:
     """Main CLI entry point with argument parsing.
 
@@ -204,6 +293,8 @@ def main() -> None:
     - validate1: Validate Phase 1 output
     - phase2: Generate Q&A pairs from sections
     - validate2: Validate Phase 2 output
+    - phase3: Format Q&A pairs as Anki import file
+    - validate3: Validate Phase 3 output
 
     Example:
         >>> # From command line:
@@ -211,6 +302,8 @@ def main() -> None:
         >>> # python -m anki_generator.main validate1 output/
         >>> # python -m anki_generator.main phase2 sections/ qa_output/
         >>> # python -m anki_generator.main validate2 qa_output/
+        >>> # python -m anki_generator.main phase3 qa_output/ anki_output/
+        >>> # python -m anki_generator.main validate3 anki_output/ qa_output/
     """
     parser = argparse.ArgumentParser(
         description="Anki Card Generator - Generate flashcards from markdown",
@@ -270,6 +363,34 @@ def main() -> None:
         help="Directory containing Phase 2 output",
     )
 
+    # Phase 3 command
+    phase3_parser = subparsers.add_parser(
+        "phase3",
+        help="Format Q&A pairs as Anki import file",
+    )
+    phase3_parser.add_argument(
+        "phase2_dir",
+        help="Directory containing Phase 2 output (qa_pairs.json)",
+    )
+    phase3_parser.add_argument(
+        "output_dir",
+        help="Directory for Phase 3 output (anki_import.txt)",
+    )
+
+    # Validate3 command
+    validate3_parser = subparsers.add_parser(
+        "validate3",
+        help="Validate Phase 3 output",
+    )
+    validate3_parser.add_argument(
+        "output_dir",
+        help="Directory containing Phase 3 output",
+    )
+    validate3_parser.add_argument(
+        "phase2_dir",
+        help="Directory containing Phase 2 output (for count validation)",
+    )
+
     args = parser.parse_args()
 
     # Execute command
@@ -281,6 +402,10 @@ def main() -> None:
         phase2_command(args.sections_dir, args.output_dir, args.config)
     elif args.command == "validate2":
         validate2_command(args.output_dir)
+    elif args.command == "phase3":
+        phase3_command(args.phase2_dir, args.output_dir)
+    elif args.command == "validate3":
+        validate3_command(args.output_dir, args.phase2_dir)
     else:
         parser.print_help()
         sys.exit(1)

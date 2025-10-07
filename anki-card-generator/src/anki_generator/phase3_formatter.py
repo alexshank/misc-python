@@ -33,7 +33,6 @@ def escape_content(text: str) -> str:
     return text.replace("\n", "<br>")
 
 
-
 def sanitize_tag(tag: str) -> str:
     """Sanitize tag value for Anki.
 
@@ -57,7 +56,6 @@ def sanitize_tag(tag: str) -> str:
 
     # Remove special characters except hyphens and underscores
     return re.sub(r"[^a-zA-Z0-9_-]", "", tag)
-
 
 
 def generate_tags(aws_service: str, section_header: str) -> list[str]:
