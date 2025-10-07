@@ -11,6 +11,13 @@ from anki_generator.gemini_client import GeminiClient
 from anki_generator.phase1_parser import create_manifest, parse_markdown_file
 from anki_generator.phase2_generator import load_prompt_template, process_sections
 from anki_generator.phase3_formatter import format_anki_cards
+from anki_generator.statistics import (
+    compute_cache_stats,
+    compute_phase1_stats,
+    compute_phase2_stats,
+    compute_phase3_stats,
+    format_statistics_output,
+)
 from anki_generator.validators import (
     validate_phase1_output,
     validate_phase2_output,
@@ -286,6 +293,36 @@ def validate3_command(output_dir: str, phase2_dir: str) -> None:
     logger.info("Validation passed!")
 
 
+def stats_command(output_base: str, cache_dir: str = "api_cache/") -> None:
+    """Display comprehensive pipeline statistics.
+
+    Args:
+        output_base: Base directory containing phase1/, phase2/, phase3/ subdirectories.
+        cache_dir: Directory containing API response cache (default: api_cache/).
+
+    Example:
+        >>> stats_command("output/", "api_cache/")
+        # Displays statistics for all pipeline phases
+    """
+    output_path = Path(output_base)
+    cache_path = Path(cache_dir)
+
+    # Define phase directories
+    phase1_dir = output_path / "phase1"
+    phase2_dir = output_path / "phase2"
+    phase3_dir = output_path / "phase3"
+
+    # Compute statistics
+    phase1_stats = compute_phase1_stats(phase1_dir)
+    phase2_stats = compute_phase2_stats(phase2_dir)
+    phase3_stats = compute_phase3_stats(phase3_dir, phase2_dir)
+    cache_stats = compute_cache_stats(cache_path)
+
+    # Format and display
+    output = format_statistics_output(phase1_stats, phase2_stats, phase3_stats, cache_stats)
+    print(output)  # noqa: T201
+
+
 def all_command(input_file: str, output_base: str, config_file: str = "config.ini") -> None:
     """Execute entire pipeline: phase1→validate1→phase2→validate2→phase3→validate3.
 
@@ -376,6 +413,7 @@ def main() -> None:
     - validate2: Validate Phase 2 output
     - phase3: Format Q&A pairs as Anki import file
     - validate3: Validate Phase 3 output
+    - stats: Display comprehensive pipeline statistics
 
     Example:
         >>> # From command line:
@@ -386,6 +424,7 @@ def main() -> None:
         >>> # python -m anki_generator.main validate2 qa_output/
         >>> # python -m anki_generator.main phase3 qa_output/ anki_output/
         >>> # python -m anki_generator.main validate3 anki_output/ qa_output/
+        >>> # python -m anki_generator.main stats output/
     """
     parser = argparse.ArgumentParser(
         description="Anki Card Generator - Generate flashcards from markdown",
@@ -492,6 +531,21 @@ def main() -> None:
         help="Directory containing Phase 2 output (for count validation)",
     )
 
+    # Stats command
+    stats_parser = subparsers.add_parser(
+        "stats",
+        help="Display comprehensive pipeline statistics",
+    )
+    stats_parser.add_argument(
+        "output_base",
+        help="Base directory containing phase1/, phase2/, phase3/ subdirectories",
+    )
+    stats_parser.add_argument(
+        "--cache-dir",
+        default="api_cache/",
+        help="Directory containing API response cache (default: api_cache/)",
+    )
+
     args = parser.parse_args()
 
     # Execute command
@@ -509,6 +563,8 @@ def main() -> None:
         phase3_command(args.phase2_dir, args.output_dir)
     elif args.command == "validate3":
         validate3_command(args.output_dir, args.phase2_dir)
+    elif args.command == "stats":
+        stats_command(args.output_base, args.cache_dir)
     else:
         parser.print_help()
         sys.exit(1)
