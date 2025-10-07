@@ -109,8 +109,8 @@ def augment_qa_pairs(
 
     for pair in qa_pairs:
         qa = QAPair(
-            question=pair["q"],
-            answer=pair["a"],
+            question=pair["question"],
+            answer=pair["answer"],
             aws_service=pair["aws_service"],
             source_markdown=source_markdown,
             section_header=section_header,

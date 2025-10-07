@@ -1,0 +1,73 @@
+## 08-26-2025 - Learn Cantrill (Tech Fundamentals, Networking, Continued)
+
+- DNS
+	- ".com" is an example of a Top Level Domain (TLD)
+	- if a Name Server and its Hosted Zone(s) are pointed to by an Authoritative server, they are Authoritative
+		- THIS ONLY FOLLOWS FOR AN AUTHORATIVE TLD NAME SERVER!!!
+	- DNS resolver in your router or ISP handles most work on your behalf
+	- a DNS query can resolve to another DNS name (poor performance)
+	- Domain Registrars are NOT the same as DNS Hosting Provider
+		- many companies server as both though
+		- e.g., Route 53
+- DNSSEC - secure version of DNS
+	- two main benefits over standard DNS
+		- (1) Data Origin Authentication
+		- (2) Data Integrity Protection
+	- DNS cache poisoning is one issue DNSSEC solves
+	- DNSSEC adds additional response data to DNS (does not replace DNS)
+	- Chain of Trust used to verify DNS resolving
+	- asymm encryption used to verify RRSIG signature values
+	- Resource Record Sets (RRSETs) are verified not, individual resource records
+	- Zone Signing Key (ZSK) and Key Signing Key (KSK) are critical
+	- Zone Signing Key is encapsulated in single zone
+		- it can be rotated freely without impacting parent zone
+	- DS Records are used for validation in the Chain of Trust
+	- the Signing Ceremony is how the Trust Anchor is established
+	- HSMs are used to never expose the keys
+	- the public "." DNS Root KSK verifies the Absolute Trust
+	- many people are involved for redundancy and security
+	- ceremony is repeated every three months (roughly)
+- Border Gateway Protocol (BGP)
+	- decides how things are routed from point A to point B
+	- made up of Autonomous Systems (AS)
+		- routers controlled by one entity, aka a network
+		- they are treated as black boxes by BGP
+	- ASNs are uniquely allocated by IANA
+		- can use reserved, private ASNs for private peering
+	- BGP operates over tcp/179
+		- peering needs to be manually configured though
+	- ASPATH is the best path to the destination according to the peers
+		- doesn't care about condition or link speed of the topology
+	- iBGP and eBGP for internal / external communication
+		- mostly work with eBGP in AWS
+	- artificially lengthen path to tune traffic
+		- e.g., avoid using sattelite AS every time
+- Layer 7 Firewalls
+	- layer 3 or 4 firewalls cannot see additional info like the HTTP method being used
+	- you can decrpyt HTTPS, check contents, re-encrypt
+	- you could even modify content at the firewall
+	- doesn't have to be the HTTP protocol, could be others like SMTP
+- IPSEC VPN Fundamentals
+	- a set of protocols to setup secure tunnels across insecure networks
+	- provides authentication and encryption
+	- between two peers (local and remote)
+	- called IPSEC Tunnels (for "interesting" traffic)
+	- two main phases
+		- IKE Phase 1 (slow and heavy)
+			- creates phase 1 tunnel (IKE SA, "security association")
+			- can be reused for multiple phase 2's, between interesting traffic
+			- Diffy Helman key and exchange material are used to create symmetric key
+		- IKE Phase 2 (fast and agile)
+			- bulk symmetric encryption of "interesting" traffic
+	- two types of VPNs
+		- policy-based VPNs
+			- Rule Sets match traffic and direct to a pair of Security Associations 
+			- more difficult to setup, but give you different security fo different types of traffic
+		- route-based VPNs
+			- target matching the given IP prefix
+- AWS Organizations
+	- member accounts' billing info is disregarded for Consolidating Billing
+	- Organization Root is container for all accounts in the org
+	- some orgs have dedicated identity accounts
+		- identity federation can be used to access these identities with on-premise IdP
+		- use "role switch" to gain access to other accounts in the organization

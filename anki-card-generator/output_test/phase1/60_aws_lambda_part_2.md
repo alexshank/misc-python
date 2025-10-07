@@ -1,0 +1,25 @@
+## AWS Lambda - Part 2
+
+- lambda in public AWS cloud by default
+  - this is different than a public subnet
+  - VPC managed by AWS that you have no control over
+    - allows public (stateful) egress, blocks ingress
+  - can't access VPCs and private subnets
+- lambda in a VPC
+  - assign Security Group
+    - can access private resources as expected
+  - should review all networking concepts???
+  - access public internet via
+    - Network Address Translator (NAT) gateway in public subnet
+    - then, Internet Gateway (IGW)
+    - alternatively, use VPC Endpoint for private connection to public API like DynamoDB???
+  - lambda in public subnet can NEVER access the public internet
+  - lambda ALWAYS has access to CloudWatch Logs
+- use ENI, NATGW, Fixed Elastic IP, and IGW to maintain static IP on public internet??
+- synchronous invocations for CLI, API Gateway, etc.
+  - client handles all error handling
+- asynchronous invocations for S3, SNS, EventBridge, etc.
+  - should be idempotent
+  - can send to SNS or SQS DLQ after 3 failed tries
+- architecture example where SNS invokes rapidly without DLQ opportunity
+  - delay vs batching and retry tradeoffs

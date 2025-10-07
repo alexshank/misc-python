@@ -1,0 +1,37 @@
+## 08-28-2025 - Learn Cantrill (AWS Orgs)
+
+- each IAM user can have two access keys
+- access keys can be..
+	- created
+	- deleted
+	- inactive
+	- active
+- management account is NEVER impacted by Service Control Policies (SCPs)
+- SCPs are "account permissions boundaries"
+	- you can never restrict the account root user from doing things in the account, but you can restrict the account itself
+	- therefore, you restrict the root user indirectly
+- SCPs can be attached to AWS Orgs root, Organizational Units (OUs), and directly to accounts
+- FullAwsAccess SCP policy makes SCPs act like a deny list architecture
+	- there's an implicit deny all if you don't have this FullAwsAccess policy
+- all AWS accounts have a root user, but they have no credentials by default if created from AWS Orgs
+	- AWS Orgs can enable central root user configuration and delete existing root user credentials
+- Security Token Service creates temporary credentials similar to long-term access keys
+	- they do not belong to the specific entity
+	- you can limit the permissions to a subset of the assumed role's permissions
+		- this is done using Session Policies
+- EC2 Instance Profiles are containers for IAM Roles the EC2 instance's services can assume
+	- can only have one role / one instance profile per EC2 instance
+- you CANNOT invalid temporary STS credentials, you must use the deny all policy trick for role assumptions before a certain timestamp!!!
+	- once you assume the role, your temporary credentials will exist until their expiration time
+- only identity-based policies are impacted by Permission Boundaries
+	- resource-based policies are not impacted
+- permissions boundary is also known as identity boundary
+- example use case for permissions boundaries:
+	- give "IAM Administrator" privileges to an IAM User
+		- do NOT let them escalate their own IAM permissions
+	- as a fail safe for other identities getting too much access (cross-account, etc.)
+- policy evaluation logic
+	- SCPs of the account containing the identiy are the only ones that matter!!!
+		- meaning if you access a cross-account resource, SCPs for that account are irrelevant!!!
+	- an allow from a Resource Policy returns early with allow (before permission boundary, session, policies, or identity policies)
+		- but remember that explicit denies are still checked before this

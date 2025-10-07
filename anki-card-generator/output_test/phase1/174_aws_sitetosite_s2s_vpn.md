@@ -1,0 +1,22 @@
+## AWS Site-to-Site (S2S) VPN
+
+- AWS managed VPN
+- needs...
+  - VPN appliance with public IP for corporate data center
+  - Virtual Private Gateway (VGW) setup in each VPC
+  - setup Customer Gateway (CGW) to point to on-prem VPN appliance
+- two VPN connections / tunnels created and encrypted with IPSec
+- can pair with AWS Global Accelerator
+- route propagation
+  - still need to make sure there are no overlapping CIDRs???
+  - Static vs Dynamic (BGP) Routing
+  - BGP (eBGP when over internet)
+  - Autonomous System Number (ASN) of CGW and VGW must be specified
+- NAT Gateway DOES NOT allow traffic from S2S VPN to IGW / public internet
+  - NAT Instance (self-managed) CAN access public internet
+  - if going AWS -> corporate data center, NAT Gateway WOULD work
+- AWS VPN CloudHub = connect up to 10 Customer Gateway from each Virtual Private Gateway (VGW)
+  - remember: still going over public internet, just encrypted
+- recommended to use DX Gateway to avoid creating separate VGWs for each VPC to the Customer Gateway
+  - Shared Services VPC can use VPC peering to avoid need for multiple VGWs
+  - another alternative to this approach is Transit Gateway

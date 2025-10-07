@@ -1,0 +1,36 @@
+## Storage Gateway
+
+- hybrid cloud is useful or required for various reasons
+- AWS Storage Gateway gives on-premise infra access to cloud native storage
+  - example: block, file, and object storage
+- bidirectional (access your on-premise data as well)
+- types of Storage Gateways
+  - S3 File Gateway
+  - FSx File Gateway
+  - Volume Gateway
+  - Tape Gateway
+- S3 File Gateway
+  - no glacier tiering
+  - interact with S3 like a normal file share
+  - NFS and SMB protocols
+  - caching for most recently used file in the gateway
+  - SMB protocol is more for Windows, so has Active Directory (AD) integration
+- FSx File Gateway
+  - already accessible for your on-premise machines
+  - only benefit is the local cache in the gateway in your data center
+  - Windows native compatibility
+  - useful for group file shares and home directories
+- Volume Gateway
+  - block storage using iSCSI protocol backed by S3???
+  - can help restore on-premise volumes???
+  - Cached and Stored volumes
+  - need to understand better!!!
+- Tape Gateway
+  - Virtual Tape Library (VTL) backed by S3
+  - iSCSI protocol
+  - the company is responsible for using the physical tapes / media changers
+  - works with leading backup vendors
+- company would typical run these gateways on one of its servers
+  - alternative is the Storage Gateway Hardware Appliance
+  - has all the needed resources to function correctly as any of the gateway types
+- good architecture diagram to conclude section

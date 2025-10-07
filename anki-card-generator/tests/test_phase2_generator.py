@@ -82,8 +82,8 @@ class TestAugmentQAPairs:
     def test_augment_with_metadata(self) -> None:
         """Test augmenting Q&A pairs with source metadata."""
         qa_pairs = [
-            {"q": "What is EC2?", "a": "Elastic Compute Cloud", "aws_service": "EC2"},
-            {"q": "What is S3?", "a": "Simple Storage Service", "aws_service": "S3"},
+            {"question": "What is EC2?", "answer": "Elastic Compute Cloud", "aws_service": "EC2"},
+            {"question": "What is S3?", "answer": "Simple Storage Service", "aws_service": "S3"},
         ]
         source_markdown = "# AWS\n## EC2 Basics\nEC2 content"
         section_header = "EC2 Basics"
@@ -132,7 +132,7 @@ class TestProcessSections:
             mock_client = Mock(spec=GeminiClient)
             mock_client.model = "gemini-2.5-flash"
             mock_client.generate_qa_pairs.return_value = [
-                {"q": f"Q{i}", "a": f"A{i}", "aws_service": "EC2"} for i in range(2)
+                {"question": f"Q{i}", "answer": f"A{i}", "aws_service": "EC2"} for i in range(2)
             ]
 
             stats = process_sections(
@@ -177,7 +177,7 @@ class TestProcessSections:
 
             # Setup cache hit
             mock_compute_hash.return_value = "test_hash"
-            cached_response = [{"q": "Cached Q", "a": "Cached A", "aws_service": "S3"}]
+            cached_response = [{"question": "Cached Q", "answer": "Cached A", "aws_service": "S3"}]
             mock_get_cache.return_value = cached_response
 
             mock_client = Mock(spec=GeminiClient)
@@ -230,7 +230,7 @@ class TestProcessSections:
 
             mock_client = Mock(spec=GeminiClient)
             mock_client.model = "gemini-2.5-flash"
-            api_response = [{"q": "New Q", "a": "New A", "aws_service": "IAM"}]
+            api_response = [{"question": "New Q", "answer": "New A", "aws_service": "IAM"}]
             mock_client.generate_qa_pairs.return_value = api_response
 
             stats = process_sections(
@@ -270,7 +270,7 @@ class TestProcessSections:
             # First call fails, second succeeds
             mock_client.generate_qa_pairs.side_effect = [
                 Exception("API Error"),
-                [{"q": "Q2", "a": "A2", "aws_service": "EC2"}],
+                [{"question": "Q2", "answer": "A2", "aws_service": "EC2"}],
             ]
 
             stats = process_sections(
@@ -307,7 +307,7 @@ class TestProcessSections:
             mock_client = Mock(spec=GeminiClient)
             mock_client.model = "gemini-2.5-flash"
             mock_client.generate_qa_pairs.return_value = [
-                {"q": "Question 1", "a": "Answer 1", "aws_service": "S3"}
+                {"question": "Question 1", "answer": "Answer 1", "aws_service": "S3"}
             ]
 
             process_sections(manifest, sections_dir, mock_client, cache_dir, template, output_dir)
@@ -349,7 +349,7 @@ class TestProcessSections:
             mock_client = Mock(spec=GeminiClient)
             mock_client.model = "gemini-2.5-flash"
             mock_client.generate_qa_pairs.return_value = [
-                {"q": "Q", "a": "A", "aws_service": "EC2"}
+                {"question": "Q", "answer": "A", "aws_service": "EC2"}
             ]
 
             process_sections(manifest, sections_dir, mock_client, cache_dir, template, output_dir)
@@ -401,7 +401,7 @@ class TestProcessSections:
             mock_client = Mock(spec=GeminiClient)
             mock_client.model = "gemini-2.5-flash"
             mock_client.generate_qa_pairs.return_value = [
-                {"q": "Q", "a": "A", "aws_service": "EC2"}
+                {"question": "Q", "answer": "A", "aws_service": "EC2"}
             ]
 
             # Process only first 2 sections with item_count=2

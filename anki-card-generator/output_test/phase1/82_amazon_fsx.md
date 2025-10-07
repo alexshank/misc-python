@@ -1,0 +1,30 @@
+## Amazon FSx
+
+- run managed versions of Lustre, Windows File Server, NetApp ONTAP, OpenZFS, etc.
+  - all different file systems
+- FSx in general
+  - Scratch File System vs Persistent File System
+  - replace files within minutes
+- FSx for Windows can still be mounted on Linux EC2 instances
+- supports Microsoft Distributed File System (DFS) Namespaces
+  - for grouping files across multiple FS
+- Amazon FSx for Lustre
+  - "Linux" plus "Cluster"
+  - if you hear High Performance Computing (HPC), think Lustre
+  - seemless integration with S3???
+    - read as a file system???
+    - S3 optional data repository???
+  - can be used with VPN or DX
+- Amazon FSx for NetApp ONTAP
+  - for moving workloads already using ONTAP or NAS to AWS
+  - very broad compatibility
+  - storage shrinks / grows automatically
+  - snapshots, replication, low-cost, compressions, AND dedup
+  - PIT instantaneous backups
+- Amazon FSx for OpenZFS
+  - for moving workloads already using ZFS to AWS
+  - very broad compatibility
+  - high IOPS (1 million) and low latency (<0.5ms)
+  - snapshots, replication, low-cost, compressions
+  - NO DATA DEDUP
+  - PIT instantaneous backups

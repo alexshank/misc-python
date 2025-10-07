@@ -1,0 +1,24 @@
+## AWS CodeDeploy
+
+- deploy applications to EC2 and other AWS Services
+- native integration with AWS services is nice
+  - main reason to choose CodeDeploy over open source tools
+  - e.g., Terraform
+- CodeDeploy to EC2
+  - they run the CodeDeploy agent
+  - appspec.yml + deployment strategy
+  - hooks for verification
+- CodeDeploy to ASG
+  - in place updates
+  - blue / green deployments
+    - must be using ELB
+- CodeDeploy to Lambda
+  - traffic shifting feature
+  - before and after traffic shifting hooks
+    - they themselves are lambda functions
+  - leverages Lambda Aliases
+  - SAM framework natively uses CodeDeploy
+  - easy + automated rollback using CW Alarms
+- Codedeploy to ECS
+  - setup done using ECS service definition
+  - supports canary deployment (Canary10Percent5Minutes)

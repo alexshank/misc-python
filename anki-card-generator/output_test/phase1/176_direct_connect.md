@@ -1,0 +1,26 @@
+## Direct Connect
+
+- provides dedicated PRIVATE connection from remote network to your VPC
+- more expensive than VPN
+- must use Direct Connect locations
+- private access to AWS via Private VIF
+- bypasses your ISP, reduces network costs, increases bandwidth and stability
+- NOT redundant (would need a second DX created)
+- VIF = Virtual Interface
+  - Public VIF for anything AWS (e.g., EC2 service)
+  - Private VIF connect to resources in VPC (e.g., EC2 instance)
+- Transit Virtual Interface connects to resource in VPC via Transit Gateway
+- VPC Interface Endpoints can be accessed through Private VIF
+- should understand the Direct Connect Diagram slide architecture
+- Dedicated Connections or Hosted Connections
+  - can add or remove capacity for Hosted Connections
+  - > 1 month lead time for new connections
+- NOT encrypted by default (use VPN over DX Public VIF)
+  - architecture diagram shows Private VIF though???
+- Link Aggregation Groups (LAG) logically groups DX connections
+  - active-active for increased speed and failover
+  - requires Dedicated Connections
+  - requires identical bandwidths
+  - must terminate at same AWS Connect Endpoint
+- Direct Connect Gateway to connect to VPC across regions and / or across accounts
+  - allows you to integrates the DX with Transit Gateway

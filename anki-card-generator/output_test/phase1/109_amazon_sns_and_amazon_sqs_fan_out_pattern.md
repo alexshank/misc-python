@@ -1,0 +1,22 @@
+## Amazon SNS and Amazon SQS Fan Out Pattern
+
+- pattern to send messages to multiple SQS queues
+- push once to SNS topic, and subscibe many queues to that SNS topic
+- benefits
+    - fully decoupled
+    - SQS gives
+        - data persistence
+        - delayed processing
+        - retries
+    - add more subscribers over time
+- SQS queue access policy must allow SNS to write
+- can deliver messages to cross-region queues
+- SNS can also publish to Kinesis Data Firehose (KDF)
+    - therefore, can send to any KDF supported destinations (e.g., S3)
+- can also use SNS FIFO topics
+    - same throughput limit as SQS FIFO
+    - subscribers can be SQS Standard or SQS FIFO queues!!!
+    - deduplication via Diduplication ID or Content Based Deduplication
+- SNS Message Filter
+    - JSON policy to filter messages sent to SNS topic's subscriptions
+    - if omitted, all messages recieved by subscriber

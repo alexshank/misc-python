@@ -1,0 +1,31 @@
+## API Gateway - Part 1
+
+- 29 second timeout (think about lambda timeout >29 seconds)
+- 10 MB max payload size
+- Deployment Stages
+- how does API Gateway interact with an ALB???
+- expose...
+  - HTTP (ALB integration???)
+  - Lambda
+  - AWS Service API
+- pre-signed URL to get around API Gateway payload size limits
+- endpoint types
+- caching (300 second TTL by default)
+  - defined per stage
+  - override cache settings per method
+- error codes (502, 503, 504 specifically)
+  - out of order invocations???
+- security
+  - SSL certificates
+  - resource policies
+  - IAM Execution Roles (to access services like Lambda)
+  - CORS (cross-origin resource sharing)
+- authentication
+  - IAM credentials via Sig V4
+  - Lambda Authorizer
+  - Cognito User Pools
+- CloudWatch Logs
+  - enabled at stage level (ERROR, INFO)
+  - can send logs to Kinesis Data Firehose, alternatively
+- CloudWatch Metrics
+- X-Ray for tracing full architecture picture
