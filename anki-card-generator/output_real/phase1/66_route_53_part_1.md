@@ -1,0 +1,33 @@
+## Route 53 - Part 1
+
+- Hosted Zone = management system for DNS records of a domain and its subdomains
+- record types
+  - A, AAAA, CNAME, and NS are only relevant ones
+  - can't create CNAME record for the top node of a DNS namespace (example.com)
+- AWS resources expose an AWS hostname
+- ALIAS records work for both ROOT and NON ROOT DOMAINS
+  - free of charge
+  - native health checks
+  - targets include ELB, CloudFront Distribution, and others???
+  - you CANNOT set an ALIAS record for an EC2 DNS name???
+- TTL cost / outdated record tradeoff
+- TTL required for all DNS records other than ALIAS
+- Routing Policies
+  - simple (no health checks)
+  - weighted (health checks)
+  - latency-based (health checks)
+  - failover (Active-Passive) (health check mandatory)
+  - geolocation (health checks)
+    - based on user location (e.g., United States), not traffic to AWS regions
+  - geoproximity (does this have health checks???)
+    - based on user location (e.g., latitude / longitude), not traffic to AWS regions
+    - must have Route 53 Traffic Flow enabled
+    - uses Bias to manipulate weighting
+    - Traffic Flow for maintaining large and complex record configurations
+      - configurations can be saved as Traffic Flow Policy
+      - Traffic Flow Policy supports versioning
+  - multi-value (health checks)
+    - limit 8 healthy records returned per query
+    - is NOT a subsititute for an ELB
+  - IP-based (does this have health checks???)
+    - provide list of CIDRs for your clients

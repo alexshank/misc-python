@@ -1,0 +1,24 @@
+## Redshift
+
+- analytics data warehousing
+- based on Postgres, but not for Online Transaction Processing (OLTP)
+- Online Analytical Processing (OLAP)
+- Massively Parallel Query execution (MPP)
+- integrates with tools like AWS Quicksight and Tableau
+- Database Migration Service (DMS) and other data loading options
+- only certain clusters have multi-AZ options
+- leader vs compute node
+- Redshift Enhanced VPC Routing for reduced costs???
+- Athena is better if queries are sporadic and you don't want to provision resources
+- snapshots are incremental
+- CANNOT restore snapshots into an old cluster
+- snapshots work similarly to RDS
+- can automate copy of snapshots to different regions
+- "Redshift snapshot copy grant" for different KMS keys in different regions
+- Redshift Spectrum - query S3 data that is not loaded into Redshift
+  - must have Redshift cluster available to start the query
+  - does Redshift Spectrum manage all of its own nodes???
+- Redshift Workload Management (WLM) - queues for managing query priorities
+  - automatic WLM vs manual WLM
+- Concurrency Scaling Cluster for increased requests
+  - WLM can control which queries go to this cluster

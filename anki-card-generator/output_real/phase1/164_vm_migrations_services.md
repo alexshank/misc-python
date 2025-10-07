@@ -1,0 +1,22 @@
+## VM Migrations Services
+
+- AWS Application Discovery Services
+  - Agentless discovery (Application Discovery Agentless Connector)
+    - OS agnostic, Open Virtual Appliance (OVA) package for VMware host
+  - Agent-based discovery
+    - find mappings between services and more detailed info
+  - Migration Hub Data Exploration
+    - use Athena to analyze data collected from on-premise servers during discovery
+    - add extra data sources like Configuration Management Database (CMDB) exports
+- AWS Application Migration Service (MGN)
+  - replaces "CloudEndure Migration" and AWS Server Migration Service (SMS)
+  - for Lift-and-shift (rehost)
+  - on-premise our other cloud providers' servers
+  - AWS Replication Agent to achieve this
+- AWS Elastic Disaster Recovery (DRS)
+  - used to be called "CloudEndure Disaster Recovery"
+  - recover your on-premise or cloud-based servers
+  - also uses AWS Replication Agent
+  - has failover and failback functionality
+- can use Amazon Linux 2 AMI as a VM (.iso format)
+- don't forget about AWS Database Migration Service (DMS)

@@ -1,0 +1,39 @@
+## Amazon Relational Database Service (RDS)
+
+- managed provisioning, backups, patching, and monitoring or various database engines
+- run within a VPC, control with Security Groups
+- can expand the EBS storage with auto-scaling
+- automated PITR, but backups expire
+- manual snapshots, set retention time
+	- can also move across regions
+- management or outage notifications via SNS
+- Multi-AZ standby instances for failover
+	- application never accesses the standby instance (one DNS name)
+- Read Replicas for throughput, eventual consistency, and cross-region
+- use Route53 for distributing reads across replicas
+	- can leverage health checks
+- in-flight and at rest encryption (SSL for in-flight)
+- authentication via IAM
+	- for MariaDB, MySQL, and PostgreSQL
+	- what about for other database engines???
+	- obtain token via RDS API calls
+	- network in/out is therefore always encrypted using SSL
+	- EC2 Instance Profiles make this integration easy???
+- authorization still is within RDS
+- can copy un-encrypted snapshot into encrypted one
+- CloudTrail CANNOT track queries made within RDS
+- Oracle
+	- RDS Backups for backup and restore of Amazon RDS for Oracle
+	- Oracle Recover Manager (RMAN) for backup, but restore only NON- Amazon RDS for Oracle
+	- Real Application Clusters (RAC) NOT SUPPORTED by RDS
+		- must use EC2 for full control
+	- use Transparent Data Encryption (TDE) for encryption at rest
+	- Database Migration Service (DMS) works on Oracle RDS
+- RDS for MySQL
+	- use "mysqldump" to migrate from RDS to non-RDS instance
+- RDS Proxy for AWS Lambda
+	- avoid "TooManyConnections" exceptions
+	- manages connection pools and cleaning up connections
+	- requires either
+		- public proxy and public lambda
+		- private proxy and lambda in VPC

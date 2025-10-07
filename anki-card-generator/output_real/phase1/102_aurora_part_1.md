@@ -1,0 +1,30 @@
+## Aurora - Part 1
+
+- PostgreSQL and MySQL are compatible
+- storage grows by 10GB increments all the way to 128TB
+- 6 copies of data, across three AZs
+- up to 15 read replicas available via endpoints
+- replication across regions is ENTIRE database
+	- NOT just certain tables like DynamoDB
+- load or offload data directly from / to S3
+	- this saves network and resource costs
+- self-healing with peer-to-peer replication
+- backup, smapshots, and restore features
+- storage striped across 100s of volumes
+- failover of master in less than 30 seconds
+- support for cross-region replication
+- Aurora DB Cluster
+	- Writer Endpoint
+	- Reader Endpoint (load balancing)
+- Aurora Endpoints (host address + port)
+	- Cluster Endpoint (Writer Endpoint)
+	- Reader Endpoint (load balancing)
+	- Custom Endpoint (a set of particular DB instances you configure)
+		- different DB parameter group???
+	- Instance Endpoint (a particular DB instance)
+- Aurora Logs (just for MySQL???)
+	- can either download them or publish them to CloudWatch Logs
+- Performance Insights tool to troubleshoot
+- CloudWatch Metrics for basic hardware usage statistics
+- Enhanced Monitoring Metrics for host level, process view, per-second metric
+- Slow Query logs also available

@@ -1,0 +1,21 @@
+## Amazon WorkSpaces
+
+- managed, secure cloud desktops
+- Virtual Desktop Infrastructure (VDI)
+- on-demand or monthly subscriptions
+- integrates with Microsoft Active Directory
+- Windows or Linux machines
+- WorkSpaces Application Manager (WAM)
+	- deploy managed applications as virutalized application containers
+- Windows updates handled automatically
+	- uses Maintenance Windows (you can define)
+	- Always On WorkSpaces default to Sunday morning
+	- AutoStop WorkSpaces perform updates once a month
+- Cross Region Redirection
+	- create AD Connector in failover region
+		- can't use multi-region AWS Managed Microsoft AD (per documentation)
+	- Route53 TXT record for connection aliases to each region
+	- user data can be persisted across regions with Amazon WorkDocs
+	- user data is region specific!!!
+- IP Access Control Groups
+	- like Security Groups, but for addresses ranges users can be from

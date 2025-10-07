@@ -1,0 +1,40 @@
+## Step Functions
+
+- don't need to know in depth, just the capabilities and where it fits in your architecture
+- flow represented by JSON sate machine
+- features
+    - sequence
+    - parrallel
+    - conditions
+    - timeouts
+    - error handling
+- maximum execution time of one year!!!
+- human approval feature
+- note the extra latency between step function and lambda communication
+- optimized integrations
+    - Lambda
+    - AWS Batch
+    - DynamoDB
+    - EMR
+    - other Step Functions
+    - many others
+- AWS SDK Integrations
+    - pretty standard, 200+ AWS services available
+- many example workflows available in the AWS docs
+    - e.g., coordinate all the steps of training a ML model with SageMaker, S3, etc.
+- Step Functions Tasks
+    - Lambda Tasks
+    - Activitiy Tasks (must use polling, is not serverless)
+    - Service Tasks (connect to supported AWS service)
+    - Wait Tasks (set duration or until timestamp)
+- Step Functions do NOT integrate natively with AWS Mechanical Turk!!!
+    - SWF is preferred over Step Functions for this???
+- Standard Workflows vs Express Workflows
+    - Express can kickoff many more executions per second
+    - Express has shorter maximum duration
+    - Express is at-least-once execution (instead of exactly-once)
+    - Express priced similar to Lambdas (instead of per state transition)
+- Express Workflow Synchronous vs Asynchronous
+- can use error handling, retries, and alerting with State Machines
+    - integrates with EventBridge, SNS, etc. for notifying about failures
+- remember, steps like reading a DDB table can be done natively without a Lambda function

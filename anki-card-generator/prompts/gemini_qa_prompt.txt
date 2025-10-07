@@ -17,11 +17,11 @@ RULES:
 
 REQUIRED OUTPUT FORMAT (valid JSON array):
 [
-  {
+  {{
     "q": "question text here",
     "a": "answer text here",
     "aws_service": "service name (e.g., IAM, S3, EC2)"
-  }
+  }}
 ]
 
 NOTES TO TRANSFORM:
