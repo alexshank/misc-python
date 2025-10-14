@@ -132,17 +132,13 @@ class GeminiClient:
                     logger.error("=" * 80)  # noqa: TRY400
                     logger.error("GEMINI API RESPONSE PARSING ERROR")  # noqa: TRY400
                     logger.error("=" * 80)  # noqa: TRY400
-                    logger.error(
-                        "INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS
-                    )  # noqa: TRY400
+                    logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
                     prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
                     if len(prompt) > _LOG_PROMPT_MAX_CHARS:
                         prompt_excerpt += "..."
                     logger.error("%s", prompt_excerpt)  # noqa: TRY400
                     logger.error("-" * 80)  # noqa: TRY400
-                    logger.error(
-                        "FULL RESPONSE TEXT (first %d chars):", _LOG_RESPONSE_MAX_CHARS
-                    )  # noqa: TRY400
+                    logger.error("FULL RESPONSE TEXT (first %d chars):", _LOG_RESPONSE_MAX_CHARS)  # noqa: TRY400
                     response_excerpt = response.text[:_LOG_RESPONSE_MAX_CHARS]
                     if len(response.text) > _LOG_RESPONSE_MAX_CHARS:
                         response_excerpt += "..."
@@ -168,9 +164,7 @@ class GeminiClient:
                 logger.error("=" * 80)  # noqa: TRY400
                 logger.error("GEMINI API RETRY LIMIT EXCEEDED")  # noqa: TRY400
                 logger.error("=" * 80)  # noqa: TRY400
-                logger.error(
-                    "INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS
-                )  # noqa: TRY400
+                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
                 prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
                 if len(prompt) > _LOG_PROMPT_MAX_CHARS:
                     prompt_excerpt += "..."
@@ -188,9 +182,7 @@ class GeminiClient:
                 logger.error("GEMINI API TIMEOUT ERROR")  # noqa: TRY400
                 logger.error("=" * 80)  # noqa: TRY400
                 logger.error("Timeout after %d seconds", self.timeout)  # noqa: TRY400
-                logger.error(
-                    "INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS
-                )  # noqa: TRY400
+                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
                 prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
                 if len(prompt) > _LOG_PROMPT_MAX_CHARS:
                     prompt_excerpt += "..."
@@ -204,9 +196,7 @@ class GeminiClient:
                 logger.error("GEMINI GOOGLE API ERROR")  # noqa: TRY400
                 logger.error("=" * 80)  # noqa: TRY400
                 logger.error("Error: %s", str(e))  # noqa: TRY400
-                logger.error(
-                    "INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS
-                )  # noqa: TRY400
+                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
                 prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
                 if len(prompt) > _LOG_PROMPT_MAX_CHARS:
                     prompt_excerpt += "..."
@@ -220,7 +210,9 @@ class GeminiClient:
         raise GeminiAPIError(msg)
 
     def _parse_response(
-        self, response_text: str, prompt: str = ""  # noqa: ARG002
+        self,
+        response_text: str,
+        prompt: str = "",  # noqa: ARG002
     ) -> list[dict[str, str]]:
         """Parse and validate the JSON response from Gemini.
 

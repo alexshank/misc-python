@@ -16,766 +16,766 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 ### 08-15-2025 - Reviewing "IAM" Section Notes
 
 - Confused Deputy Problem is when lesser-privleged role coerces another role to perform an action
-	- cross-account or cross-service third parties are the culprits usually
-	- for example, solved by the "external ID" in an IAM Role Trust Policy
-	- recommended to use aws:SourceArn, aws:SourceAccount, aws:SourceOrgID, or aws:SourceOrgPaths in policies for cross-service policies
-	- https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html
+  - cross-account or cross-service third parties are the culprits usually
+  - for example, solved by the "external ID" in an IAM Role Trust Policy
+  - recommended to use aws:SourceArn, aws:SourceAccount, aws:SourceOrgID, or aws:SourceOrgPaths in policies for cross-service policies
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html
 - Service-Linked Roles include CloudWatch Logs for writing to Kinesis Data Firehose
-	- service roles and service-linked roles are NOT equivalent
-	- permission boundaries cannot be applied to service-linked roles
+  - service roles and service-linked roles are NOT equivalent
+  - permission boundaries cannot be applied to service-linked roles
 - role chaining (when a role assumes another role)
-	- limits role session to an hour
-	- can pass session tags and transitive session tags when assuming roles 
-	- permissions policies and trust policies(delegation)
-		- first role has an allow stsAssumeRole in its permissions policy
-		- second role has the first role's ARN in its trust policy
-		- the first role would have a trust policy for its AWS account root
+  - limits role session to an hour
+  - can pass session tags and transitive session tags when assuming roles
+  - permissions policies and trust policies(delegation)
+    - first role has an allow stsAssumeRole in its permissions policy
+    - second role has the first role's ARN in its trust policy
+    - the first role would have a trust policy for its AWS account root
 - a trust policy is itself a Resource-Based Policy
 - permission boundaries get put directly on either an IAM Role or an IAM User
-	- they do NOT work with User Groups
-	- Resource-Based Policies are NOT IMPACTED by permission boundaries
+  - they do NOT work with User Groups
+  - Resource-Based Policies are NOT IMPACTED by permission boundaries
 - if using an external identity provider, you are given an IAM role and temperary credentials
 - Session Policies can also limit permissions after assuming a Role or becoming a User
 - IAM Role Session ARNs are TREATED SEPARATELY from the IAM Role in Resource-Based Policies
-	- permission boundaries, identity-based policies, and session policies implicit denies are ignored
+  - permission boundaries, identity-based policies, and session policies implicit denies are ignored
 - IAM Identity Center, Incognito, and IAM are NOT THE SAME for federation
-	- https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers.html
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers.html
 - an example of how to allow your company's IdP to work with AWS Console logins
-	- https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
 - TODO need to watch a demo of these three different federation setups!!!
 
-## 08-17-2025 - Learn Cantrill 
+## 08-17-2025 - Learn Cantrill
 
 - trying to watch a demo of the three different federation setups
-	- beginning to use https://learn.cantrill.io/ as a supplemental training material
-	- has useful demos and scenarios
+  - beginning to use https://learn.cantrill.io/ as a supplemental training material
+  - has useful demos and scenarios
 - detouring through Learn Cantrill's conent...
-	- course intro content
-	- AWS account setup demos
-	- OSI Networking Layers overview
+  - course intro content
+  - AWS account setup demos
+  - OSI Networking Layers overview
 - OSI 7-Layer Networking Model
-	- a CONCEPTUAL model, not always how networks are implemented
-		- e.g., finding clear division between layer 4/5 not valuable
-	- note that a "layer X" device has all lower layers as well
-	- this means that an L3 router understands layers 1, 2, and 3
-	- layer 1, physical, dumb, many collisions, copper/fiber/wifi
-		- HUBS are dumb repeater devices on this layer
-	- layer 2, data link, introduces frames, physical devices have pre-defined MAC addresses
-		- uses carrier signal to know when coast is clear to send frame
-		- random, increasing backoff
-		- SWITCHES use MAC Address tables to avoid dumb repeating
-		- each port is a separate collision domain!!!
-	- layer 3, network, getting from one network to another (not LAN)
-		- introduces the IP protocol (IPv4 vs IPv6)
-		- the LAN networks do NOT have to have same L2 protocol
-		- the IP packet is continuously encapsulated by different L2 frames at each network (hop)
-		- the IP packet contains a field specifying the L4 protocol
-		- IPv4
-			- first two octets define the network, second two define the host (in the /16 prefix case)
-			- subnet mask determines if packet needs to go to gateway (typically your router)
-			- route tables and routes with most specificity are utilized
-			- packets then repackaged for L2 transport via MAC Address translation (Address Resolution Protocol)
-		- Address Resolution Protocol (ARP)
-			- L2 broadcast to ask for MAC address of matching IP address
-		- layer 4 will address the issues of...
-			- no channels of communication (different conversations between same two IPs)
-			- no ordering of packets
-			- no delivery guaruntee
-			- no flow control
-		- Network Address Translation (NAT) used for multiple private IPs to share single public IP
-	- layer 4/5, transport/session
-		- TCP or UDP are typical layer 4 protocols
-		- TCP
-			- has segments that are each encapsulatted into an IP packet
-			- introduces ports for multiple conversations
-			- introduces sequence number and acknowledgement
-			- introduces window for managing send/recieve volumes
-			- connect via random (ephemeral) client port and known server port
-				- NACLs (stateless) in AWS often have to whitelist these "high ports"
-				- SGs (stateful) in AWS will allow inverse traffic back out
-			- three-way handshake
-				- common flags can be set (SYN, SYN-ACK FIN, ACK)
-				- basically using two unique sequence numbers and ACKs
-		- strictly speaking, managing state in the firewall would be a layer 5 technology
-			- HTTP cookies would also be a layer 5 technology
-	- layer 6, presentation, how to interpret or translate data to a standard format for other applications
-		- HTTP using ASCII encoding is an example
-		- often combined with / achieved by application layer
-	- layer 7, application, what commands the interpreted data correspond to
-		- for HTTP, "G-E-T" means GET and the command fetches data
+  - a CONCEPTUAL model, not always how networks are implemented
+    - e.g., finding clear division between layer 4/5 not valuable
+  - note that a "layer X" device has all lower layers as well
+  - this means that an L3 router understands layers 1, 2, and 3
+  - layer 1, physical, dumb, many collisions, copper/fiber/wifi
+    - HUBS are dumb repeater devices on this layer
+  - layer 2, data link, introduces frames, physical devices have pre-defined MAC addresses
+    - uses carrier signal to know when coast is clear to send frame
+    - random, increasing backoff
+    - SWITCHES use MAC Address tables to avoid dumb repeating
+    - each port is a separate collision domain!!!
+  - layer 3, network, getting from one network to another (not LAN)
+    - introduces the IP protocol (IPv4 vs IPv6)
+    - the LAN networks do NOT have to have same L2 protocol
+    - the IP packet is continuously encapsulated by different L2 frames at each network (hop)
+    - the IP packet contains a field specifying the L4 protocol
+    - IPv4
+      - first two octets define the network, second two define the host (in the /16 prefix case)
+      - subnet mask determines if packet needs to go to gateway (typically your router)
+      - route tables and routes with most specificity are utilized
+      - packets then repackaged for L2 transport via MAC Address translation (Address Resolution Protocol)
+    - Address Resolution Protocol (ARP)
+      - L2 broadcast to ask for MAC address of matching IP address
+    - layer 4 will address the issues of...
+      - no channels of communication (different conversations between same two IPs)
+      - no ordering of packets
+      - no delivery guaruntee
+      - no flow control
+    - Network Address Translation (NAT) used for multiple private IPs to share single public IP
+  - layer 4/5, transport/session
+    - TCP or UDP are typical layer 4 protocols
+    - TCP
+      - has segments that are each encapsulatted into an IP packet
+      - introduces ports for multiple conversations
+      - introduces sequence number and acknowledgement
+      - introduces window for managing send/recieve volumes
+      - connect via random (ephemeral) client port and known server port
+        - NACLs (stateless) in AWS often have to whitelist these "high ports"
+        - SGs (stateful) in AWS will allow inverse traffic back out
+      - three-way handshake
+        - common flags can be set (SYN, SYN-ACK FIN, ACK)
+        - basically using two unique sequence numbers and ACKs
+    - strictly speaking, managing state in the firewall would be a layer 5 technology
+      - HTTP cookies would also be a layer 5 technology
+  - layer 6, presentation, how to interpret or translate data to a standard format for other applications
+    - HTTP using ASCII encoding is an example
+    - often combined with / achieved by application layer
+  - layer 7, application, what commands the interpreted data correspond to
+    - for HTTP, "G-E-T" means GET and the command fetches data
 - there are other networking models like the 5 layer TCP/IP model
 - FTP could have a completely different layer 5, 6, 7 implementation
-	- it could entirely ignore a L5 implementation
+  - it could entirely ignore a L5 implementation
 - don't worry too much about making everything fit perfectly into the conceptual frameworks
 
 ## 08-22-2025 - Learn Cantrill (Tech Fundamentals, Networking)
 
 - Network Address Translation (NAT)
-	- deals with IPv4 shortages
-	- governing agencies give out public IPs to ISPs and then individuals
-	- Static NAT is 1:1 private IP to public IP
-		- AWS IGW is an example
-	- Dynamic NAT is for when you have more private IPs than public IPs
-	- Port Address Translation (PAT) aka "overloading"
-		- map many private IPs to a single public IP
-		- AWS NATGW is an example
-	- IPv6 means you DO NOT need any form of address translation
-	- public and private addresses CANNOT communicate over public internet
-	- For PAT, the NAT device keeps track of / generates random public source ports
-		- the private source ports of the private IP devices can conflict without issue
-		- you CANNOT initiate a connection with a private device behind PAT
+  - deals with IPv4 shortages
+  - governing agencies give out public IPs to ISPs and then individuals
+  - Static NAT is 1:1 private IP to public IP
+    - AWS IGW is an example
+  - Dynamic NAT is for when you have more private IPs than public IPs
+  - Port Address Translation (PAT) aka "overloading"
+    - map many private IPs to a single public IP
+    - AWS NATGW is an example
+  - IPv6 means you DO NOT need any form of address translation
+  - public and private addresses CANNOT communicate over public internet
+  - For PAT, the NAT device keeps track of / generates random public source ports
+    - the private source ports of the private IP devices can conflict without issue
+    - you CANNOT initiate a connection with a private device behind PAT
 - IPv4 Addressing and Subnetting
-	- you must be allocated a public IPv4 address
-	- Internet Assigned Numbers Authority (IANA)
-	- 4.29 billion IP addresses
-	- address spaces
-		- Class A (first octet, huge businesses in early days)
-		- Class B (first two octets, fewer IPs for each network)
-		- Class C (first three octets, for small businesses)
-		- Class D and E also exist, but are their own topic
-	- private IPs are carved out of the Class A, B, C address spaces
-	- 172.31 private network is used for default AWS VPC
-	- should still always aim to avoid private network IP address overlaps
-	- subnetting = splitting an original network into multiple address spaces
-	- use a suffix like /16 to specify the starting bits of a subnetwork
-		- larger the prefix value, smaller the network
-		- one /16 network == two /17 networks
-		- /0 is the entire internet
-		- /32 is a single IP address
-	- typically have an even number of subnets, but could just split one of the halves again to get 3
+  - you must be allocated a public IPv4 address
+  - Internet Assigned Numbers Authority (IANA)
+  - 4.29 billion IP addresses
+  - address spaces
+    - Class A (first octet, huge businesses in early days)
+    - Class B (first two octets, fewer IPs for each network)
+    - Class C (first three octets, for small businesses)
+    - Class D and E also exist, but are their own topic
+  - private IPs are carved out of the Class A, B, C address spaces
+  - 172.31 private network is used for default AWS VPC
+  - should still always aim to avoid private network IP address overlaps
+  - subnetting = splitting an original network into multiple address spaces
+  - use a suffix like /16 to specify the starting bits of a subnetwork
+    - larger the prefix value, smaller the network
+    - one /16 network == two /17 networks
+    - /0 is the entire internet
+    - /32 is a single IP address
+  - typically have an even number of subnets, but could just split one of the halves again to get 3
 - SSL and TLS
-	- privacy and data integrity between client and server
-	- TLS is newer version of SSL
-	- combination of asymmetric and symmetric encryption
-	- identity verification (typically only verify the server, but could do both)
-	- reliable connection (detect alternations)
-	- TLS begins with an established TCP connection
-	- three main phases for initiation
-		- cipher suites (server returns certificate with public key)
-		- authentication (client checks server's certificate via a known CA)
-			- operating system and browser vendors have list of trusted Certificate Authorities (CA)
-			- server makes a Certificate Signing Request (CSR)
-			- CA then generates a signed certificate for the server to use
-		- key exchange (get from asymm to symm encryption for efficiency)
-			- client creates pre-master key
-			- pre-master key is shared via public key encrypt and private key decrypt
-			- server and client each generate the same master secret
-	- the application layer (e.g., HTTPS or FTPS) decides if TLS should be intiated
-		- TLS is technically considered layer 6 presentation layer
-		- TLS is practically considered layer 4 transport layer
- - Recovery Point Objective (RPO) and Recovery Time Objective (RTO)
-	- Recovery Point Objective
-		- maximum amount of data (time) that can be lost (stomached) by the organization
-		- i.e., time between successful backups
-		- may be different between systems (e.g., can't lose bank transactions, but could lose internal tool's data)
-	- Recovery Time Objective
-		- maximum tolerable length of time a system can be down
-		- starts the second the error happens, ends when you hand the system back to the business folks
-		- need good monitoring or you don't know the true start time of the outage
-	- aim for GOLDILOCKS scenario (as close to the true business requirements as possible)
+  - privacy and data integrity between client and server
+  - TLS is newer version of SSL
+  - combination of asymmetric and symmetric encryption
+  - identity verification (typically only verify the server, but could do both)
+  - reliable connection (detect alternations)
+  - TLS begins with an established TCP connection
+  - three main phases for initiation
+    - cipher suites (server returns certificate with public key)
+    - authentication (client checks server's certificate via a known CA)
+      - operating system and browser vendors have list of trusted Certificate Authorities (CA)
+      - server makes a Certificate Signing Request (CSR)
+      - CA then generates a signed certificate for the server to use
+    - key exchange (get from asymm to symm encryption for efficiency)
+      - client creates pre-master key
+      - pre-master key is shared via public key encrypt and private key decrypt
+      - server and client each generate the same master secret
+  - the application layer (e.g., HTTPS or FTPS) decides if TLS should be intiated
+    - TLS is technically considered layer 6 presentation layer
+    - TLS is practically considered layer 4 transport layer
+- Recovery Point Objective (RPO) and Recovery Time Objective (RTO)
+  - Recovery Point Objective
+    - maximum amount of data (time) that can be lost (stomached) by the organization
+    - i.e., time between successful backups
+    - may be different between systems (e.g., can't lose bank transactions, but could lose internal tool's data)
+  - Recovery Time Objective
+    - maximum tolerable length of time a system can be down
+    - starts the second the error happens, ends when you hand the system back to the business folks
+    - need good monitoring or you don't know the true start time of the outage
+  - aim for GOLDILOCKS scenario (as close to the true business requirements as possible)
 - VLANs, TRUNKS, and QinQ
-	- remember LAN is a shared broadcast domain on network layer 2
-	- remember each port of a switch is a separate collision domain
-	- we want to separate broadcast domains to relevant parties (e.g., sales, security, IoT, whatever)
-	- issue is dealing with physical hardware plugged into switches (what if devices are in separate buildings?)
-	- Virtual Local Area Networks (VLANs) solve this issue
-	- they add a VLAN ID to 802.1Q ethernet frames
-	- creates up to 4096 broadcast domains in the same physical network
-		- 802.1AD ethernet frames allow ISPs to use stacked VLANS
-		- also called nested QinQ VLANs
-		- introduces another field in the frames
-		- advanced networking topic, out of scope
-	- ACCESS and TRUNK ports on networking switches
-	- now, your physical network is managed via switch software
-	- you cannot communicate between these networks without layer 3 device (like a router)
-	- Public and Privte VIFs in AWS Direct Connect work using VLANs
+  - remember LAN is a shared broadcast domain on network layer 2
+  - remember each port of a switch is a separate collision domain
+  - we want to separate broadcast domains to relevant parties (e.g., sales, security, IoT, whatever)
+  - issue is dealing with physical hardware plugged into switches (what if devices are in separate buildings?)
+  - Virtual Local Area Networks (VLANs) solve this issue
+  - they add a VLAN ID to 802.1Q ethernet frames
+  - creates up to 4096 broadcast domains in the same physical network
+    - 802.1AD ethernet frames allow ISPs to use stacked VLANS
+    - also called nested QinQ VLANs
+    - introduces another field in the frames
+    - advanced networking topic, out of scope
+  - ACCESS and TRUNK ports on networking switches
+  - now, your physical network is managed via switch software
+  - you cannot communicate between these networks without layer 3 device (like a router)
+  - Public and Privte VIFs in AWS Direct Connect work using VLANs
 - DNS
-	- funtionally, a big database for looking up IPs by domain name
-	- DNS Zone = database containing records (e.g., "\*.netflix.com")
-	- ZoneFile = file storing the zone on disk
-	- Name Server (NS) server that hosts 1 or more Zones (1 or more ZoneFiles)
-	- authoritive servers are the geniune source of truth
-	- there are thirteen root DNS server IPs around the world (U of Maryland, NASA, etc.)
-		- these thirteen IPs use any-cast so there are realistically many more servers
-		- the IP protocol has unicast, broadcast, multicast, anycast, and geocast addressing models
+  - funtionally, a big database for looking up IPs by domain name
+  - DNS Zone = database containing records (e.g., "\*.netflix.com")
+  - ZoneFile = file storing the zone on disk
+  - Name Server (NS) server that hosts 1 or more Zones (1 or more ZoneFiles)
+  - authoritive servers are the geniune source of truth
+  - there are thirteen root DNS server IPs around the world (U of Maryland, NASA, etc.)
+    - these thirteen IPs use any-cast so there are realistically many more servers
+    - the IP protocol has unicast, broadcast, multicast, anycast, and geocast addressing models
 
 ## 08-26-2025 - Learn Cantrill (Tech Fundamentals, Networking, Continued)
 
 - DNS
-	- ".com" is an example of a Top Level Domain (TLD)
-	- if a Name Server and its Hosted Zone(s) are pointed to by an Authoritative server, they are Authoritative
-		- THIS ONLY FOLLOWS FOR AN AUTHORATIVE TLD NAME SERVER!!!
-	- DNS resolver in your router or ISP handles most work on your behalf
-	- a DNS query can resolve to another DNS name (poor performance)
-	- Domain Registrars are NOT the same as DNS Hosting Provider
-		- many companies server as both though
-		- e.g., Route 53
+  - ".com" is an example of a Top Level Domain (TLD)
+  - if a Name Server and its Hosted Zone(s) are pointed to by an Authoritative server, they are Authoritative
+    - THIS ONLY FOLLOWS FOR AN AUTHORATIVE TLD NAME SERVER!!!
+  - DNS resolver in your router or ISP handles most work on your behalf
+  - a DNS query can resolve to another DNS name (poor performance)
+  - Domain Registrars are NOT the same as DNS Hosting Provider
+    - many companies server as both though
+    - e.g., Route 53
 - DNSSEC - secure version of DNS
-	- two main benefits over standard DNS
-		- (1) Data Origin Authentication
-		- (2) Data Integrity Protection
-	- DNS cache poisoning is one issue DNSSEC solves
-	- DNSSEC adds additional response data to DNS (does not replace DNS)
-	- Chain of Trust used to verify DNS resolving
-	- asymm encryption used to verify RRSIG signature values
-	- Resource Record Sets (RRSETs) are verified not, individual resource records
-	- Zone Signing Key (ZSK) and Key Signing Key (KSK) are critical
-	- Zone Signing Key is encapsulated in single zone
-		- it can be rotated freely without impacting parent zone
-	- DS Records are used for validation in the Chain of Trust
-	- the Signing Ceremony is how the Trust Anchor is established
-	- HSMs are used to never expose the keys
-	- the public "." DNS Root KSK verifies the Absolute Trust
-	- many people are involved for redundancy and security
-	- ceremony is repeated every three months (roughly)
+  - two main benefits over standard DNS
+    - (1) Data Origin Authentication
+    - (2) Data Integrity Protection
+  - DNS cache poisoning is one issue DNSSEC solves
+  - DNSSEC adds additional response data to DNS (does not replace DNS)
+  - Chain of Trust used to verify DNS resolving
+  - asymm encryption used to verify RRSIG signature values
+  - Resource Record Sets (RRSETs) are verified not, individual resource records
+  - Zone Signing Key (ZSK) and Key Signing Key (KSK) are critical
+  - Zone Signing Key is encapsulated in single zone
+    - it can be rotated freely without impacting parent zone
+  - DS Records are used for validation in the Chain of Trust
+  - the Signing Ceremony is how the Trust Anchor is established
+  - HSMs are used to never expose the keys
+  - the public "." DNS Root KSK verifies the Absolute Trust
+  - many people are involved for redundancy and security
+  - ceremony is repeated every three months (roughly)
 - Border Gateway Protocol (BGP)
-	- decides how things are routed from point A to point B
-	- made up of Autonomous Systems (AS)
-		- routers controlled by one entity, aka a network
-		- they are treated as black boxes by BGP
-	- ASNs are uniquely allocated by IANA
-		- can use reserved, private ASNs for private peering
-	- BGP operates over tcp/179
-		- peering needs to be manually configured though
-	- ASPATH is the best path to the destination according to the peers
-		- doesn't care about condition or link speed of the topology
-	- iBGP and eBGP for internal / external communication
-		- mostly work with eBGP in AWS
-	- artificially lengthen path to tune traffic
-		- e.g., avoid using sattelite AS every time
+  - decides how things are routed from point A to point B
+  - made up of Autonomous Systems (AS)
+    - routers controlled by one entity, aka a network
+    - they are treated as black boxes by BGP
+  - ASNs are uniquely allocated by IANA
+    - can use reserved, private ASNs for private peering
+  - BGP operates over tcp/179
+    - peering needs to be manually configured though
+  - ASPATH is the best path to the destination according to the peers
+    - doesn't care about condition or link speed of the topology
+  - iBGP and eBGP for internal / external communication
+    - mostly work with eBGP in AWS
+  - artificially lengthen path to tune traffic
+    - e.g., avoid using sattelite AS every time
 - Layer 7 Firewalls
-	- layer 3 or 4 firewalls cannot see additional info like the HTTP method being used
-	- you can decrpyt HTTPS, check contents, re-encrypt
-	- you could even modify content at the firewall
-	- doesn't have to be the HTTP protocol, could be others like SMTP
+  - layer 3 or 4 firewalls cannot see additional info like the HTTP method being used
+  - you can decrpyt HTTPS, check contents, re-encrypt
+  - you could even modify content at the firewall
+  - doesn't have to be the HTTP protocol, could be others like SMTP
 - IPSEC VPN Fundamentals
-	- a set of protocols to setup secure tunnels across insecure networks
-	- provides authentication and encryption
-	- between two peers (local and remote)
-	- called IPSEC Tunnels (for "interesting" traffic)
-	- two main phases
-		- IKE Phase 1 (slow and heavy)
-			- creates phase 1 tunnel (IKE SA, "security association")
-			- can be reused for multiple phase 2's, between interesting traffic
-			- Diffy Helman key and exchange material are used to create symmetric key
-		- IKE Phase 2 (fast and agile)
-			- bulk symmetric encryption of "interesting" traffic
-	- two types of VPNs
-		- policy-based VPNs
-			- Rule Sets match traffic and direct to a pair of Security Associations 
-			- more difficult to setup, but give you different security fo different types of traffic
-		- route-based VPNs
-			- target matching the given IP prefix
+  - a set of protocols to setup secure tunnels across insecure networks
+  - provides authentication and encryption
+  - between two peers (local and remote)
+  - called IPSEC Tunnels (for "interesting" traffic)
+  - two main phases
+    - IKE Phase 1 (slow and heavy)
+      - creates phase 1 tunnel (IKE SA, "security association")
+      - can be reused for multiple phase 2's, between interesting traffic
+      - Diffy Helman key and exchange material are used to create symmetric key
+    - IKE Phase 2 (fast and agile)
+      - bulk symmetric encryption of "interesting" traffic
+  - two types of VPNs
+    - policy-based VPNs
+      - Rule Sets match traffic and direct to a pair of Security Associations
+      - more difficult to setup, but give you different security fo different types of traffic
+    - route-based VPNs
+      - target matching the given IP prefix
 - AWS Organizations
-	- member accounts' billing info is disregarded for Consolidating Billing
-	- Organization Root is container for all accounts in the org
-	- some orgs have dedicated identity accounts
-		- identity federation can be used to access these identities with on-premise IdP
-		- use "role switch" to gain access to other accounts in the organization
+  - member accounts' billing info is disregarded for Consolidating Billing
+  - Organization Root is container for all accounts in the org
+  - some orgs have dedicated identity accounts
+    - identity federation can be used to access these identities with on-premise IdP
+    - use "role switch" to gain access to other accounts in the organization
 
 ## 08-28-2025 - Learn Cantrill (AWS Orgs)
 
 - each IAM user can have two access keys
 - access keys can be..
-	- created
-	- deleted
-	- inactive
-	- active
+  - created
+  - deleted
+  - inactive
+  - active
 - management account is NEVER impacted by Service Control Policies (SCPs)
 - SCPs are "account permissions boundaries"
-	- you can never restrict the account root user from doing things in the account, but you can restrict the account itself
-	- therefore, you restrict the root user indirectly
+  - you can never restrict the account root user from doing things in the account, but you can restrict the account itself
+  - therefore, you restrict the root user indirectly
 - SCPs can be attached to AWS Orgs root, Organizational Units (OUs), and directly to accounts
 - FullAwsAccess SCP policy makes SCPs act like a deny list architecture
-	- there's an implicit deny all if you don't have this FullAwsAccess policy
+  - there's an implicit deny all if you don't have this FullAwsAccess policy
 - all AWS accounts have a root user, but they have no credentials by default if created from AWS Orgs
-	- AWS Orgs can enable central root user configuration and delete existing root user credentials
+  - AWS Orgs can enable central root user configuration and delete existing root user credentials
 - Security Token Service creates temporary credentials similar to long-term access keys
-	- they do not belong to the specific entity
-	- you can limit the permissions to a subset of the assumed role's permissions
-		- this is done using Session Policies
+  - they do not belong to the specific entity
+  - you can limit the permissions to a subset of the assumed role's permissions
+    - this is done using Session Policies
 - EC2 Instance Profiles are containers for IAM Roles the EC2 instance's services can assume
-	- can only have one role / one instance profile per EC2 instance
+  - can only have one role / one instance profile per EC2 instance
 - you CANNOT invalid temporary STS credentials, you must use the deny all policy trick for role assumptions before a certain timestamp!!!
-	- once you assume the role, your temporary credentials will exist until their expiration time
+  - once you assume the role, your temporary credentials will exist until their expiration time
 - only identity-based policies are impacted by Permission Boundaries
-	- resource-based policies are not impacted
+  - resource-based policies are not impacted
 - permissions boundary is also known as identity boundary
 - example use case for permissions boundaries:
-	- give "IAM Administrator" privileges to an IAM User
-		- do NOT let them escalate their own IAM permissions
-	- as a fail safe for other identities getting too much access (cross-account, etc.)
+  - give "IAM Administrator" privileges to an IAM User
+    - do NOT let them escalate their own IAM permissions
+  - as a fail safe for other identities getting too much access (cross-account, etc.)
 - policy evaluation logic
-	- SCPs of the account containing the identiy are the only ones that matter!!!
-		- meaning if you access a cross-account resource, SCPs for that account are irrelevant!!!
-	- an allow from a Resource Policy returns early with allow (before permission boundary, session, policies, or identity policies)
-		- but remember that explicit denies are still checked before this
+  - SCPs of the account containing the identiy are the only ones that matter!!!
+    - meaning if you access a cross-account resource, SCPs for that account are irrelevant!!!
+  - an allow from a Resource Policy returns early with allow (before permission boundary, session, policies, or identity policies)
+    - but remember that explicit denies are still checked before this
 
 ## 09-02-2025 - Learn Cantrill (Cross-Account S3, AWS RAM, Service Quota, Identities and Federation, Networking)
 
 - S3 ACLs use a Canonical Account ID
 - may want to setup S3 buckets so that owner owns all uploaded objects
 - AWS RAM potentially changes how you'd architect things
-	- originally, accounts were isolated and then connected via transit gateways or VPC peers
+  - originally, accounts were isolated and then connected via transit gateways or VPC peers
 - Availability Zone IDs actually stay consistent between accounts
-	- AWS rotates which physical facilities serve us-east-1a, for example
-	- AZ ID would be "use1-az1"
+  - AWS rotates which physical facilities serve us-east-1a, for example
+  - AZ ID would be "use1-az1"
 - need to accept resource share invite
-	- unless your AWS Org is setup to automatically accept shares
+  - unless your AWS Org is setup to automatically accept shares
 - "Shared Services VPC" is a class AWS RAM pattern
-	- particpants still own their resources
-	- particants have read-only visibility of owner's networking resource
+  - particpants still own their resources
+  - particants have read-only visibility of owner's networking resource
 - Naming of resources can be per-account for AWS RAM shared resources
 - AWS services typically have a per-region service quota
-	- some service are per-account
+  - some service are per-account
 - starting quotas are relatively low for professional work and architectures
 - some services have hard limits
-	- they can impact architecture choices
-	- e.g., 5000 IAM Users per account
+  - they can impact architecture choices
+  - e.g., 5000 IAM Users per account
 - Quota Request Templates can be used across your AWS Org
 - can create CW Alarms for when nearing service limits
 - there are multiple ways to interact with service quotas
-	- exam questions are typically based around all these different methods
+  - exam questions are typically based around all these different methods
 - SAML 2.0 Identity Federation
-	- you can only ever interact with AWS resources using AWS credentials
-		- you just gain these AWS credentials through Identity Federation
-	- main selection criteria for this is
-		- Enterprise Identity Provider
-		- SAML 2.0 compatible
-	- you would NOT use SAML 2.0 Identity Federation for Google logins!!!
-	- SAML 2.0 typically used by large organizations, and especially those with a Windows-based IdP
+  - you can only ever interact with AWS resources using AWS credentials
+    - you just gain these AWS credentials through Identity Federation
+  - main selection criteria for this is
+    - Enterprise Identity Provider
+    - SAML 2.0 compatible
+  - you would NOT use SAML 2.0 Identity Federation for Google logins!!!
+  - SAML 2.0 typically used by large organizations, and especially those with a Windows-based IdP
 - IAM Identity Center (Successor to AWS Single Sign-On (SSO))
-	- AWS SSO is almost always preferred over direct SAML 2.0 Identity Federation
-	- requires AWS Organization to be configured
-	- "enterprise" or "workplace" identities => AWS SSO
-	- "web" or "user" identities => AWS Cognito
+  - AWS SSO is almost always preferred over direct SAML 2.0 Identity Federation
+  - requires AWS Organization to be configured
+  - "enterprise" or "workplace" identities => AWS SSO
+  - "web" or "user" identities => AWS Cognito
 - Amazon Cognito
-	- naming in this service is very poor
-	- provided authn, authz, and user management
-    - User Pools are for signing in, signing up, and obtaining JWT tokens 
-		- JWTs can't be used by most AWS services	
-	- Identity Pools allow you to offer access to temporary AWS credentials
-		- this is for either unauthenticated or authenticated identities
-		- social logins or SAML 2.0 identities can be swapped for temporary creds
-		- a User Pool login could be swapped for temporary creds
-	- login with social would happen within User Pools but outside of Identity Pools
-		- can then combine this architecture to avoid dealing with many different types of external auth tokens
-		- this architecture is called "web identity federation" (WEBIDF)
-	- "federation" is the process of swapping external identity tokens for AWS credentials
-- Public vs Private AWS Services 
-	- there are three different network zones to consider
-		- public internet zone
-		- AWS Public zone
-		- AWS Private zone
+  - naming in this service is very poor
+  - provided authn, authz, and user management
+    - User Pools are for signing in, signing up, and obtaining JWT tokens
+    - JWTs can't be used by most AWS services
+  - Identity Pools allow you to offer access to temporary AWS credentials
+    - this is for either unauthenticated or authenticated identities
+    - social logins or SAML 2.0 identities can be swapped for temporary creds
+    - a User Pool login could be swapped for temporary creds
+  - login with social would happen within User Pools but outside of Identity Pools
+    - can then combine this architecture to avoid dealing with many different types of external auth tokens
+    - this architecture is called "web identity federation" (WEBIDF)
+  - "federation" is the process of swapping external identity tokens for AWS credentials
+- Public vs Private AWS Services
+  - there are three different network zones to consider
+    - public internet zone
+    - AWS Public zone
+    - AWS Private zone
 - Dynamic Host Configuration Protocol (DHCP)
 - DHCP Option Sets are immutable and can be attached to zero or more VPCs
 - DHCP is how a device gets an IP, subnet mask, and default gateway
-	- these are all automatically generated by AWS in each AWS VPC
+  - these are all automatically generated by AWS in each AWS VPC
 - in AWS VPC, your DHCP Option Set can only control the DNS server to use
-	- R53 Resolver by default
-		- private and (potential) public DNS hostnames are generated automatically
-	- could configure your own DNS server
-	- could also configure NTP servers
+  - R53 Resolver by default
+    - private and (potential) public DNS hostnames are generated automatically
+  - could configure your own DNS server
+  - could also configure NTP servers
 - VPC Routers are always at the "subnet+1" address
 - VPC Routers are controlled using route tables
 - every subnet has a VPC Router Interface
 - subnets are associated with ONE ROUTE TABLE
-	- there's a default Main Route Table (RT) for the entire VPC
-	- main RT should be left completely blank for security posture reasons
-		- it gets automatically associated with subnets if the subnet's custom RT is removed
-	- the route tables network prefix number determine the specificity of the route
-		- e.g., "10.16.0.0/16"
+  - there's a default Main Route Table (RT) for the entire VPC
+  - main RT should be left completely blank for security posture reasons
+    - it gets automatically associated with subnets if the subnet's custom RT is removed
+  - the route tables network prefix number determine the specificity of the route
+    - e.g., "10.16.0.0/16"
 - ephemeral port rangers are a big downside of stateless firewalls
 
 ## 09-03-2025 - Learn Cantrill (Networking, Continued)
 
-- all subnets have an associated Network Access Control List (NACL) 
-	- it's a stateless firewall
-	- lowest rule processed first!!!
-	- implicit DENY if no rule matches
-	- default rules of NACLs allow ALL traffic (NACL is ignored)
-	- NACLs can use EXPLICIT denies, which is useful against bad actors
+- all subnets have an associated Network Access Control List (NACL)
+  - it's a stateless firewall
+  - lowest rule processed first!!!
+  - implicit DENY if no rule matches
+  - default rules of NACLs allow ALL traffic (NACL is ignored)
+  - NACLs can use EXPLICIT denies, which is useful against bad actors
 - Security Groups
-	- stateful firewall
-	- only IMPLICIT denies
-	- higher up the networking stack, so can support logical resources
-		- this includes itself and other AWS resources
-	- security groups are NOT directly attached to subnets or instances
-		- they are attached to Elastic Network Interfaces (ENIs)!!!
-	- logical referencing scales very well
+  - stateful firewall
+  - only IMPLICIT denies
+  - higher up the networking stack, so can support logical resources
+    - this includes itself and other AWS resources
+  - security groups are NOT directly attached to subnets or instances
+    - they are attached to Elastic Network Interfaces (ENIs)!!!
+  - logical referencing scales very well
 - AWS Local Zones
-	- mostly for low latency benefits
-	- can treat them like any other Availability Zone (AZ)
-	- not all products support them
-	- they still rely on parent region for some things (e.g., EBS Snapshots)
-	- DX to local zones IS supported
+  - mostly for low latency benefits
+  - can treat them like any other Availability Zone (AZ)
+  - not all products support them
+  - they still rely on parent region for some things (e.g., EBS Snapshots)
+  - DX to local zones IS supported
 - Border Gateway Protocl (BGP)
-	- must manually configure any peering
-	- eBGP is for routing between Autonomous Systems (AS)
-	- eBGP is primarily what AWS architects would care about
-	- prefix paths to avoid issues of slow connections (e.g., satellite)
+  - must manually configure any peering
+  - eBGP is for routing between Autonomous Systems (AS)
+  - eBGP is primarily what AWS architects would care about
+  - prefix paths to avoid issues of slow connections (e.g., satellite)
 - Global Accelerator
-	- need to distinguish between CloudFront and Global Accelerator use cases
-	- anycast IP addresses are the key technology
-	- "get into the optimized AWS network faster"
-	- Global Accelerator works for TCP or UDP!!!
-	- it's a network product, it does NOT cache things
-	- CloudFront is for HTTP/S only!!!
+  - need to distinguish between CloudFront and Global Accelerator use cases
+  - anycast IP addresses are the key technology
+  - "get into the optimized AWS network faster"
+  - Global Accelerator works for TCP or UDP!!!
+  - it's a network product, it does NOT cache things
+  - CloudFront is for HTTP/S only!!!
 - AWS Site-to-Site VPN
-	- a logical IPSec connection between a VPC and on-premise network over the public internet
-		- could also be over Direct Connect (DX)
-	- Virtual Private Gateway (VGW) is associated with a single VPC
-	- Customer Gateway (CGW) is either..
-		- the logical configuration within AWS
-		- the physical router located on-premise
-	- the VPN connection is between the VGW and the CGW
-	- "partial high availability" if you only have a single on-premise router
-		- resolve by adding more VGW endpoints and another router
-	- Static vs Dynamic VPN
-		- Dynamic VPN requires routers to support BGP
-		- enable "route propogation" on the VPC to detect routes from the VGW whenever a VPN is active
-	- exam considerations
-		- VPN has a 1.25Gbps limit (not including your on-premise router and encryption overheads)
-		- latency over public internet
-		- charger per hour and per GB out
-		- on-premise internet plan may have limits
-		- speed of setup (takes a couple hours to configure)
-		- use as backup for Direct Connect or with Direct Connect
-- Transit Gateway (TGW) 
-	- single network object to connect many VPCs to many on-premise networks
-	- highly available and scalable (like other network gateways)
-	- can connect to...
-		- VPC
-		- Site-to-Site VPN
-		- Direct Connect Gateway
-	- can peer Transit Gateways across regions and across accounts
-	- supports transitive routing, so you do not need a mesh architecture
-	- can share your TGW via AWS RAM
+  - a logical IPSec connection between a VPC and on-premise network over the public internet
+    - could also be over Direct Connect (DX)
+  - Virtual Private Gateway (VGW) is associated with a single VPC
+  - Customer Gateway (CGW) is either..
+    - the logical configuration within AWS
+    - the physical router located on-premise
+  - the VPN connection is between the VGW and the CGW
+  - "partial high availability" if you only have a single on-premise router
+    - resolve by adding more VGW endpoints and another router
+  - Static vs Dynamic VPN
+    - Dynamic VPN requires routers to support BGP
+    - enable "route propogation" on the VPC to detect routes from the VGW whenever a VPN is active
+  - exam considerations
+    - VPN has a 1.25Gbps limit (not including your on-premise router and encryption overheads)
+    - latency over public internet
+    - charger per hour and per GB out
+    - on-premise internet plan may have limits
+    - speed of setup (takes a couple hours to configure)
+    - use as backup for Direct Connect or with Direct Connect
+- Transit Gateway (TGW)
+  - single network object to connect many VPCs to many on-premise networks
+  - highly available and scalable (like other network gateways)
+  - can connect to...
+    - VPC
+    - Site-to-Site VPN
+    - Direct Connect Gateway
+  - can peer Transit Gateways across regions and across accounts
+  - supports transitive routing, so you do not need a mesh architecture
+  - can share your TGW via AWS RAM
 
 ## 09-15-2025 - Learn Cantrill (Transit Gateway, VPC, Continued)
 
 - Transite Gateway (Deep Dive)
-	- can peer transit gateways (up to 50 peers)
-		- across regions and accounts
-		- data is encrypted just like with VPC peering
-	- all attachments propogate routes to the TGW's one route table (RT)
-		- NO ROUTE PROPOGATION OVER PEERING, THOUGH
-		- must use STATIC ROUTES
-	- should configure unique ASNs for future route propogation features
-	- association vs propogation is key for more advanced architecures
-		- can use this to isolate routing domains, which is critical in practice
+  - can peer transit gateways (up to 50 peers)
+    - across regions and accounts
+    - data is encrypted just like with VPC peering
+  - all attachments propogate routes to the TGW's one route table (RT)
+    - NO ROUTE PROPOGATION OVER PEERING, THOUGH
+    - must use STATIC ROUTES
+  - should configure unique ASNs for future route propogation features
+  - association vs propogation is key for more advanced architecures
+    - can use this to isolate routing domains, which is critical in practice
 - Advanced VPC Routing
-	- subnets have one route table, typically the implicit one inherited from parent VPC
-	- can have 50 static routes and 100 propgated routes
-	- send traffic based on destination, target, and priority order
-	- more specific routes (longest prefix) always win
-	- static routes have higher priority than dynamic (propogated routes)
-	- good example of how to use route tables to ameliorate overlapping VPC CIDR ranges
-	- routing is typically about EGRESS not INGRESS
-		- can use Gateway Route Tables for devices like IGW and VGW
-		- e.g., forward all returning public internet traffic through a security appliance
+  - subnets have one route table, typically the implicit one inherited from parent VPC
+  - can have 50 static routes and 100 propgated routes
+  - send traffic based on destination, target, and priority order
+  - more specific routes (longest prefix) always win
+  - static routes have higher priority than dynamic (propogated routes)
+  - good example of how to use route tables to ameliorate overlapping VPC CIDR ranges
+  - routing is typically about EGRESS not INGRESS
+    - can use Gateway Route Tables for devices like IGW and VGW
+    - e.g., forward all returning public internet traffic through a security appliance
 - Accelerated Site-to-Site VPN
-	- can use TGW to allow a pair of VPN tunnels to access multiple VPCs
-	- acceleration gets your traffic onto the AWS network sooner, so less public network performance variance
-	- you CANNOT use VGWs with the acceleration, ONLY TGW
-	- fixed fee + transfer fees for acceleration
-	- combines three services: S2S VPN, TGW, and the Global Accelerator
-	- remember, TGW is almost always recommended now
+  - can use TGW to allow a pair of VPN tunnels to access multiple VPCs
+  - acceleration gets your traffic onto the AWS network sooner, so less public network performance variance
+  - you CANNOT use VGWs with the acceleration, ONLY TGW
+  - fixed fee + transfer fees for acceleration
+  - combines three services: S2S VPN, TGW, and the Global Accelerator
+  - remember, TGW is almost always recommended now
 - AWS Client VPN
-	- managed implementation of OpenVPN
-	- connect to a Client VPN endpoint
-	- connect to single VPC
-	- connect to 1+ Target Networks (subnets, high-availability)
-		- can only pick one subnet per AZ
-	- charged based on network association (an ENI device is created in each subnet)
-	- integrates with identity providers and CloudWatch Logs
-	- the client's existing route tables are completely replaced
-		- couldn't even access their local network
-		- this can be fixed using Split Tunnel Client VPN
-		- Split Tunnel is NOT the default, needs to be enabled
+  - managed implementation of OpenVPN
+  - connect to a Client VPN endpoint
+  - connect to single VPC
+  - connect to 1+ Target Networks (subnets, high-availability)
+    - can only pick one subnet per AZ
+  - charged based on network association (an ENI device is created in each subnet)
+  - integrates with identity providers and CloudWatch Logs
+  - the client's existing route tables are completely replaced
+    - couldn't even access their local network
+    - this can be fixed using Split Tunnel Client VPN
+    - Split Tunnel is NOT the default, needs to be enabled
 - Direct Connect (DX)
-	- physical connection (1, 10, 100 Gbps)
-	- goes from on premsie --> DX Location --> AWS Region
-	- really just a Port Allocation at a DX Location
-		- need to have a 3rd-party telecom actually connect you to the port
-	- pay for Port Hourly Cost and ONLY Outbound Data Transfer
-	- NO INTERNET, just private and public AWS services
-	- DX Locations are typically large regional data centers NOT owned by AWS
-	- "Cages" for various customers in the data centers
-	- Physical Connection Architecture
-		- details about port configurations and fiber connections
-		- seems like more detail than needed for the AWS Sol Arch Pro exam
-	- MACsec (deals with lack of DX encryption)
-		- adds encryption to layer 2 of networking stack
-		- needed so that we do not need to trust the datacenter where port connection occurs
-		- works hop-by-hop between switches / routers
-		- can also be set up on a Link Aggregation Group (LAG)
-		- does NOT replace IPSEC over DX
-		- is capable of massive speeds (terrabit performance)
-		- uses unidirectional channels
-		- Secure Channel Identifier (SCI)
-		- Secure Associations (sessions), exist one at a time
-		- MACsec encapsulation (MACsec tag and Integrity Check VAlue (ICV))
-		- MACSec Key Agreement
-	- DX Connection Process
-		- Letter of Authorization Customer Facility Access (LOA-CFA)
-		- used at datacenter to allow your rented cage to connect to AWS' rented cage
-		- the two routers are then connected (layer 1 physical connection networking is established)
-		- there's now a continuous layer 2 data link connection between AWS and the on-premise network
-			- DX Connections are a layer 2 connection!!!
-	- DX Virtaul Interfaces
-		- Virtual Interfaces (VIFs) allow multiple L3 networks to run on the DX Connection
-			- these networks would be VPCs and the AWS public zone
-		- concretely, VIFs are just BGP Peering Session
-		- VLAN Tagging is used to isolate these networks
-		- BGP exchanges routes and authenticates
-		- VIF types
-			- Public VIF - for public zone services (no VPC), or VPC services that have public IP addressing
-			- Private VIF - anything connecting to a VPC from your on-premise network using private addresses
-			- Transit VIF - allow communication between DX and TGW
-		- each VIF is a VLAN/BGP Session
-			- they can be extended into customer premises via Q-in-Q
-	- Private VIFs
-		- access 1* VPC using private IPs
-		- attaches to VGWs
-			- don't always need to terminate VIFs into VGWs
-			- e.g., Direct Connect Gateway
-		- IN THE SAME REGION as your terminating DX location
-		- no encryption of VIFs (you must add HTTPS, for example)
-		- if using VGW, Route Propogation IS enabled by default
-		- when creating VIF, need to setup...
-			- if in a multi-account setup, the destination account would be the interface owner (must accept)
-			- VLAN ID (match customer side)
-			- BGP ASN of on-premise network (public or private)
-			- peer IP addresses (could auto generate)
-			- you advertise either default network prefixes or specific corp prefixes
-				- there is a HARD MAX of 100 prefixes before interface breaks
-		- AWS then advertises the VPC CIDR and its BGP Peer IPs (/30's)
-		- you can download the config file to speed up your customer configuration
-		- Private VIFs can ONLY connect to VPCs in the SAME REGION as the DX Location
-			- solved by DX Gateway
-		- configure your ASN on the VIF, AWS ASN is configured on the VGW
-			- your ASN is either a publically owned one, or 64512-65535
-	- Public VIFs 
-		- access Public Zone services
-			- includes elastic IPs (EC2 instances) and public services (e.g., S3)
-		- can access ALL public zone regions
-		- AWS advertises all AWS public IP ranges to you
-		- you advertise any public IPs you own over BGP
-		- tangential - BGP Communities are used
-			- filter routes you receive by geography
-		- your prefixes don't leave AWS (not transitive)
-			- this means you won't advertise your public IPs to other AWS customers
-			- HOWEVER you could access ANY Elatsic IP address for, e.g., an EC2 instance???
-		- configuration is much like Privat VIFs
-		- there's some verification on AWS's end for the BGP prefixe advertisements
+  - physical connection (1, 10, 100 Gbps)
+  - goes from on premsie --> DX Location --> AWS Region
+  - really just a Port Allocation at a DX Location
+    - need to have a 3rd-party telecom actually connect you to the port
+  - pay for Port Hourly Cost and ONLY Outbound Data Transfer
+  - NO INTERNET, just private and public AWS services
+  - DX Locations are typically large regional data centers NOT owned by AWS
+  - "Cages" for various customers in the data centers
+  - Physical Connection Architecture
+    - details about port configurations and fiber connections
+    - seems like more detail than needed for the AWS Sol Arch Pro exam
+  - MACsec (deals with lack of DX encryption)
+    - adds encryption to layer 2 of networking stack
+    - needed so that we do not need to trust the datacenter where port connection occurs
+    - works hop-by-hop between switches / routers
+    - can also be set up on a Link Aggregation Group (LAG)
+    - does NOT replace IPSEC over DX
+    - is capable of massive speeds (terrabit performance)
+    - uses unidirectional channels
+    - Secure Channel Identifier (SCI)
+    - Secure Associations (sessions), exist one at a time
+    - MACsec encapsulation (MACsec tag and Integrity Check VAlue (ICV))
+    - MACSec Key Agreement
+  - DX Connection Process
+    - Letter of Authorization Customer Facility Access (LOA-CFA)
+    - used at datacenter to allow your rented cage to connect to AWS' rented cage
+    - the two routers are then connected (layer 1 physical connection networking is established)
+    - there's now a continuous layer 2 data link connection between AWS and the on-premise network
+      - DX Connections are a layer 2 connection!!!
+  - DX Virtaul Interfaces
+    - Virtual Interfaces (VIFs) allow multiple L3 networks to run on the DX Connection
+      - these networks would be VPCs and the AWS public zone
+    - concretely, VIFs are just BGP Peering Session
+    - VLAN Tagging is used to isolate these networks
+    - BGP exchanges routes and authenticates
+    - VIF types
+      - Public VIF - for public zone services (no VPC), or VPC services that have public IP addressing
+      - Private VIF - anything connecting to a VPC from your on-premise network using private addresses
+      - Transit VIF - allow communication between DX and TGW
+    - each VIF is a VLAN/BGP Session
+      - they can be extended into customer premises via Q-in-Q
+  - Private VIFs
+    - access 1\* VPC using private IPs
+    - attaches to VGWs
+      - don't always need to terminate VIFs into VGWs
+      - e.g., Direct Connect Gateway
+    - IN THE SAME REGION as your terminating DX location
+    - no encryption of VIFs (you must add HTTPS, for example)
+    - if using VGW, Route Propogation IS enabled by default
+    - when creating VIF, need to setup...
+      - if in a multi-account setup, the destination account would be the interface owner (must accept)
+      - VLAN ID (match customer side)
+      - BGP ASN of on-premise network (public or private)
+      - peer IP addresses (could auto generate)
+      - you advertise either default network prefixes or specific corp prefixes
+        - there is a HARD MAX of 100 prefixes before interface breaks
+    - AWS then advertises the VPC CIDR and its BGP Peer IPs (/30's)
+    - you can download the config file to speed up your customer configuration
+    - Private VIFs can ONLY connect to VPCs in the SAME REGION as the DX Location
+      - solved by DX Gateway
+    - configure your ASN on the VIF, AWS ASN is configured on the VGW
+      - your ASN is either a publically owned one, or 64512-65535
+  - Public VIFs
+    - access Public Zone services
+      - includes elastic IPs (EC2 instances) and public services (e.g., S3)
+    - can access ALL public zone regions
+    - AWS advertises all AWS public IP ranges to you
+    - you advertise any public IPs you own over BGP
+    - tangential - BGP Communities are used
+      - filter routes you receive by geography
+    - your prefixes don't leave AWS (not transitive)
+      - this means you won't advertise your public IPs to other AWS customers
+      - HOWEVER you could access ANY Elatsic IP address for, e.g., an EC2 instance???
+    - configuration is much like Privat VIFs
+    - there's some verification on AWS's end for the BGP prefixe advertisements
 
 ## 09-20-2025 - Learn Cantrill (Direct Connect, Route53, Continued)
 
 - DX, VPN and Public VIF
-	- can combine VPN with Public VIF for security, speed, consistency
-	- note: uses PUBLIC vif, since connecting to VGW or TGW public endpoints
-	- MACsec still used here for single hop in data center
-	- typical to run VPN over public internet first, or for redundancy
-	- you can benefit from the global AWS network and connect to remote regions
+  - can combine VPN with Public VIF for security, speed, consistency
+  - note: uses PUBLIC vif, since connecting to VGW or TGW public endpoints
+  - MACsec still used here for single hop in data center
+  - typical to run VPN over public internet first, or for redundancy
+  - you can benefit from the global AWS network and connect to remote regions
 - DX Gateway (DXGW)
-	- DX is a regional service
-	- add multiple for high availablity
-	- Public VIF can access all AWS Public Regions
-	- Private VIF can only access VPCs in the same region via VGW
-	- DX Gateway solves this by allowing On-Premise to talk to any VPC
-	- DX Gateway is a global service
-	- it DOES NOT allow the VPCs to talk to one another, though
-	- limit:
-		- 1 Private VIF can connect to 1 DX Gateway
-		- 10 VGW per DX Gateway
-		- 50 Private VIFs per DX Connection = 50 DX Gateways
-		- 50 DX Gateways with 10 VPCs each = 500 VPCs connected
-		- also: 1 DXGW can accept up to 30 Private or Transit VIFs
-			- DXGW never uses Public VIFs
-	- DX Gateway is free (pay for underlying traffic)
-	- could get around inter-VPC talking issue by going through customer router back to DX Gateway
-	- DX Gateway works in multi-account
-		- create "Shared Services" account
-		- other accounts create an "association proposal"
-		- if accepted, other accounts can access on-prem via Private VIF
+  - DX is a regional service
+  - add multiple for high availablity
+  - Public VIF can access all AWS Public Regions
+  - Private VIF can only access VPCs in the same region via VGW
+  - DX Gateway solves this by allowing On-Premise to talk to any VPC
+  - DX Gateway is a global service
+  - it DOES NOT allow the VPCs to talk to one another, though
+  - limit:
+    - 1 Private VIF can connect to 1 DX Gateway
+    - 10 VGW per DX Gateway
+    - 50 Private VIFs per DX Connection = 50 DX Gateways
+    - 50 DX Gateways with 10 VPCs each = 500 VPCs connected
+    - also: 1 DXGW can accept up to 30 Private or Transit VIFs
+      - DXGW never uses Public VIFs
+  - DX Gateway is free (pay for underlying traffic)
+  - could get around inter-VPC talking issue by going through customer router back to DX Gateway
+  - DX Gateway works in multi-account
+    - create "Shared Services" account
+    - other accounts create an "association proposal"
+    - if accepted, other accounts can access on-prem via Private VIF
 - DX, Transit VIFs and TGW
-	- a DX Connection can have a single Transit VIF
-		- this might be 4 now???
-		- Public VIF and Private VIF limit might be 50 total???
-	- Transit VIF is used to connect up to 3 TGWs to the DXGW
-		- this means you cannot use the DXGW anymore for a Private VIF!!!
-		- i.e., you CANNOT mix Private VIFs and Transit VIFs in a single DXGW
-	- DXGW doesn't route between attachments, use TGW Peering
-	- each TGW can be attached to up to 20 DXGWs
-	- TGWs support 5,000 attachments, and can peer with 50 other TGWs (each with 5,000 attachments)
-	- main benefit of TGWs is that you can route across DX Gateway attachments
-		- this is for the case where you are within the same AWS Region
-		- e.g., going through DXGW from one on-premise site to another
-		- this would not be possible with just DXGWs
-	- to route across DX Gateways in multiple regions...
-		- simply peer the TGWs you have in separate AWS regions
-		- the DXGWs automatically can send traffic between on-prem locations
+  - a DX Connection can have a single Transit VIF
+    - this might be 4 now???
+    - Public VIF and Private VIF limit might be 50 total???
+  - Transit VIF is used to connect up to 3 TGWs to the DXGW
+    - this means you cannot use the DXGW anymore for a Private VIF!!!
+    - i.e., you CANNOT mix Private VIFs and Transit VIFs in a single DXGW
+  - DXGW doesn't route between attachments, use TGW Peering
+  - each TGW can be attached to up to 20 DXGWs
+  - TGWs support 5,000 attachments, and can peer with 50 other TGWs (each with 5,000 attachments)
+  - main benefit of TGWs is that you can route across DX Gateway attachments
+    - this is for the case where you are within the same AWS Region
+    - e.g., going through DXGW from one on-premise site to another
+    - this would not be possible with just DXGWs
+  - to route across DX Gateways in multiple regions...
+    - simply peer the TGWs you have in separate AWS regions
+    - the DXGWs automatically can send traffic between on-prem locations
 - DX Resilience
-	- DX is not a resilient product, it's physical and has many single points of failure (SPOFs)
-	- potential fixes
-		- provision two DX Connections at same location
-			- these will be on separate AWS DX Routers
-		- have two customer routers
-		- two physical cable paths from DX location to customer premises
-		- two completely separate customer premises
-		- two completely separate DX locations
-		- most exteme, two DX locations each with...
-			- two DX Connections (separate cross-connect cables)
-			- two AWS DX Routers
-			- two customer routers
-	- note that a S2S VPN backup is another alternative for achieving high-availability
+  - DX is not a resilient product, it's physical and has many single points of failure (SPOFs)
+  - potential fixes
+    - provision two DX Connections at same location
+      - these will be on separate AWS DX Routers
+    - have two customer routers
+    - two physical cable paths from DX location to customer premises
+    - two completely separate customer premises
+    - two completely separate DX locations
+    - most exteme, two DX locations each with...
+      - two DX Connections (separate cross-connect cables)
+      - two AWS DX Routers
+      - two customer routers
+  - note that a S2S VPN backup is another alternative for achieving high-availability
 - DX Link Aggregation Groups (LAGs)
-	- multiple physical connections configured to act as one
-		- this means multiple DX Connections being viewed as one
-	- up to 200 Gbps total speed per LAG
-	- although they provide some level of resiliency (switch port), AWS does NOT market them this way
-	- complete hardware (switch) failure is still SPOF, so focus on speed benefit during exam!!!
-	- active / active architecture
-	- max of 4 connections per LAG
-	- all connections must be same speed
-	- all connections must terminate at same location (same DX Location)
-	- "minimumLinks" used to define if LAG is active or inactive (failed state)
-	- ports get allocated on the same AWS DX Router chassis
-		- allocate early before physical ports are taken by other people
-	- remember, this is NOT a resiliency product!!!
+  - multiple physical connections configured to act as one
+    - this means multiple DX Connections being viewed as one
+  - up to 200 Gbps total speed per LAG
+  - although they provide some level of resiliency (switch port), AWS does NOT market them this way
+  - complete hardware (switch) failure is still SPOF, so focus on speed benefit during exam!!!
+  - active / active architecture
+  - max of 4 connections per LAG
+  - all connections must be same speed
+  - all connections must terminate at same location (same DX Location)
+  - "minimumLinks" used to define if LAG is active or inactive (failed state)
+  - ports get allocated on the same AWS DX Router chassis
+    - allocate early before physical ports are taken by other people
+  - remember, this is NOT a resiliency product!!!
 - Route53 Fundamentals
-	- can register domains
-	- can host Zones that are on managed Nameservers
-	- global service (resilient)
-	- a Zone file is just a database for a particular domain
-		- has records or recordsets within it (in AWS terminology)
-	- a Hosted Zone is just AWS terminology for them managing your domain's Zone file
+  - can register domains
+  - can host Zones that are on managed Nameservers
+  - global service (resilient)
+  - a Zone file is just a database for a particular domain
+    - has records or recordsets within it (in AWS terminology)
+  - a Hosted Zone is just AWS terminology for them managing your domain's Zone file
 - DNS Record Types
-	- Nameserver (NS)
-	- A and AAAA (same thing, host to IP, IPv4 or IPv6)
-	- CNAME (host to host, cannot point to raw IPs)
-	- MX (how a server can find the mail server for a specific domain)
-		- has priority recoreds (lowest highest) 
-	- TXT Records (provide arbitrary text to your records)
-		- used to extend DNS functionality
-		- e.g., validate that you own a domain by setting specific requested text value
-		- e.g., fight spam by whitelisting who can send emails on your behalf
-	- Time To Live (TTL), your DNS Resolver will cache (authoritative) query responses for this amount of time
-		- good to lower this days or weeks in advance of any work you're performing
+  - Nameserver (NS)
+  - A and AAAA (same thing, host to IP, IPv4 or IPv6)
+  - CNAME (host to host, cannot point to raw IPs)
+  - MX (how a server can find the mail server for a specific domain)
+    - has priority recoreds (lowest highest)
+  - TXT Records (provide arbitrary text to your records)
+    - used to extend DNS functionality
+    - e.g., validate that you own a domain by setting specific requested text value
+    - e.g., fight spam by whitelisting who can send emails on your behalf
+  - Time To Live (TTL), your DNS Resolver will cache (authoritative) query responses for this amount of time
+    - good to lower this days or weeks in advance of any work you're performing
 - AWS X-Ray
-	- a distributed tracing application
-	- Tracing Header (trace ID) - created by first service to track entire processing
-	- Segments - data blocks produced by services and added to trace
-	- Subsegments - more granular data (e.g., calls to other services)
-	- Service Graphs - JSON Document detailing services and resources in the application
-	- Service Map - visual version of the service graph showing traces
-	- various agents needed to produce X-Ray segments
-		- EC2 X-Ray agent
-		- ECS agent in tasks
-		- Lambda (enable option)
-		- Beanstalk preinstalled agent
-		- API Gateway per stage option
-		- SNS configuration options
-		- SQS configuration options
-	- need to provide IAM PERMISSIONS for writing data into AWS X-Ray!!!
+  - a distributed tracing application
+  - Tracing Header (trace ID) - created by first service to track entire processing
+  - Segments - data blocks produced by services and added to trace
+  - Subsegments - more granular data (e.g., calls to other services)
+  - Service Graphs - JSON Document detailing services and resources in the application
+  - Service Map - visual version of the service graph showing traces
+  - various agents needed to produce X-Ray segments
+    - EC2 X-Ray agent
+    - ECS agent in tasks
+    - Lambda (enable option)
+    - Beanstalk preinstalled agent
+    - API Gateway per stage option
+    - SNS configuration options
+    - SQS configuration options
+  - need to provide IAM PERMISSIONS for writing data into AWS X-Ray!!!
 
 ## 09-27-2025 - Learn Cantrill (AWS Private Link, VPC Endpoints, IPv6, Advanced Network Design)
 
 - AWS Private Link
-	- provides private connectivity between VPCs, AWS services, and on-premises applications, securely on the Amazon network
-	- primarily used to securely provide a service to another AWS account (or vice versa)
-	- remember AZ vs AZ IDs
-	- VPC Service Provider and (many) VPC Service Consumers
-	- Network Load Balancers (NLBs) and another cross-zone LB ensure HA
-		- multiple endpoints also provide HA
-	- secured using Security Groups and NACLs
-	- secured using typical IAM Users and Roles
-	- private DNS is supported
-	- works with DX, S2S VPN, and VPC Peering 
-	- you just need to know theory for the exam
+  - provides private connectivity between VPCs, AWS services, and on-premises applications, securely on the Amazon network
+  - primarily used to securely provide a service to another AWS account (or vice versa)
+  - remember AZ vs AZ IDs
+  - VPC Service Provider and (many) VPC Service Consumers
+  - Network Load Balancers (NLBs) and another cross-zone LB ensure HA
+    - multiple endpoints also provide HA
+  - secured using Security Groups and NACLs
+  - secured using typical IAM Users and Roles
+  - private DNS is supported
+  - works with DX, S2S VPN, and VPC Peering
+  - you just need to know theory for the exam
 - VPC Endpoints - Gateway
-	- provide private access to public AWS services
-	- e.g., access S3 from a private VPC without an IGW or NGW
-	- created per service and per region
-		- HA by default
-		- this is different than VPC Endpoint Interfaces
-	- created in a VPC, then assigned to subnets
-	- it essentially manages the route table in the VPC subnets to point to the VPC Router, then the AWS services
-		- "works using prefix lists and route tables"
-		- no changes to your existing applications
-	- resource policy (Endpoint Policy) used to control access
-	- CANNOT access resources cross-region!!!
-		- the VPC Endpoints are NOT accessible outside the VPC
-		- even with VPC Peering or Transit Gateways
-	- good for preventing leaky S3 buckets, only allow access from the VPC Endpoint Gateway
+  - provide private access to public AWS services
+  - e.g., access S3 from a private VPC without an IGW or NGW
+  - created per service and per region
+    - HA by default
+    - this is different than VPC Endpoint Interfaces
+  - created in a VPC, then assigned to subnets
+  - it essentially manages the route table in the VPC subnets to point to the VPC Router, then the AWS services
+    - "works using prefix lists and route tables"
+    - no changes to your existing applications
+  - resource policy (Endpoint Policy) used to control access
+  - CANNOT access resources cross-region!!!
+    - the VPC Endpoints are NOT accessible outside the VPC
+    - even with VPC Peering or Transit Gateways
+  - good for preventing leaky S3 buckets, only allow access from the VPC Endpoint Gateway
 - VPC Endpoints - Interfaces
-	- similar functionality to VPC Endpoint Gateways, BUT KEY ARCHITECTURAL DIFFERENCES
-		- provide private access to AWS Public Services
-	- key difference is they are NOT highly-available by default
-	- they are an ENI added to specific subnets
-	- remember one subnet means one Available Zone (AZ)!!!	
-	- key difference is they are controlled via Security Groups
-		- VPC Endpoint Gateways do NOT use SGs, they use IAM permissions
-	- resource policies (Endpoint Policies) supported
-	- uses AWS PrivateLink under the hood
-	- they create new service endpoint DNS your service could use
-		- e.g., vpce-123-xyz.sns.us-east-1.vpce.amazonaws.com
-	- by default now, PrivateDNS overrides the default DNS for services!!!
-		- so, sns.us-east-1.amazonaws.com will magically go to private DNS endpoint
-		- "works by using DNS"
-		- you do not need to make application changes, because PrivateDNS is the default
+  - similar functionality to VPC Endpoint Gateways, BUT KEY ARCHITECTURAL DIFFERENCES
+    - provide private access to AWS Public Services
+  - key difference is they are NOT highly-available by default
+  - they are an ENI added to specific subnets
+  - remember one subnet means one Available Zone (AZ)!!!
+  - key difference is they are controlled via Security Groups
+    - VPC Endpoint Gateways do NOT use SGs, they use IAM permissions
+  - resource policies (Endpoint Policies) supported
+  - uses AWS PrivateLink under the hood
+  - they create new service endpoint DNS your service could use
+    - e.g., vpce-123-xyz.sns.us-east-1.vpce.amazonaws.com
+  - by default now, PrivateDNS overrides the default DNS for services!!!
+    - so, sns.us-east-1.amazonaws.com will magically go to private DNS endpoint
+    - "works by using DNS"
+    - you do not need to make application changes, because PrivateDNS is the default
 - Advanced VPC DNS and DNS Endpoints
-	- in all VPCs and subnets, a DNS address (.2) is reserved
-		- called the Route53 Resolver (used by default)
-		- gives access to both Public and Associated Private Zones
-	- this DNS is only accessible from within the VPC, so difficult for hybrid networking
-	- before Route53 Endpoints, the solution was a "DNS Forwarder" EC2 instance in the VPC
-	- Route53 Endpoints
-		- VPC interfaces (ENI) accessible over VPN or DX
-		- "inbound" is considered on-premises into AWS
-		- "outbound" is handled with Rules for request forwarding
-		- can use DX or VPN connections
-		- can handle about 10,000 queries per second per endpoint
-		- deployed per region (per VPC)
+  - in all VPCs and subnets, a DNS address (.2) is reserved
+    - called the Route53 Resolver (used by default)
+    - gives access to both Public and Associated Private Zones
+  - this DNS is only accessible from within the VPC, so difficult for hybrid networking
+  - before Route53 Endpoints, the solution was a "DNS Forwarder" EC2 instance in the VPC
+  - Route53 Endpoints
+    - VPC interfaces (ENI) accessible over VPN or DX
+    - "inbound" is considered on-premises into AWS
+    - "outbound" is handled with Rules for request forwarding
+    - can use DX or VPN connections
+    - can handle about 10,000 queries per second per endpoint
+    - deployed per region (per VPC)
 - IPv6 Capabilities in VPCs
-	- private and public IPv4 addresses are NOT compatible
-		- requires NAT Gateway to translate public IPv4 address
-	- you will NEVER see an EC2 instance's operating system configured with a public IP
-		- this is handled by gateway appliances outside of EC2
-	- every IPv6 addresses is considered public, so NAT is not used
-	- each VPC gets an IPv6 CIDR block
-		- can BYOIP or have AWS provision you some
-		- very large number, again, IPs are no longer scarce resources
-		- can have 256 subnets per VPC
-	- routing handled the same, but separate route table entries for IPv4 and IPv6
-		- this means IPv4 and IPv6 devices can route to one another
-	- you can limit IPv6 inbound traffic with an "Egress Only IGW"
-		- this gives you the equivalent functionality of IPv4 private address behind a NAT
-		- you would need to change the default IPv6 route to point at the Egress Only IGW instead of the standard IGW
-		- you can have multiple gateways in a single VPC
-	- very common exam question is how to limit IPv6 ingress traffic!!!
-	- you can retroactively add IPv6 addressing to existing VPCs and subnets
-		- you then configure services (like EC2) to use IPv6 addressing
+  - private and public IPv4 addresses are NOT compatible
+    - requires NAT Gateway to translate public IPv4 address
+  - you will NEVER see an EC2 instance's operating system configured with a public IP
+    - this is handled by gateway appliances outside of EC2
+  - every IPv6 addresses is considered public, so NAT is not used
+  - each VPC gets an IPv6 CIDR block
+    - can BYOIP or have AWS provision you some
+    - very large number, again, IPs are no longer scarce resources
+    - can have 256 subnets per VPC
+  - routing handled the same, but separate route table entries for IPv4 and IPv6
+    - this means IPv4 and IPv6 devices can route to one another
+  - you can limit IPv6 inbound traffic with an "Egress Only IGW"
+    - this gives you the equivalent functionality of IPv4 private address behind a NAT
+    - you would need to change the default IPv6 route to point at the Egress Only IGW instead of the standard IGW
+    - you can have multiple gateways in a single VPC
+  - very common exam question is how to limit IPv6 ingress traffic!!!
+  - you can retroactively add IPv6 addressing to existing VPCs and subnets
+    - you then configure services (like EC2) to use IPv6 addressing
 - Advanced VPC Structure - How Many AZs for High Availability?
-	- adding more AZs does not necessarily increase availability (consider application minimums)
-	- Buffer AZ, Nomincal AZs, Nominal Instances -> Optimal Apps per AZ
-	- Subnets and Tiers
-		- separate subnets = separate tiers
-		- no longer necessary to use legacy application tier design for infrastructure
-		- one big benefit of using more subnets is NACLs that have EXPLICIT DENY
-		- you can keep DBs in a public application subnet and just NOT provision it a public IP
-			- SGs also limit DB connections from just your application
-		- a primary reason to split subnets is for separate route tables
-			- e.g., directing different resources to different gateways / on-premise / etc.
-				- NAT Gateway can't be in same subnet as the instances that use it (both need different default routes)
-			- general rule is you MUST assume routing is shared by ALL resources within a subnet
-				- even specific routing rules aren't bulletproof
-		- considerations for subnets and tiers
-			- public vs private addressing is irrelevant (security can be handled fine)
-			- different routing needs -> multiple subnets
-			- a public ALB (in a public subnet) can communicate with private instances (in private subnets)
-			- multiply your final number of subnetst by your needed number of AZs
+  - adding more AZs does not necessarily increase availability (consider application minimums)
+  - Buffer AZ, Nomincal AZs, Nominal Instances -> Optimal Apps per AZ
+  - Subnets and Tiers
+    - separate subnets = separate tiers
+    - no longer necessary to use legacy application tier design for infrastructure
+    - one big benefit of using more subnets is NACLs that have EXPLICIT DENY
+    - you can keep DBs in a public application subnet and just NOT provision it a public IP
+      - SGs also limit DB connections from just your application
+    - a primary reason to split subnets is for separate route tables
+      - e.g., directing different resources to different gateways / on-premise / etc.
+        - NAT Gateway can't be in same subnet as the instances that use it (both need different default routes)
+      - general rule is you MUST assume routing is shared by ALL resources within a subnet
+        - even specific routing rules aren't bulletproof
+    - considerations for subnets and tiers
+      - public vs private addressing is irrelevant (security can be handled fine)
+      - different routing needs -> multiple subnets
+      - a public ALB (in a public subnet) can communicate with private instances (in private subnets)
+      - multiply your final number of subnetst by your needed number of AZs
 
 ## IAM Access Analyzer
 
@@ -1824,49 +1824,49 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - standard and Infrequent Access (IA) tables classes
 - primary key and attributes
 - data types include
-	- scalar
-	- document
-	- set
+  - scalar
+  - document
+  - set
 - sort key == range key
 - object = parition key + optional sort key + attributes
 - Local Secondary Index (LSI)
-	- alternative sort key
-	- must be defined at table creation time
+  - alternative sort key
+  - must be defined at table creation time
 - Global Secondary Index (GSI)
-	- change the primary key and optional sort key
-	- can be defined after table creation time
+  - change the primary key and optional sort key
+  - can be defined after table creation time
 - TTL on rows
 - DynamoDB Streams can be read by many services
-	- 24 hour retention of data
+  - 24 hour retention of data
 - Global Tables
-	- active-active replicaiton, many regions
-	- requires having DynamoDB Streams enabled
-	- good for low latency and disaster recovery
+  - active-active replicaiton, many regions
+  - requires having DynamoDB Streams enabled
+  - good for low latency and disaster recovery
 - send DynamoDB Streams to Kinesis Data Streams
-	- if you want longer retention
-	- you want to use other tools like Kinesis Data Firehouse
-	- or Kinesis Data Analytics
-	- etc.
+  - if you want longer retention
+  - you want to use other tools like Kinesis Data Firehouse
+  - or Kinesis Data Analytics
+  - etc.
 - common pattern is to index S3 objects using DynamoDB and S3 Events
 - DynamoDB Accelerator (DAX)
-	- cache for DynamoDB
-	- 5 minute TTL by default
-	- up to 10 nodes in cluster
-	- Multi AZ (at least 3 nodes recommended for production)
-	- has encryption at rest
+  - cache for DynamoDB
+  - 5 minute TTL by default
+  - up to 10 nodes in cluster
+  - Multi AZ (at least 3 nodes recommended for production)
+  - has encryption at rest
 - DAX vs ElastiCache
-	- if you're directly accessing DynamoDB, use DAX
-	- if you do any computation with the DynamoDB results, use ElastiCache 
+  - if you're directly accessing DynamoDB, use DAX
+  - if you do any computation with the DynamoDB results, use ElastiCache
 
 ## Amazon OpenSearch (ElasticSearch)
 
 - Kibana is now OpenSearch Dashboards
 - two modes
-	- managed cluster
-	- serverless cluster
+  - managed cluster
+  - serverless cluster
 - OpenSearch Dashboards is more advanced than CloudWatch dashboards
-	- Logstash Agent instead of CloudWatch Logs agent
-	- you decide on retention and granularity of logs
+  - Logstash Agent instead of CloudWatch Logs agent
+  - you decide on retention and granularity of logs
 - note for architectures you can often replace Lambda with Kinesis Streams or Kinesis Firehose
 
 ## Amazon Relational Database Service (RDS)
@@ -1876,38 +1876,38 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - can expand the EBS storage with auto-scaling
 - automated PITR, but backups expire
 - manual snapshots, set retention time
-	- can also move across regions
+  - can also move across regions
 - management or outage notifications via SNS
 - Multi-AZ standby instances for failover
-	- application never accesses the standby instance (one DNS name)
+  - application never accesses the standby instance (one DNS name)
 - Read Replicas for throughput, eventual consistency, and cross-region
 - use Route53 for distributing reads across replicas
-	- can leverage health checks
+  - can leverage health checks
 - in-flight and at rest encryption (SSL for in-flight)
 - authentication via IAM
-	- for MariaDB, MySQL, and PostgreSQL
-	- what about for other database engines???
-	- obtain token via RDS API calls
-	- network in/out is therefore always encrypted using SSL
-	- EC2 Instance Profiles make this integration easy???
+  - for MariaDB, MySQL, and PostgreSQL
+  - what about for other database engines???
+  - obtain token via RDS API calls
+  - network in/out is therefore always encrypted using SSL
+  - EC2 Instance Profiles make this integration easy???
 - authorization still is within RDS
 - can copy un-encrypted snapshot into encrypted one
 - CloudTrail CANNOT track queries made within RDS
 - Oracle
-	- RDS Backups for backup and restore of Amazon RDS for Oracle
-	- Oracle Recover Manager (RMAN) for backup, but restore only NON- Amazon RDS for Oracle
-	- Real Application Clusters (RAC) NOT SUPPORTED by RDS
-		- must use EC2 for full control
-	- use Transparent Data Encryption (TDE) for encryption at rest
-	- Database Migration Service (DMS) works on Oracle RDS
+  - RDS Backups for backup and restore of Amazon RDS for Oracle
+  - Oracle Recover Manager (RMAN) for backup, but restore only NON- Amazon RDS for Oracle
+  - Real Application Clusters (RAC) NOT SUPPORTED by RDS
+    - must use EC2 for full control
+  - use Transparent Data Encryption (TDE) for encryption at rest
+  - Database Migration Service (DMS) works on Oracle RDS
 - RDS for MySQL
-	- use "mysqldump" to migrate from RDS to non-RDS instance
+  - use "mysqldump" to migrate from RDS to non-RDS instance
 - RDS Proxy for AWS Lambda
-	- avoid "TooManyConnections" exceptions
-	- manages connection pools and cleaning up connections
-	- requires either
-		- public proxy and public lambda
-		- private proxy and lambda in VPC
+  - avoid "TooManyConnections" exceptions
+  - manages connection pools and cleaning up connections
+  - requires either
+    - public proxy and public lambda
+    - private proxy and lambda in VPC
 
 ## Aurora - Part 1
 
@@ -1916,25 +1916,25 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - 6 copies of data, across three AZs
 - up to 15 read replicas available via endpoints
 - replication across regions is ENTIRE database
-	- NOT just certain tables like DynamoDB
+  - NOT just certain tables like DynamoDB
 - load or offload data directly from / to S3
-	- this saves network and resource costs
+  - this saves network and resource costs
 - self-healing with peer-to-peer replication
 - backup, smapshots, and restore features
 - storage striped across 100s of volumes
 - failover of master in less than 30 seconds
 - support for cross-region replication
 - Aurora DB Cluster
-	- Writer Endpoint
-	- Reader Endpoint (load balancing)
+  - Writer Endpoint
+  - Reader Endpoint (load balancing)
 - Aurora Endpoints (host address + port)
-	- Cluster Endpoint (Writer Endpoint)
-	- Reader Endpoint (load balancing)
-	- Custom Endpoint (a set of particular DB instances you configure)
-		- different DB parameter group???
-	- Instance Endpoint (a particular DB instance)
+  - Cluster Endpoint (Writer Endpoint)
+  - Reader Endpoint (load balancing)
+  - Custom Endpoint (a set of particular DB instances you configure)
+    - different DB parameter group???
+  - Instance Endpoint (a particular DB instance)
 - Aurora Logs (just for MySQL???)
-	- can either download them or publish them to CloudWatch Logs
+  - can either download them or publish them to CloudWatch Logs
 - Performance Insights tool to troubleshoot
 - CloudWatch Metrics for basic hardware usage statistics
 - Enhanced Monitoring Metrics for host level, process view, per-second metric
@@ -1943,29 +1943,29 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 ## Aurora - Part 2
 
 - Aurora Serverless
-	- as usual, good for infrequent, intermittent or unpredictable workloads
-	- pay per second, can be more cost-effective
-	- Data API for HTTPS endpoints to run SQL statements
-		- leverages Secrets Manager for database credentials
-		- need access to both the Data API and the underlying secret
-	- are the following points still only related to Aurora Serverless???
-	- RDS Proxy can be used in front of Aurora primary instance for R+W
-	- RDS Proxy can be used in front of Read Replica instances for reading
-	- Aurora Global Aurora
-		- Cross-Region Read Replicas
-		- Aurora Global Database (recommended)
-			- 1 primary region for r+w
-			- up to 5 read-only replication regions (less than 1 second replication lag)
-			- up to 16 read replicas within each secondary region
-			- RTO less than 1 minute for disaster recovery to secondary region
-			- can manage RPO of Aurora for PostgreSQL
-			- Write Forwarding lets secondary regions forward SQL commands to the primary
-				- mostly helps with having to manage a bunch of different endpoints
-		- convert RDS to Aurora via snapshot and restore
-		- convert RDS to Aurora via Aurora Read Replica on an RDS DB instance 
-			- promote to Aurora when replication lag is very low
+  - as usual, good for infrequent, intermittent or unpredictable workloads
+  - pay per second, can be more cost-effective
+  - Data API for HTTPS endpoints to run SQL statements
+    - leverages Secrets Manager for database credentials
+    - need access to both the Data API and the underlying secret
+  - are the following points still only related to Aurora Serverless???
+  - RDS Proxy can be used in front of Aurora primary instance for R+W
+  - RDS Proxy can be used in front of Read Replica instances for reading
+  - Aurora Global Aurora
+    - Cross-Region Read Replicas
+    - Aurora Global Database (recommended)
+      - 1 primary region for r+w
+      - up to 5 read-only replication regions (less than 1 second replication lag)
+      - up to 16 read replicas within each secondary region
+      - RTO less than 1 minute for disaster recovery to secondary region
+      - can manage RPO of Aurora for PostgreSQL
+      - Write Forwarding lets secondary regions forward SQL commands to the primary
+        - mostly helps with having to manage a bunch of different endpoints
+    - convert RDS to Aurora via snapshot and restore
+    - convert RDS to Aurora via Aurora Read Replica on an RDS DB instance
+      - promote to Aurora when replication lag is very low
 
-## Database Section Quiz 
+## Database Section Quiz
 
 - Kinesis Data Firehose cannot be a subscriber of DynamoDB Streams
 - Aurora has a 128TB limit
@@ -1978,40 +1978,40 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - don't need to know in depth, just the capabilities and where it fits in your architecture
 - flow represented by JSON sate machine
 - features
-    - sequence
-    - parrallel
-    - conditions
-    - timeouts
-    - error handling
+  - sequence
+  - parrallel
+  - conditions
+  - timeouts
+  - error handling
 - maximum execution time of one year!!!
 - human approval feature
 - note the extra latency between step function and lambda communication
 - optimized integrations
-    - Lambda
-    - AWS Batch
-    - DynamoDB
-    - EMR
-    - other Step Functions
-    - many others
+  - Lambda
+  - AWS Batch
+  - DynamoDB
+  - EMR
+  - other Step Functions
+  - many others
 - AWS SDK Integrations
-    - pretty standard, 200+ AWS services available
+  - pretty standard, 200+ AWS services available
 - many example workflows available in the AWS docs
-    - e.g., coordinate all the steps of training a ML model with SageMaker, S3, etc.
+  - e.g., coordinate all the steps of training a ML model with SageMaker, S3, etc.
 - Step Functions Tasks
-    - Lambda Tasks
-    - Activitiy Tasks (must use polling, is not serverless)
-    - Service Tasks (connect to supported AWS service)
-    - Wait Tasks (set duration or until timestamp)
+  - Lambda Tasks
+  - Activitiy Tasks (must use polling, is not serverless)
+  - Service Tasks (connect to supported AWS service)
+  - Wait Tasks (set duration or until timestamp)
 - Step Functions do NOT integrate natively with AWS Mechanical Turk!!!
-    - SWF is preferred over Step Functions for this???
+  - SWF is preferred over Step Functions for this???
 - Standard Workflows vs Express Workflows
-    - Express can kickoff many more executions per second
-    - Express has shorter maximum duration
-    - Express is at-least-once execution (instead of exactly-once)
-    - Express priced similar to Lambdas (instead of per state transition)
+  - Express can kickoff many more executions per second
+  - Express has shorter maximum duration
+  - Express is at-least-once execution (instead of exactly-once)
+  - Express priced similar to Lambdas (instead of per state transition)
 - Express Workflow Synchronous vs Asynchronous
 - can use error handling, retries, and alerting with State Machines
-    - integrates with EventBridge, SNS, etc. for notifying about failures
+  - integrates with EventBridge, SNS, etc. for notifying about failures
 - remember, steps like reading a DDB table can be done natively without a Lambda function
 
 ## SQS
@@ -2022,35 +2022,35 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - common to use SQS as a write buffer for DynamoDB
 - SQS FIFO has 300 messages per second standard or 3000 mps with batching
 - Dead Letter Queue (DLQ)
-    - fail to process in Visibility Timeout, message goes back to queue
-    - if MaximumReceives threshold exceeded, send message to DLQ
-    - DLQ must be same FIFO or Non-FIFO type as source queue
-    - can debug, then redrive the DLQ without any custom code
+  - fail to process in Visibility Timeout, message goes back to queue
+  - if MaximumReceives threshold exceeded, send message to DLQ
+  - DLQ must be same FIFO or Non-FIFO type as source queue
+  - can debug, then redrive the DLQ without any custom code
 - consumers need to be idempotent since events can be delivered multiple times
 - Event Source Mapping to connect a Lambda to SQS queue
-    - specify batch size 1-10
-    - queue visibility timeout should be 6x the timeout of your Lambda Function
-    - DLQ should be attached to SQS Queue, not the Lambda
-        - Lambdas can have DLQs for their async invocations
-    - could also use Lambda destination for failures
+  - specify batch size 1-10
+  - queue visibility timeout should be 6x the timeout of your Lambda Function
+  - DLQ should be attached to SQS Queue, not the Lambda
+    - Lambdas can have DLQs for their async invocations
+  - could also use Lambda destination for failures
 - request / response queue solution architecture (just an example)
-    - gives decoupled scaling
-    - fault tolerance
-    - load balancing
+  - gives decoupled scaling
+  - fault tolerance
+  - load balancing
 
 ## Amazon MQ
 
 - SQS / SNS are cloud-native services
 - traditional on premise applications use open protocols like MQTT, AMQP, Openwire, etc.
 - Amazon MQ is a managed message broker service for Rabbit MQ and ActiveMQ
-    - doesn't scale as much as SQS / SNS
-    - runs on servers, which you can run in Multi-AZ with failover
-    - has both queue (SQS) and topic (SNS) features on each server
+  - doesn't scale as much as SQS / SNS
+  - runs on servers, which you can run in Multi-AZ with failover
+  - has both queue (SQS) and topic (SNS) features on each server
 - can migrate these current services to Amazon MQ
-    - IBM MQ
-    - TIBCO EMS
-    - Rabbit MQ
-    - ActiveMQ
+  - IBM MQ
+  - TIBCO EMS
+  - Rabbit MQ
+  - ActiveMQ
 
 ## SNS
 
@@ -2058,81 +2058,81 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - "event producer" sends messages to SNS topic
 - "event receivers" subscribe to SNS topic
 - each subscriber will get all of topic's messages
-    - there is now functionality to filter these messages
+  - there is now functionality to filter these messages
 - up to 12,500,000 million subscription per topic
 - up to 100,000 topics
 - can integrate with many kinds of subscribers
-    - emails
-    - SMS
-    - HTTP(S) endpoints
-    - AWS services (e.g., SQS, Lambda, Kinesis Data Firehose)
+  - emails
+  - SMS
+  - HTTP(S) endpoints
+  - AWS services (e.g., SQS, Lambda, Kinesis Data Firehose)
 - can integrate with many kinds of publishers
-    - from a ton of AWS services and features (e.g., Auto Scaling Groups)
+  - from a ton of AWS services and features (e.g., Auto Scaling Groups)
 - how to publish
-    - Topic Publish (via SDK)
-    - Direct Publish (mobile apps SDK???)
-        - platform applications and endpoints???
-        - Google GCM, Apple APNS, Amazon ADM???
+  - Topic Publish (via SDK)
+  - Direct Publish (mobile apps SDK???)
+    - platform applications and endpoints???
+    - Google GCM, Apple APNS, Amazon ADM???
 - encryption in flight with HTTPS API
 - encrytion at rest using KMS keys
 - client-side encryption also possible
 - access control via IAM policies and SNS API
 - SNS Access Policies (similar to S3 Bucket Policies)
-    - useful for cross-account access to SNS topics
-    - useful for other servies (e.g., S3) to write to an SNS topic
+  - useful for cross-account access to SNS topics
+  - useful for other servies (e.g., S3) to write to an SNS topic
 
 ## Amazon SNS and Amazon SQS Fan Out Pattern
 
 - pattern to send messages to multiple SQS queues
 - push once to SNS topic, and subscibe many queues to that SNS topic
 - benefits
-    - fully decoupled
-    - SQS gives
-        - data persistence
-        - delayed processing
-        - retries
-    - add more subscribers over time
+  - fully decoupled
+  - SQS gives
+    - data persistence
+    - delayed processing
+    - retries
+  - add more subscribers over time
 - SQS queue access policy must allow SNS to write
 - can deliver messages to cross-region queues
 - SNS can also publish to Kinesis Data Firehose (KDF)
-    - therefore, can send to any KDF supported destinations (e.g., S3)
+  - therefore, can send to any KDF supported destinations (e.g., S3)
 - can also use SNS FIFO topics
-    - same throughput limit as SQS FIFO
-    - subscribers can be SQS Standard or SQS FIFO queues!!!
-    - deduplication via Diduplication ID or Content Based Deduplication
+  - same throughput limit as SQS FIFO
+  - subscribers can be SQS Standard or SQS FIFO queues!!!
+  - deduplication via Diduplication ID or Content Based Deduplication
 - SNS Message Filter
-    - JSON policy to filter messages sent to SNS topic's subscriptions
-    - if omitted, all messages recieved by subscriber
+  - JSON policy to filter messages sent to SNS topic's subscriptions
+  - if omitted, all messages recieved by subscriber
 
 ## SNS Message Delivery Retries
 
 - when SNS tries to send a message, and the destination has a server error
 - delivery protocols and total attempts are key metrics
 - backoff phases
-    - immediate retry phase
-    - pre-backoff phase
-    - backoff phase
-    - post-backoff phase
-- AWS managed endpoints 
-    - try 100,015 times over 23 days
+  - immediate retry phase
+  - pre-backoff phase
+  - backoff phase
+  - post-backoff phase
+- AWS managed endpoints
+  - try 100,015 times over 23 days
 - customer managed endpoints
-    - SMTP protocol
-    - try 50 times in 6 hours
+  - SMTP protocol
+  - try 50 times in 6 hours
 - HTTP/S endpoints support custom retry policies
-    - e.g., your backend does not like heavy load from retries
-    - backoffFunction
-    - sicklyRetryPolicy
+  - e.g., your backend does not like heavy load from retries
+  - backoffFunction
+  - sicklyRetryPolicy
 - SNS Dead Letter Queues (DLQ)
-    - after delivery policy is exhausted, discard message unless DLQ is configured
-    - DLQ is configured on a per subscription basis, NOT a per topic basis
-    - must use SQS FIFO for SNS FIFO???
+  - after delivery policy is exhausted, discard message unless DLQ is configured
+  - DLQ is configured on a per subscription basis, NOT a per topic basis
+  - must use SQS FIFO for SNS FIFO???
 
 ## Service Communication Section Quiz
 
 - Amazon Simple Workflow Service (SWF) Activity Workers are direct targets for Step Functions???
-    - likely need to check the AWS Console UI
+  - likely need to check the AWS Console UI
 - Kinesis Data Streams is a better choice than SQS FIFO for high TPS
-    - how does it preserve ordering???
+  - how does it preserve ordering???
 - what are the alternatives to lift-and-shift migrations???
 
 # Section 10 - Data Engineering
@@ -3148,9 +3148,9 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - facial analysis and facial search for user verification or people counting
 - create a database of "familiar faces" or compare against celebrities
 - content moderation
-	- used in various business models to create a safe user experience
-	- use Minimum Confidence Threshold for items that will be flagged
-	- can use Amazon Augmented AI (A2I) for optional manual review
+  - used in various business models to create a safe user experience
+  - use Minimum Confidence Threshold for items that will be flagged
+  - can use Amazon Augmented AI (A2I) for optional manual review
 - helpful to comply with regulations (exam tip)
 
 ## Transcribe Overview
@@ -3159,25 +3159,25 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - Automatic Speech Recognition (ASR) via deep learning
 - remove Personally Identifiable Information (PII) using Redaction
 - supports Automatic Language Identification for muli-lingual audio
-	- e.g., English and French
+  - e.g., English and French
 - use cases
-	- transcribe customer calls
-	- automate closed captioning and subtitling
-	- create metadata for media assets to create searchable archive
+  - transcribe customer calls
+  - automate closed captioning and subtitling
+  - create metadata for media assets to create searchable archive
 
 ## Amazon Polly
 
 - opposite of Transcribe service
 - turn text into lifelike speech via deep learning
 - Lexicon
-	- customize pronunciation with Pronunciation Lexicons
-	- upload the lexicon file then use it with the "SynthesizeSpeech" operation
-	- for stylized words or acronym expansion
-	- this is just one-to-one mappings of words???
+  - customize pronunciation with Pronunciation Lexicons
+  - upload the lexicon file then use it with the "SynthesizeSpeech" operation
+  - for stylized words or acronym expansion
+  - this is just one-to-one mappings of words???
 - Speech Synthesis Markup Language (SSML)
-	- put emphasis on certain words
-	- use whispering
-	- include breathing
+  - put emphasis on certain words
+  - use whispering
+  - include breathing
 
 ## Amazon Translate
 
@@ -3188,26 +3188,26 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 ## Amazon Lex and Amazon Connect
 
 - Amazon Lex
-	- powers Alexa devices
-	- Automatic Speech Recognition (ASR)
-	- Natural Language Understanding to recognize intent of text or callers
-	- helps build call center bots or chatbots
+  - powers Alexa devices
+  - Automatic Speech Recognition (ASR)
+  - Natural Language Understanding to recognize intent of text or callers
+  - helps build call center bots or chatbots
 - Amazon Connect
-	- virtual contact center
-	- receives calls, create contact flows
-	- integrates with Customer Relationship Management (CRM) systems
-	- integrates with other AWS services
-	- cheaper than traditional contact center solutions
+  - virtual contact center
+  - receives calls, create contact flows
+  - integrates with Customer Relationship Management (CRM) systems
+  - integrates with other AWS services
+  - cheaper than traditional contact center solutions
 
 ## Amazon Comprehend
 
 - fully managed, serverless service for Natural Language Processing (NLP)
 - uses ML to find insights and relationships in text
-- features 
-	- sentitment analysis
-	- tokenization
-	- extract key phrases
-	- etc.
+- features
+  - sentitment analysis
+  - tokenization
+  - extract key phrases
+  - etc.
 - use case: analyze customer emails for positive / negative experiences
 
 ## Amazon Comprehend Medical
@@ -3233,20 +3233,20 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - fully managed ML service to build apps with real-time personalized recommendations
 - e.g., product recommendations based on previous purchases and user interests
 - the Amazon Personalize APIs are for separate goals such as...
-	- control plane
-	- data plane
-		- ingesting data
-		- getting recommendations
+  - control plane
+  - data plane
+    - ingesting data
+    - getting recommendations
 - you don't have to build any of the ML models or data pipelines
 
 ## Amazon Textract
 
 - uses AI and ML to extract text from any scanned document
 - for example...
-	- handwriting
-	- driver license
-	- PDF
-	- etc.
+  - handwriting
+  - driver license
+  - PDF
+  - etc.
 
 ## AWS Machine Learning Summary
 
@@ -3270,60 +3270,60 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 ## Continuous Integration Continuous Delivery (CICD)
 
 - Continuous Integration (CI)
-	- deliver code faster with less bugs
-	- build server worries about checks
+  - deliver code faster with less bugs
+  - build server worries about checks
 - Continuous Delivery (CD)
-	- ensure software can be deployed reliably
-	- usually CodeDeploy, Jenkins CD, Spinnaker, etc.
-	- builder servers and deployment servers
+  - ensure software can be deployed reliably
+  - usually CodeDeploy, Jenkins CD, Spinnaker, etc.
+  - builder servers and deployment servers
 - tech stack stages for CICD (in order)
-	- Code (AWS CodeCommit vs GitHub) (no other AWS alternative)
-	- Build (AWS CodeBuild vs Jenkins CI) (no other AWS alternative)
-	- Test (AWS CodeBuild vs Jenkins CI) (no other AWS alternative)
-	- Deploy (AWS CodeDeploy or AWS Elastic Beanstalk)
-	- Provision (AWS Elastic Beanstalk or User Managed EC2 Instances Fleet / CloudFormation)
+  - Code (AWS CodeCommit vs GitHub) (no other AWS alternative)
+  - Build (AWS CodeBuild vs Jenkins CI) (no other AWS alternative)
+  - Test (AWS CodeBuild vs Jenkins CI) (no other AWS alternative)
+  - Deploy (AWS CodeDeploy or AWS Elastic Beanstalk)
+  - Provision (AWS Elastic Beanstalk or User Managed EC2 Instances Fleet / CloudFormation)
 - this can all be orchestrated using AWS CodePipeline
 - good CICD architecture diagram (this is typical exam question!!!)
-	- pretty standard dev practices
+  - pretty standard dev practices
 - can trigger AWS Lambda on every AWS CodeCommit commit
-	- scan for leaked secrets, lock repo, send SNS, etc.
+  - scan for leaked secrets, lock repo, send SNS, etc.
 - manual approval stage is possible
 - CodeBuild and ECR for Docker images
 - CodePipeline for automated flows
 - webhooks can be used to trigger CodePipeline from GitHub
-	- GitHub App "CodeStar Source Connection" is more modern approach
+  - GitHub App "CodeStar Source Connection" is more modern approach
 - AWS CodeStar - "a cloud service designed to make it easier to develop, build, and deploy applications on AWS by simplifying the setup of your entire development project"
-	- including project management dashboards, etc.
+  - including project management dashboards, etc.
 
 ## Amazon CodeGuru
 
 - ML-powered code reviews and performance recommendations
-	- CodeGuru Reviewer (static code analysis)
-		- currently supports Python and Java languages
-	- CodeGuru Profiler (production runtime)
-		- e.g., determine that logging is using a lot of CPU
+  - CodeGuru Reviewer (static code analysis)
+    - currently supports Python and Java languages
+  - CodeGuru Profiler (production runtime)
+    - e.g., determine that logging is using a lot of CPU
 
 ## Alexa for Business, Lex and Connect
 
 - Alexa for Business
-	- make employees productive in meeting rooms and at their desks???
+  - make employees productive in meeting rooms and at their desks???
 - Amazon Lex
-	- Automatic Speech Recognition (ASR)
-	- Natural Language Understanding to recognize intent of text, callers
-	- build chatbots or call center bots
+  - Automatic Speech Recognition (ASR)
+  - Natural Language Understanding to recognize intent of text, callers
+  - build chatbots or call center bots
 - Amazon Connect
-	- act like a call center
-	- receive calls, create contact flows, integrate with CRMs
+  - act like a call center
+  - receive calls, create contact flows, integrate with CRMs
 
 ## Kinesis Video Streams
 
 - one video stream per producer (streaming device)
-	- security cameras
-	- smartphone
-	- Kinesis Video Streams Producer library
+  - security cameras
+  - smartphone
+  - Kinesis Video Streams Producer library
 - data stored in S3, but is inaccessible
 - CANNOT output the stream data to your own S3 locations
-	- use custom solution
+  - use custom solution
 - can consume with EC2
 - can leverage Kinesis Video Stream Parser library
 - integrates with AWS Rekognition for facial detection
@@ -3337,19 +3337,19 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - integrates with Microsoft Active Directory
 - Windows or Linux machines
 - WorkSpaces Application Manager (WAM)
-	- deploy managed applications as virutalized application containers
+  - deploy managed applications as virutalized application containers
 - Windows updates handled automatically
-	- uses Maintenance Windows (you can define)
-	- Always On WorkSpaces default to Sunday morning
-	- AutoStop WorkSpaces perform updates once a month
+  - uses Maintenance Windows (you can define)
+  - Always On WorkSpaces default to Sunday morning
+  - AutoStop WorkSpaces perform updates once a month
 - Cross Region Redirection
-	- create AD Connector in failover region
-		- can't use multi-region AWS Managed Microsoft AD (per documentation)
-	- Route53 TXT record for connection aliases to each region
-	- user data can be persisted across regions with Amazon WorkDocs
-	- user data is region specific!!!
+  - create AD Connector in failover region
+    - can't use multi-region AWS Managed Microsoft AD (per documentation)
+  - Route53 TXT record for connection aliases to each region
+  - user data can be persisted across regions with Amazon WorkDocs
+  - user data is region specific!!!
 - IP Access Control Groups
-	- like Security Groups, but for addresses ranges users can be from
+  - like Security Groups, but for addresses ranges users can be from
 
 ## Amazon AppStream 2.0
 
@@ -3377,29 +3377,29 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - inbound and outbound emails
 - reputation dashboard, performance insights, anti-spam feedback
 - supports DomainKeys Identified Mail (DKIM) and Sender Policy Framework (SPF)
-	- are these meaningful???
+  - are these meaningful???
 - shared, dedicated, or customer-owned IPs
 - Configuration Sets
-	- customize and analyze your email send events
-	- event destinations
-		- Kinesis Data Firehose (for email metrics)
-		- SNS (for immediate bounce and complaint feedback)
-	- IP pool management
-		- separate email reputations based on IP you send with
+  - customize and analyze your email send events
+  - event destinations
+    - Kinesis Data Firehose (for email metrics)
+    - SNS (for immediate bounce and complaint feedback)
+  - IP pool management
+    - separate email reputations based on IP you send with
 
 ## Amazon Pinpoint
 
 - two-way inbound / outbound marketing communications
 - supports... messaging
-	- email
-	- SMS
-	- push
-	- voice
-	- in-app
+  - email
+  - SMS
+  - push
+  - voice
+  - in-app
 - scales to billions of messages per day
 - can handle stream events with SNS, KDF, CloudWatch Logs
 - Amazon Pinpoint manages delivery schedule, highly-targeted segments, full campaigns
-	- this is how it differs from SES or SNS
+  - this is how it differs from SES or SNS
 
 ## EC2 Image Builder
 
@@ -3407,10 +3407,10 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - free and only pay for underlying resources
 - publish AMI to multiple regions and multiple accounts
 - steps
-	- spawn Builder EC2 Instance
-	- create AMI from the instance
-	- spawn new test instance with the new AMI
-	- run tests to validate the AMI's functionality / security
+  - spawn Builder EC2 Instance
+  - create AMI from the instance
+  - spawn new test instance with the new AMI
+  - run tests to validate the AMI's functionality / security
 - can integrate with CICD pipeline via AWS CodePipeline
 
 ## AWS IoT Core
@@ -3419,10 +3419,10 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 - service allows you to easily connect IoT devices to the cloud
 - scales to billions of devices and trillions of messages
 - IoT Topics are similar to SNS Topics
-	- set up IoT Rules and Actions 
+  - set up IoT Rules and Actions
 - for example, you can...
-	- can send into KDF for example
-	- then, persist in S3, Redshift, or OpenSearch
+  - can send into KDF for example
+  - then, persist in S3, Redshift, or OpenSearch
 
 ## Other Services Summary
 
@@ -3445,3 +3445,193 @@ Has the concatenated notes from all study sections. Note this is out of sync wit
 
 - no issues, just had to identify which service the question described
 
+## 10-08-2025 - Learn Cantrill (Storage Services)
+
+- FSx for Windows File Server
+  - shared file system product, but unlike EFS
+  - fully managed native Windows file "shares" not "servers"
+    - NOT emulated
+  - single or multi-AZ within VPC
+  - scheduled and on-demand backups
+  - integrates with Directory Service or self-managed AD
+  - access via VPC, Peering, VPN, DX
+  - typically think EFS, unless Windows-specific question
+  - uses share paths like "\\fs-xxx123.animals4life.org\catpics"
+  - accessed via Server Message Block (SMB) protocol
+  - supports Volume Shadow Copies Service (VSS)
+    - file level versioning
+  - encryption with KMS at rest
+  - enforce encryption in-transit
+  - very performant (scales well, low latency)
+    - Distributed File System (DFS)
+  - exam tips
+    - VSS for user-driven restores (no sys admin help needed)
+    - SMB almost always implies Windows
+    - Windows permission model
+    - DFS for scale-out file share structure
+    - no server administration needed
+    - integrates between both DS AND your own directory
+- FSx for Lustre
+  - file system for various high performance compute (HPC) workloads
+  - managed version of the Linux Lustre file system
+  - POSIX permissions model
+  - 100's of GB/s throughput and sub millisecond latency
+  - "Persistent" or "Scratch" deployment types
+    - scratch has no replication and is fast
+    - persistent is longer term, highly available, and self-healing
+  - BOTH OF THESE DEPLOYMENT TYPES ARE SINGLE AZ ONLY
+  - accessible over VPN or DX (need high bandwidth)
+  - can associate a "repository" like S3 with the file system
+    - files are lazy loaded from S3 as needed
+    - can write data back to S3 via hsm_archive
+  - metadata is stored on Metadata Target (MST) (there is only one)
+  - objects are store on Object STorage Targets (OST) (there are many)
+  - performance is based on SIZE of file system
+  - both deployments can burst 1,300MBs per TiB (on a credit system)
+  - ENI in the VPC, because Lustre is single AZ
+  - can deal with single AZ risk by using backups
+  - mention of POSIX, HPC, big data, machine learning, etc. are hints to use FSx for Lustre
+- Elastic File System (EFS)
+  - shared file system based on Network File System (NFS)
+  - can be mounted on many EC2 or on-premises servers
+  - private service, so mount targets within a VPC
+    - can still access via VPN or DX
+  - for HA, you need a Mount Target in every AZ of a VPC
+    - this is just like NAT Gateways
+  - linux only
+  - has "General Purpose" and "Max I/O" performance modes
+    - general purpose has lower latency
+  - "Bursting" vs "Provisioned" throughput modes
+    - bursting throughput is based on size
+    - bursting is standard choice
+  - Standard vs Infrequent Access (IA) classes
+  - Lifecycle Policies to move data
+- S3 Storage Classes
+  - S3 Standard - replicated across at least 3 AZs in the AWS region
+    - billed a GB / month fee based on data stored
+    - billed $ / GB charge for TRANSFER OUT only
+    - billed price per 1,000 requests
+      - uses Content-MD5 Checksums and Cyclic Redundancy Checks (CRCs)
+    - "frequently accessed, important, non-replaceable"
+    - milliseconds to first byte
+  - S3 Standard-IA - same as Standard, but retrieval fee on top of transfer fee
+    - minimum duration charge of 30 days
+    - minimum capacity charge of 128KB per object
+    - "infrequently accessed, important, non-replaceable"
+  - S3 One Zone-IA - cheaper, same additional charges as Standard-AI
+    - still 11 nines of durability, unless entire AZ fails
+    - "infrequently accessed, NOT important, replaceable"
+    - e.g., S3 objects replicated from another region
+  - S3 Glacier - Instant Retrieval - like Standard-IA but even less frequently accessed
+    - still instant access to your data, but with higher fee
+    - 90 day minimum storage time
+  - S3 Glacier - Flexible Retrieval
+    - still highly durable and mutli-AZ
+    - these are "cold" objects
+    - cannot be made public
+    - requires a retrieval process (Expedited, Standard, bulk)
+      - faster is more expensive
+      - goes into Standard-IA temporarily
+      - "highly infrequent access"
+      - e.g., yearly reporting
+      - 90 day min time and 40KB min size
+  - S3 Glacier - Deep Archive
+    - "frozen" objects, not "cold"
+    - like Flexible Retrieval, but 180 day min and 40KB size
+    - cannot be made public
+    - requires retrieval process (Standard and Bulk)
+      - 12 to 48 hours (much slower)
+    - "very rarely accessed"
+    - e.g., regulator records or legal
+  - S3 Intelligent-Tiering - management fee for per 1,000 objects for automatically moving
+    - NO RETRIEVAL FEES FOR ACCESSING THE OBJECTS
+    - Frequent Access
+    - Infrequent Access
+    - Archive Instant Access
+    - Archive Access (optional, your app requires async workflow)
+    - Deep Archive (optional, your app requires async workflow)
+    - "for changing or unknown access patterns"
+- S3 Lifecycle Configuration
+  - set of "rules" containing "actions" on bucket or groups of objects
+  - Transition Actions and Expiration Actions
+  - NOT BASED ON ACCESS (intelligent tiering deals with this)
+  - waterfall for Transition Actions
+    - for some reason, One Zone-IA does NOT go into S3 Glacier Instant Retrieval!!!
+  - smaller objects can cost MORE if moved into lower tiers (min size)
+  - minimum of 30 days before transition out of S3 Standard
+    - can do instantly through CLI
+    - in a SINGLE rule, you'd also wait 30 days to move further down to Glacier classes
+    - two rules get around this limitation though
+- S3 Replication
+  - Cross-Region Replication (CRR)
+  - Same-Region Replication (SRR)
+  - configured on the SOURCE bucket
+  - IAM role needs permissions to read source and write destination
+    - it gets assumed (trust policy) by the S3 service
+  - if cross-account replication, destination bucket needs bucket policy that trusts the IAM role!!!
+  - can replicate all objects or subset
+  - can replicate to different Storage Class
+    - default is to use same as source
+  - can replicate with a new owner
+    - default is the source account
+  - Replication Time Control (RTC) enforces 15 minute SLA
+  - replication is NOT RETROACTIVE
+  - you CANNOT enable replication with source and destination having VERSIONING enabled
+  - batch replication can be used to replicate existing objects
+  - enabling bi-directional replication is NOT the default
+  - encrypted objects are supported
+  - source bucket owner needs permissions to objects
+    - e.g., consider another account has added objects to the source bucket
+  - system events are NOT replicated
+  - Glacier and Glacier Deep Archive objects are NOT replicated
+    - consider them separate storage products
+  - deletes ARE NOT replicated BY DEFAULT (but it is possible)
+  - SRR could be used for log aggregation
+  - SRR could be used for prod and test sync
+  - SRR if sovereignty requirements (cannot leave region)
+  - CRR for global resiliency improvements
+  - CRR for latency reduction
+
+## 10-10-2025 - Learn Cantrill (Storage Services, Cont.)
+
+- S3 Object Encryption (CSE / SSE)
+  - buckets ARE NOT encrypted, objects ARE
+  - client-side or server-side encryption is for AT REST
+  - if CSE, AWS never has opportunity to see the data
+  - for Client Side Encryptino (CSE) you control...
+    - keys
+    - process
+    - tooling
+  - for Server Side Encryption (SSE) there are three types...
+    - customer-provided keys (SSE-C)
+    - Amazon S3-managed keys (SSE-S3)
+    - AWS Key Management Service keys (SSE-KMS)
+  - SSE is now REQUIRED, but you can choose which type
+  - SSE-S3 uses master S3 key to encrypt per-object keys
+    - no role separation, meaning an S3 admin in your org could view data
+    - you'd ideally have infrastructure managers unable to view raw data
+    - exam tip: mention of "AES256" implies SSE-S3
+  - SSE-KMS solves this problem since KMS keys have RBAC via IAM
+    - you still trust that S3 immediately discards plaintext keys generated by KMS
+  - remember that you can use both CSE and SSE together!!!
+- S3 Bucket Keys
+  - cost reduction up to 99%
+  - Data Encryption Key (DEK)
+  - each object has one, and requires call to KMS
+  - KMS has scaling limits per key (and therefore per region)
+  - solution: keep a KMS key as your "bucket key" for some time
+    - encrypt many objects with that key while it is valid
+- S3 Presigned URLs
+  - an IAM user has credentials that allow them to generate a URL for a specific object
+  - person can be given the URL and perform PUT and GET requests using original user's identity
+  - OR a service could generate the URL and return to a user so they can fetch media
+  - note: you can generate a presigned URL for an object you DO NOT have access to
+  - note: when you use the URL, it matches the permissions the original identity has RIGHT NOW!!!
+    - an IAM User could lose access before URL use
+  - note: do NOT create URLs with IAM Role (temporary credentials expire very quickly)
+- S3 Select and Glacier Select
+  - retrieve parts of a file (probably very large file)
+  - SQL-like statements to select parts of objects
+  - helps with both speed and cost
+  - works for various file types like CSV and JSON
+  - TODO continue...
