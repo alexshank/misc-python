@@ -1,17 +1,52 @@
 import duckdb
 
 
+def print_query_results(query_result, title):
+    """Print query results with nice formatting"""
+    # extract columns and fetch results
+    columns = [desc[0] for desc in query_result.description]
+    result = query_result.fetchall()
+    
+    # calculate column widths
+    col_widths = [len(col) for col in columns]
+    for row in result:
+        for i, val in enumerate(row):
+            col_widths[i] = max(col_widths[i], len(str(val)))
+    
+    # display results with proper formatting
+    print()
+    print("=" * 80)
+    print(title)
+    print("=" * 80)
+    print()
+    
+    # print header
+    header = " | ".join(col.ljust(col_widths[i]) for i, col in enumerate(columns))
+    print(header)
+    print("-" * len(header))
+    
+    # print rows
+    for row in result:
+        row_str = " | ".join(str(val).ljust(col_widths[i]) for i, val in enumerate(row))
+        print(row_str)
+    
+    # print total count
+    print()
+    print(f"{title}: {len(result)} records.")
+    
+    return result
+
+
 def main():
-    # Connect to DuckDB (in-memory database)
     con = duckdb.connect(':memory:')
     
-    # Load the CSV file into a table
+    # create vehicle_log table from CSV
     con.execute("""
         CREATE TABLE vehicle_log AS 
         SELECT * FROM read_csv_auto('vehicle-log.csv')
     """)
     
-    # Create a filtered view for subsequent queries
+    # create a filtered view for subsequent queries
     con.execute("""
         CREATE TABLE filtered_log AS
         SELECT Log_ID, VT_ID, RecType, Mileage, FillUp, LogDate, Provider, Cost
@@ -23,42 +58,54 @@ def main():
         ORDER BY LogDate ASC
     """)
     
-    # Query the filtered table
+    # query the filtered table and nicely print
     query_result = con.execute("""
         SELECT * FROM filtered_log
             WHERE FillUp = 'True'
     """)
+    print_query_results(query_result, "Records with VT_ID = 34")
     
-    # Get column names and rows
-    columns = [desc[0] for desc in query_result.description]
-    result = query_result.fetchall()
+    # create intermediate table with differences between fill-ups
+    con.execute("""
+        CREATE TABLE fillup_differences AS
+        SELECT 
+            LogDate,
+            Mileage,
+            LAG(LogDate) OVER (ORDER BY LogDate) AS prev_date,
+            LAG(Mileage) OVER (ORDER BY LogDate) AS prev_mileage,
+            DATEDIFF('day', LAG(LogDate) OVER (ORDER BY LogDate), LogDate) AS days_between,
+            TRY_CAST(REPLACE(Mileage, ',', '') AS DOUBLE) - TRY_CAST(REPLACE(LAG(Mileage) OVER (ORDER BY LogDate), ',', '') AS DOUBLE) AS mileage_difference
+        FROM filtered_log
+        WHERE FillUp = 'True'
+    """)
     
-    # Calculate column widths
-    col_widths = [len(col) for col in columns]
-    for row in result:
-        for i, val in enumerate(row):
-            col_widths[i] = max(col_widths[i], len(str(val)))
+    # display the intermediate differences table
+    diff_query_result = con.execute("""
+        SELECT * FROM fillup_differences
+        WHERE days_between IS NOT NULL
+    """)
+    print_query_results(diff_query_result, "Fill-up Differences")
     
-    # Display results with proper formatting
-    print("Records with VT_ID = 34:")
+    # query the average from the differences table
+    avg_result = con.execute("""
+        SELECT 
+            AVG(days_between) AS avg_days_between_fillups,
+            AVG(mileage_difference) AS avg_mileage_between_fillups
+        FROM fillup_differences
+        WHERE days_between IS NOT NULL AND mileage_difference IS NOT NULL
+    """).fetchone()
+    
     print()
-    
-    # Print header
-    header = " | ".join(col.ljust(col_widths[i]) for i, col in enumerate(columns))
-    print(header)
-    print("-" * len(header))
-    
-    # Print rows
-    for row in result:
-        row_str = " | ".join(str(val).ljust(col_widths[i]) for i, val in enumerate(row))
-        print(row_str)
-    
-    # Get count of matching records
-    count = len(result)
+    print("=" * 80)
+    print("Fill-up Statistics:")
+    print("=" * 80)
     print()
-    print(f"Total records with VT_ID = 34: {count}")
+    if avg_result[0]:
+        print(f"Average days between fill-ups: {avg_result[0]:.2f}")
+        print(f"Average mileage between fill-ups: {avg_result[1]:.2f}")
+    else:
+        print("Not enough data to calculate averages.")
     
-    # Close connection
     con.close()
 
 
