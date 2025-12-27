@@ -11,15 +11,22 @@ def main():
         SELECT * FROM read_csv_auto('vehicle-log.csv')
     """)
     
-    # Query all records with VT_ID = 34
-    query_result = con.execute("""
-        SELECT Log_ID, VT_ID, RecType, Mileage, LogDate, Provider, Cost
+    # Create a filtered view for subsequent queries
+    con.execute("""
+        CREATE TABLE filtered_log AS
+        SELECT Log_ID, VT_ID, RecType, Mileage, FillUp, LogDate, Provider, Cost
         FROM vehicle_log
         WHERE VT_ID = 34
             AND RecType = '1'
             AND Mileage IS NOT NULL
             AND Mileage != '-1.00'
         ORDER BY LogDate ASC
+    """)
+    
+    # Query the filtered table
+    query_result = con.execute("""
+        SELECT * FROM filtered_log
+            WHERE FillUp = 'True'
     """)
     
     # Get column names and rows
