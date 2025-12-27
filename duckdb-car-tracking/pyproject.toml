@@ -1,0 +1,8 @@
+[project]
+name = "duckdb-car-tracking"
+version = "0.1.0"
+description = "Vehicle tracking analysis with DuckDB"
+requires-python = ">=3.8"
+dependencies = [
+    "duckdb>=0.10.0",
+]
