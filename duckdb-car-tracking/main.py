@@ -106,6 +106,19 @@ def main():
     else:
         print("Not enough data to calculate averages.")
     
+    # query averages grouped by year
+    yearly_query_result = con.execute("""
+        SELECT 
+            YEAR(LogDate) AS year,
+            AVG(days_between) AS avg_days_between_fillups,
+            AVG(mileage_difference) AS avg_mileage_between_fillups
+        FROM fillup_differences
+        WHERE days_between IS NOT NULL AND mileage_difference IS NOT NULL
+        GROUP BY YEAR(LogDate)
+        ORDER BY year
+    """)
+    print_query_results(yearly_query_result, "Yearly Fill-up Statistics")
+    
     con.close()
 
 
