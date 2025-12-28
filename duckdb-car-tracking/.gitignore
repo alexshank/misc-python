@@ -17,6 +17,9 @@ ENV/
 *.duckdb
 *.duckdb.wal
 
+# Data files
+vehicle-log.csv
+
 # IDE
 .vscode/
 .idea/
