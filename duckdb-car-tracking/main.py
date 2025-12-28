@@ -43,7 +43,7 @@ def main():
     # create vehicle_log table from CSV
     con.execute("""
         CREATE TABLE vehicle_log AS 
-        SELECT * FROM read_csv_auto('vehicle-log.csv')
+        SELECT * FROM read_csv_auto('vehicle-log-sample.csv')
     """)
     
     # create a filtered view for subsequent queries
@@ -63,7 +63,7 @@ def main():
         SELECT * FROM filtered_log
             WHERE FillUp = 'True'
     """)
-    print_query_results(query_result, "Records with VT_ID = 34")
+    print_query_results(query_result, "Fill up records for VT_ID = 34")
     
     # create intermediate table with differences between fill-ups
     con.execute("""

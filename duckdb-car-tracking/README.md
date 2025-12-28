@@ -1,6 +1,6 @@
 # DuckDB Car Tracking
 
-Vehicle tracking analysis with DuckDB.
+Vehicle fuel and mileage data analysis with DuckDB.
 
 ## Install
 
@@ -8,4 +8,19 @@ Vehicle tracking analysis with DuckDB.
 uv venv
 source .venv/bin/activate
 uv sync
+
+# or, one-liner
+uv venv && source .venv/bin/activate && uv sync
 ```
+
+## Run
+
+> Uses `vehicle-log-sample.csv` synthetic data.
+
+```bash
+python3 main.py
+
+# or, write to file
+python3 main.py > output.txt
+```
+
