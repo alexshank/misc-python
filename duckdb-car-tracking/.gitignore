@@ -19,6 +19,7 @@ ENV/
 
 # Data files
 vehicle-log.csv
+output.txt
 
 # IDE
 .vscode/
