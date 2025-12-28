@@ -49,34 +49,34 @@ def main():
     # create a filtered view for subsequent queries
     con.execute("""
         CREATE TABLE filtered_log AS
-        SELECT Log_ID, VT_ID, RecType, Mileage, FillUp, LogDate, Provider, Cost
+        SELECT Log_ID, Vehicle_ID, Record_Type, Mileage, Is_Fill_Up, Log_Date, Provider, Cost
         FROM vehicle_log
-        WHERE VT_ID = 34
-            AND RecType = '1'
+        WHERE Vehicle_ID = 34
+            AND Record_Type = '1'
             AND Mileage IS NOT NULL
             AND Mileage != '-1.00'
-        ORDER BY LogDate ASC
+        ORDER BY Log_Date ASC
     """)
     
     # query the filtered table and nicely print
     query_result = con.execute("""
         SELECT * FROM filtered_log
-            WHERE FillUp = 'True'
+            WHERE Is_Fill_Up = 'True'
     """)
-    print_query_results(query_result, "Fill up records for VT_ID = 34")
+    print_query_results(query_result, "Fill up records for Vehicle_ID = 34")
     
     # create intermediate table with differences between fill-ups
     con.execute("""
         CREATE TABLE fillup_differences AS
         SELECT 
-            LogDate,
+            Log_Date,
             Mileage,
-            LAG(LogDate) OVER (ORDER BY LogDate) AS prev_date,
-            LAG(Mileage) OVER (ORDER BY LogDate) AS prev_mileage,
-            DATEDIFF('day', LAG(LogDate) OVER (ORDER BY LogDate), LogDate) AS days_between,
-            TRY_CAST(REPLACE(Mileage, ',', '') AS DOUBLE) - TRY_CAST(REPLACE(LAG(Mileage) OVER (ORDER BY LogDate), ',', '') AS DOUBLE) AS mileage_difference
+            LAG(Log_Date) OVER (ORDER BY Log_Date) AS prev_date,
+            LAG(Mileage) OVER (ORDER BY Log_Date) AS prev_mileage,
+            DATEDIFF('day', LAG(Log_Date) OVER (ORDER BY Log_Date), Log_Date) AS days_between,
+            TRY_CAST(REPLACE(Mileage, ',', '') AS DOUBLE) - TRY_CAST(REPLACE(LAG(Mileage) OVER (ORDER BY Log_Date), ',', '') AS DOUBLE) AS mileage_difference
         FROM filtered_log
-        WHERE FillUp = 'True'
+        WHERE Is_Fill_Up = 'True'
     """)
     
     # display the intermediate differences table
@@ -109,12 +109,12 @@ def main():
     # query averages grouped by year
     yearly_query_result = con.execute("""
         SELECT 
-            YEAR(LogDate) AS year,
+            YEAR(Log_Date) AS year,
             AVG(days_between) AS avg_days_between_fillups,
             AVG(mileage_difference) AS avg_mileage_between_fillups
         FROM fillup_differences
         WHERE days_between IS NOT NULL AND mileage_difference IS NOT NULL
-        GROUP BY YEAR(LogDate)
+        GROUP BY YEAR(Log_Date)
         ORDER BY year
     """)
     print_query_results(yearly_query_result, "Yearly Fill-up Statistics")

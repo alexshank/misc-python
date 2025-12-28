@@ -1,4 +1,4 @@
-Log_ID,VT_ID,RecType,Mileage,LogDate,Provider,Cost,FillUp
+Log_ID,Vehicle_ID,Record_Type,Mileage,Log_Date,Provider,Cost,Is_Fill_Up
 1,34,5,0.00,2020-01-01,Service Center,$0.00,FALSE
 2,34,1,245.00,2020-01-15,Gas Station A,$28.50,TRUE
 3,34,1,498.00,2020-01-28,Gas Station B,$31.20,TRUE
