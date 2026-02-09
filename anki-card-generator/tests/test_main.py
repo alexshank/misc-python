@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from anki_generator.main import main, phase1_command, validate1_command
+from anki_generator.main import main, phase1_command, stats_command, validate1_command
 
 
 class TestPhase1Command:
@@ -636,3 +636,57 @@ class TestAllCommand:
         # Check cache statistics were logged
         log_messages = [record.message for record in caplog.records]
         assert any("cache" in msg.lower() for msg in log_messages)
+
+
+class TestStatsCommand:
+    """Tests for stats command."""
+
+    def test_stats_command_all_phases_complete(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Test stats command with all phases completed."""
+        output_base = tmp_path / "output"
+        phase1_dir = output_base / "phase1"
+        phase2_dir = output_base / "phase2"
+        phase3_dir = output_base / "phase3"
+
+        # Create Phase 1 output
+        phase1_dir.mkdir(parents=True)
+        manifest = phase1_dir / "manifest.txt"
+        manifest.write_text("01_test.md\n", encoding="utf-8")
+        (phase1_dir / "01_test.md").write_text("## Test\nContent", encoding="utf-8")
+
+        # Create Phase 2 output
+        phase2_dir.mkdir(parents=True)
+        qa_pairs = [{"question": "Q?", "answer": "A", "aws_service": "IAM", "source_file": "01.md"}]
+        (phase2_dir / "qa_pairs.json").write_text(json.dumps(qa_pairs), encoding="utf-8")
+        stats_data = {"total_sections": 1, "cache_hits": 0, "cache_misses": 1, "total_qa_pairs": 1}
+        (phase2_dir / "stats.json").write_text(json.dumps(stats_data), encoding="utf-8")
+
+        # Create Phase 3 output
+        phase3_dir.mkdir(parents=True)
+        (phase3_dir / "anki_import.txt").write_text("Front\tBack\ttag1", encoding="utf-8")
+
+        # Create cache
+        cache_dir = tmp_path / "cache"
+        cache_dir.mkdir()
+        (cache_dir / "test.json").write_text(json.dumps({"test": "data"}), encoding="utf-8")
+
+        stats_command(str(output_base), str(cache_dir))
+
+        captured = capsys.readouterr()
+        assert "Phase 1" in captured.out
+        assert "Phase 2" in captured.out
+        assert "Phase 3" in captured.out
+
+    def test_stats_command_phases_not_run(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Test stats command when phases haven't been run."""
+        output_base = tmp_path / "output"
+        cache_dir = tmp_path / "cache"
+
+        stats_command(str(output_base), str(cache_dir))
+
+        captured = capsys.readouterr()
+        assert "not run" in captured.out.lower() or "Not yet run" in captured.out
