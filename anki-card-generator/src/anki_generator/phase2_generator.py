@@ -128,11 +128,13 @@ def process_sections(  # noqa: PLR0913
     api_cache_dir: Path,
     prompt_template: str,
     output_dir: Path,
+    item_count: int | None = None,
 ) -> dict[str, int]:
-    """Process all sections to generate Q&A pairs with API caching.
+    """Process sections to generate Q&A pairs with API caching.
 
-    Reads the manifest, processes each section file, checks the API cache before
-    making requests, generates Q&A pairs using Gemini, and writes results to JSON.
+    Reads the manifest, processes each section file (up to item_count if specified),
+    checks the API cache before making requests, generates Q&A pairs using Gemini,
+    and writes results to JSON.
 
     Args:
         manifest_path: Path to the manifest file listing section files.
@@ -141,6 +143,7 @@ def process_sections(  # noqa: PLR0913
         api_cache_dir: Directory for API response cache.
         prompt_template: The prompt template with {{MARKDOWN_CONTENT}} placeholder.
         output_dir: Directory to write output files.
+        item_count: Maximum number of sections to process (default: None = all).
 
     Returns:
         Statistics dictionary with keys: total_sections, cache_hits, cache_misses,
@@ -153,7 +156,8 @@ def process_sections(  # noqa: PLR0913
         ...     gemini_client,
         ...     Path("cache/"),
         ...     "Template: {{MARKDOWN_CONTENT}}",
-        ...     Path("output/")
+        ...     Path("output/"),
+        ...     item_count=10
         ... )
         >>> "total_sections" in stats
         True
@@ -172,6 +176,11 @@ def process_sections(  # noqa: PLR0913
     # Read manifest
     with manifest_path.open() as f:
         section_files = [line.strip() for line in f if line.strip()]
+
+    # Limit sections if item_count is specified
+    if item_count is not None and item_count > 0:
+        section_files = section_files[:item_count]
+        logger.info("Limiting to first %d sections (item-count parameter)", item_count)
 
     stats["total_sections"] = len(section_files)
     logger.info("Processing %d sections...", len(section_files))

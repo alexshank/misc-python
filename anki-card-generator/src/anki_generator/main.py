@@ -24,11 +24,20 @@ from anki_generator.validators import (
     validate_phase3_output,
 )
 
-# Configure logging
+# Configure logging with unbuffered output
+# Create handler with explicit flush behavior
+_handler = logging.StreamHandler(sys.stderr)
+_handler.setLevel(logging.INFO)
+_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+_handler.flush = lambda: sys.stderr.flush()  # type: ignore[method-assign]
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[_handler],
+    force=True,  # Force reconfiguration if already configured
 )
+
 logger = logging.getLogger(__name__)
 
 
@@ -100,21 +109,27 @@ def validate1_command(output_dir: str) -> None:
     logger.info("Validation passed!")
 
 
-def phase2_command(sections_dir: str, output_dir: str, config_file: str = "config.ini") -> None:
+def phase2_command(
+    sections_dir: str,
+    output_dir: str,
+    config_file: str = "config.ini",
+    item_count: int | None = None,
+) -> None:
     """Execute Phase 2: Generate Q&A pairs from section files.
 
     Args:
         sections_dir: Directory containing Phase 1 output (manifest and sections).
         output_dir: Directory where Phase 2 output will be saved.
         config_file: Path to configuration file (default: config.ini).
+        item_count: Maximum number of sections to process (default: None = all).
 
     Raises:
         FileNotFoundError: If Phase 1 output not found or config missing.
         ValueError: If configuration is invalid.
 
     Example:
-        >>> phase2_command("phase1_output/", "phase2_output/")
-        # Generates qa_pairs.json and stats.json
+        >>> phase2_command("phase1_output/", "phase2_output/", item_count=10)
+        # Generates qa_pairs.json and stats.json from first 10 sections
     """
     sections_path = Path(sections_dir)
     output_path = Path(output_dir)
@@ -153,6 +168,7 @@ def phase2_command(sections_dir: str, output_dir: str, config_file: str = "confi
         api_cache_dir=config.cache_dir,
         prompt_template=prompt_template,
         output_dir=output_path,
+        item_count=item_count,
     )
 
     # Display cache statistics
@@ -323,7 +339,12 @@ def stats_command(output_base: str, cache_dir: str = "api_cache/") -> None:
     print(output)  # noqa: T201
 
 
-def all_command(input_file: str, output_base: str, config_file: str = "config.ini") -> None:
+def all_command(
+    input_file: str,
+    output_base: str,
+    config_file: str = "config.ini",
+    item_count: int | None = None,
+) -> None:
     """Execute entire pipeline: phase1→validate1→phase2→validate2→phase3→validate3.
 
     Runs all phases sequentially with validation gates.
@@ -333,14 +354,15 @@ def all_command(input_file: str, output_base: str, config_file: str = "config.in
         input_file: Path to input markdown file.
         output_base: Base directory for all output (phase1/, phase2/, phase3/).
         config_file: Path to configuration file (default: config.ini).
+        item_count: Maximum number of sections to process in Phase 2 (default: None = all).
 
     Raises:
         ValueError: If any validation fails.
         FileNotFoundError: If input file or config missing.
 
     Example:
-        >>> all_command("notes.md", "output/", "config.ini")
-        # Creates output/phase1/, output/phase2/, output/phase3/
+        >>> all_command("notes.md", "output/", "config.ini", item_count=10)
+        # Creates output/phase1/, output/phase2/, output/phase3/ with first 10 sections
     """
     output_path = Path(output_base)
 
@@ -362,7 +384,7 @@ def all_command(input_file: str, output_base: str, config_file: str = "config.in
 
     # Phase 2: Generate Q&A pairs
     logger.info("\n[Phase 2] Generating Q&A pairs...")
-    phase2_command(str(phase1_dir), str(phase2_dir), config_file)
+    phase2_command(str(phase1_dir), str(phase2_dir), config_file, item_count)
 
     logger.info("[Phase 2] Validating output...")
     validate2_command(str(phase2_dir))
@@ -449,6 +471,12 @@ def main() -> None:
         default="config.ini",
         help="Path to configuration file (default: config.ini)",
     )
+    all_parser.add_argument(
+        "--item-count",
+        type=int,
+        default=None,
+        help="Maximum number of sections to process in Phase 2 (default: all)",
+    )
 
     # Phase 1 command
     phase1_parser = subparsers.add_parser(
@@ -491,6 +519,12 @@ def main() -> None:
         "--config",
         default="config.ini",
         help="Path to configuration file (default: config.ini)",
+    )
+    phase2_parser.add_argument(
+        "--item-count",
+        type=int,
+        default=None,
+        help="Maximum number of sections to process (default: all)",
     )
 
     # Validate2 command
@@ -550,13 +584,13 @@ def main() -> None:
 
     # Execute command
     if args.command == "all":
-        all_command(args.input_file, args.output_base, args.config)
+        all_command(args.input_file, args.output_base, args.config, args.item_count)
     elif args.command == "phase1":
         phase1_command(args.input_file, args.output_dir)
     elif args.command == "validate1":
         validate1_command(args.output_dir)
     elif args.command == "phase2":
-        phase2_command(args.sections_dir, args.output_dir, args.config)
+        phase2_command(args.sections_dir, args.output_dir, args.config, args.item_count)
     elif args.command == "validate2":
         validate2_command(args.output_dir)
     elif args.command == "phase3":

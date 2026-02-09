@@ -365,3 +365,50 @@ class TestProcessSections:
             assert "cache_misses" in stats
             assert "failures" in stats
             assert "total_qa_pairs" in stats
+
+    @patch("anki_generator.phase2_generator.get_cached_response")
+    @patch("anki_generator.phase2_generator.store_cache_entry")
+    @patch("anki_generator.phase2_generator.compute_request_hash")
+    def test_item_count_limits_processing(
+        self,
+        mock_compute_hash: MagicMock,
+        mock_store: MagicMock,
+        mock_get_cache: MagicMock,
+    ) -> None:
+        """Test that item_count parameter limits number of sections processed."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            sections_dir = Path(tmpdir) / "sections"
+            sections_dir.mkdir()
+            output_dir = Path(tmpdir) / "output"
+            output_dir.mkdir()
+            cache_dir = Path(tmpdir) / "cache"
+
+            # Create manifest with 5 sections
+            manifest = sections_dir / "manifest.txt"
+            with manifest.open("w") as f:
+                f.write("01_test.md\n02_test.md\n03_test.md\n04_test.md\n05_test.md\n")
+
+            # Create 5 section files
+            for i in range(1, 6):
+                section_file = sections_dir / f"{i:02d}_test.md"
+                with section_file.open("w") as f:
+                    f.write(f"## Test {i}\nContent {i}")
+
+            template = "{{MARKDOWN_CONTENT}}"
+            mock_compute_hash.return_value = "hash123"
+            mock_get_cache.return_value = None  # Cache miss
+
+            mock_client = Mock(spec=GeminiClient)
+            mock_client.model = "gemini-2.5-flash"
+            mock_client.generate_qa_pairs.return_value = [
+                {"q": "Q", "a": "A", "aws_service": "EC2"}
+            ]
+
+            # Process only first 2 sections with item_count=2
+            stats = process_sections(
+                manifest, sections_dir, mock_client, cache_dir, template, output_dir, item_count=2
+            )
+
+            # Verify only 2 sections were processed
+            assert stats["total_sections"] == 2
+            assert mock_client.generate_qa_pairs.call_count == 2
