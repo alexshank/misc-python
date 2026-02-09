@@ -136,9 +136,9 @@ class TestPipelineIntegration:
         # Verify TSV format
         for line in anki_lines:
             fields = line.split("\t")
-            assert len(fields) == 3, (
-                f"Each line should have 3 tab-separated fields, got {len(fields)}"
-            )
+            assert (
+                len(fields) == 3
+            ), f"Each line should have 3 tab-separated fields, got {len(fields)}"
 
             front, back, _tags = fields
             assert front, "Front field should not be empty"

@@ -143,6 +143,7 @@ pipenv run pre-commit run --all-files
 ```
 
 All commits must pass:
+
 - **ruff format**: Code formatting
 - **ruff check**: Linting (20+ rule categories)
 - **mypy**: Strict type checking
@@ -162,8 +163,11 @@ pipenv run python -m anki_generator.main phase1 data/all-sections-08-15-2025.md 
 # Validate Phase 1 output
 pipenv run python -m anki_generator.main validate1 output/phase1
 
-# TODO: Phase 2: Generate Q&A pairs from sections using Gemini API
-# pipenv run python -m anki_generator.main phase2 output/phase1 output/phase2
+# Phase 2: Generate Q&A pairs from sections using Gemini API
+pipenv run python -m anki_generator.main phase2 output/phase1 output/phase2
+
+# (Optional) Phase 2: Generate Q&A pairs from sections using Gemini API, but limit number of items processed
+pipenv run python -m anki_generator.main phase2 output/phase1 output/phase2 --item-count 3
 
 # TODO: Validate Phase 2 output
 # pipenv run python -m anki_generator.main validate2 output/phase2
@@ -195,13 +199,16 @@ pipenv run python -m anki_generator.main validate1 <output_dir>
 The `config.ini` file uses INI format with three sections:
 
 ### `[api]`
+
 - `gemini_api_key` (required): Your Google Gemini API key
 
 ### `[paths]`
+
 - `cache_dir` (optional, default: `api_cache/`): Directory for API response cache
 - `output_dir` (optional, default: `output/`): Directory for generated output
 
 ### `[generation]`
+
 - `model` (optional, default: `gemini-1.5-flash`): Gemini model to use
 - `max_retries` (optional, default: `3`): Maximum API request retries
 
@@ -277,7 +284,7 @@ Each phase includes comprehensive tests, validation, and CLI integration.
 
 ## License
 
-*License information to be added*
+_License information to be added_
 
 ---
 
