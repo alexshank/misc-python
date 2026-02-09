@@ -6,6 +6,7 @@ response parsing.
 """
 
 import json
+import logging
 import time
 from typing import Any
 
@@ -15,6 +16,12 @@ from google.api_core.exceptions import (
     ResourceExhausted,
     ServiceUnavailable,
 )
+
+logger = logging.getLogger(__name__)
+
+# Constants for error logging
+_LOG_PROMPT_MAX_CHARS = 1000
+_LOG_RESPONSE_MAX_CHARS = 2000
 
 
 class GeminiAPIError(Exception):
@@ -71,7 +78,7 @@ class GeminiClient:
         self.timeout = timeout
         self.max_retries = max_retries
 
-    def generate_qa_pairs(
+    def generate_qa_pairs(  # noqa: PLR0915
         self, markdown_content: str, prompt_template: str
     ) -> list[dict[str, str]]:
         """Generate question-answer pairs from markdown content.
@@ -118,17 +125,48 @@ class GeminiClient:
                 response = model.generate_content(prompt)
 
                 # Parse and validate response
-                return self._parse_response(response.text)
+                try:
+                    return self._parse_response(response.text, prompt)
+                except GeminiAPIError:
+                    # Log the error details and re-raise (noqa: TRY400 - custom formatting)
+                    logger.error("=" * 80)  # noqa: TRY400
+                    logger.error("GEMINI API RESPONSE PARSING ERROR")  # noqa: TRY400
+                    logger.error("=" * 80)  # noqa: TRY400
+                    logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
+                    prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
+                    if len(prompt) > _LOG_PROMPT_MAX_CHARS:
+                        prompt_excerpt += "..."
+                    logger.error("%s", prompt_excerpt)  # noqa: TRY400
+                    logger.error("-" * 80)  # noqa: TRY400
+                    logger.error("FULL RESPONSE TEXT (first %d chars):", _LOG_RESPONSE_MAX_CHARS)  # noqa: TRY400
+                    response_excerpt = response.text[:_LOG_RESPONSE_MAX_CHARS]
+                    if len(response.text) > _LOG_RESPONSE_MAX_CHARS:
+                        response_excerpt += "..."
+                    logger.error("%s", response_excerpt)  # noqa: TRY400
+                    logger.error("=" * 80)  # noqa: TRY400
+                    raise
 
             except (ResourceExhausted, ServiceUnavailable) as e:
                 # Rate limit or service unavailable - retry with exponential backoff
+                logger.warning("Gemini API rate limit/unavailable (attempt %d/%d): %s",
+                             attempt + 1, self.max_retries, str(e))
                 sleep_time = 2**attempt  # Exponential backoff: 1, 2, 4 seconds
                 time.sleep(sleep_time)
 
                 if attempt < self.max_retries - 1:
                     continue
 
-                # Max retries exceeded
+                # Max retries exceeded - log final error
+                logger.error("=" * 80)  # noqa: TRY400
+                logger.error("GEMINI API RETRY LIMIT EXCEEDED")  # noqa: TRY400
+                logger.error("=" * 80)  # noqa: TRY400
+                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
+                prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
+                if len(prompt) > _LOG_PROMPT_MAX_CHARS:
+                    prompt_excerpt += "..."
+                logger.error("%s", prompt_excerpt)  # noqa: TRY400
+                logger.error("=" * 80)  # noqa: TRY400
+
                 if isinstance(e, ResourceExhausted):
                     msg = f"Rate limit exceeded after {self.max_retries} retries"
                     raise GeminiRateLimitError(msg) from e
@@ -136,10 +174,30 @@ class GeminiClient:
                 raise GeminiAPIError(msg) from e
 
             except TimeoutError as e:
+                logger.error("=" * 80)  # noqa: TRY400
+                logger.error("GEMINI API TIMEOUT ERROR")  # noqa: TRY400
+                logger.error("=" * 80)  # noqa: TRY400
+                logger.error("Timeout after %d seconds", self.timeout)  # noqa: TRY400
+                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
+                prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
+                if len(prompt) > _LOG_PROMPT_MAX_CHARS:
+                    prompt_excerpt += "..."
+                logger.error("%s", prompt_excerpt)  # noqa: TRY400
+                logger.error("=" * 80)  # noqa: TRY400
                 msg = f"Request timed out after {self.timeout} seconds"
                 raise GeminiTimeoutError(msg) from e
 
             except GoogleAPIError as e:
+                logger.error("=" * 80)  # noqa: TRY400
+                logger.error("GEMINI GOOGLE API ERROR")  # noqa: TRY400
+                logger.error("=" * 80)  # noqa: TRY400
+                logger.error("Error: %s", str(e))  # noqa: TRY400
+                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
+                prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
+                if len(prompt) > _LOG_PROMPT_MAX_CHARS:
+                    prompt_excerpt += "..."
+                logger.error("%s", prompt_excerpt)  # noqa: TRY400
+                logger.error("=" * 80)  # noqa: TRY400
                 msg = f"Gemini API error: {e}"
                 raise GeminiAPIError(msg) from e
 
@@ -147,17 +205,24 @@ class GeminiClient:
         msg = "Unexpected error: max retries reached without raising exception"
         raise GeminiAPIError(msg)
 
-    def _parse_response(self, response_text: str) -> list[dict[str, str]]:
+    def _parse_response(
+        self, response_text: str, prompt: str = ""  # noqa: ARG002
+    ) -> list[dict[str, str]]:
         """Parse and validate the JSON response from Gemini.
 
         Args:
             response_text: Raw response text from Gemini API.
+            prompt: The prompt sent to Gemini (unused here, for future use).
 
         Returns:
             List of Q&A pair dictionaries.
 
         Raises:
             GeminiAPIError: If response is empty, invalid JSON, or malformed.
+
+        Note:
+            The prompt parameter is currently unused but kept for consistency
+            with the error logging in generate_qa_pairs().
         """
         if not response_text or not response_text.strip():
             msg = "Empty response from Gemini API"
