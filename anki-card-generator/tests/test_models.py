@@ -80,6 +80,19 @@ class TestAnkiCard:
 
         assert card.front == "What is Python?"
         assert card.back == "A programming language"
+        assert card.tags == []
+
+    def test_creation_with_tags(self) -> None:
+        """Test creating an AnkiCard instance with tags."""
+        card = AnkiCard(
+            front="What is IAM?",
+            back="Identity and Access Management",
+            tags=["aws_service:IAM", "section:IAM"],
+        )
+
+        assert card.front == "What is IAM?"
+        assert card.back == "Identity and Access Management"
+        assert card.tags == ["aws_service:IAM", "section:IAM"]
 
     def test_immutable(self) -> None:
         """Test that AnkiCard instances are immutable."""
@@ -96,3 +109,19 @@ class TestAnkiCard:
 
         assert card1 == card2
         assert card1 != card3
+
+    def test_to_tsv_line(self) -> None:
+        """Test converting AnkiCard to TSV line."""
+        card = AnkiCard(front="Question", back="Answer", tags=["tag1", "tag2", "tag3"])
+
+        tsv_line = card.to_tsv_line()
+
+        assert tsv_line == "Question\tAnswer\ttag1 tag2 tag3"
+
+    def test_to_tsv_line_no_tags(self) -> None:
+        """Test converting AnkiCard to TSV line with no tags."""
+        card = AnkiCard(front="Question", back="Answer", tags=[])
+
+        tsv_line = card.to_tsv_line()
+
+        assert tsv_line == "Question\tAnswer\t"
