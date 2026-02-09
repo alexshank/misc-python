@@ -234,3 +234,361 @@ class TestValidatePhase1Output:
         assert result.success is False
         # Should have multiple errors
         assert len(result.errors) >= 2
+
+
+class TestValidatePhase2Output:
+    """Tests for Phase 2 output validation."""
+
+    def test_validate_valid_phase2_output(self, tmp_path: Path) -> None:
+        """Test validation of valid Phase 2 output."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create valid qa_pairs.json
+        qa_pairs = [
+            {
+                "question": "What is IAM?",
+                "answer": "Identity and Access Management",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM\nContent",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            },
+            {
+                "question": "What is S3?",
+                "answer": "Simple Storage Service",
+                "aws_service": "S3",
+                "source_markdown": "## S3\nContent",
+                "section_header": "S3",
+                "source_file": "02_s3.md",
+            },
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(
+            __import__("json").dumps(qa_pairs, indent=2),
+            encoding="utf-8",
+        )
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 2,
+            "cache_hits": 1,
+            "cache_misses": 1,
+            "failures": 0,
+            "total_qa_pairs": 2,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(
+            __import__("json").dumps(stats, indent=2),
+            encoding="utf-8",
+        )
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is True
+        assert len(result.errors) == 0
+
+    def test_validate_missing_qa_pairs_file(self, tmp_path: Path) -> None:
+        """Test validation fails when qa_pairs.json is missing."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create stats.json but no qa_pairs.json
+        stats = {
+            "total_sections": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "failures": 0,
+            "total_qa_pairs": 0,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(__import__("json").dumps(stats), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any("qa_pairs.json" in error for error in result.errors)
+
+    def test_validate_missing_stats_file(self, tmp_path: Path) -> None:
+        """Test validation fails when stats.json is missing."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create qa_pairs.json but no stats.json
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text("[]", encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any("stats.json" in error for error in result.errors)
+
+    def test_validate_empty_question(self, tmp_path: Path) -> None:
+        """Test validation fails when Q&A pair has empty question."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create qa_pairs.json with empty question
+        qa_pairs = [
+            {
+                "question": "",
+                "answer": "Answer",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(__import__("json").dumps(qa_pairs), encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 1,
+            "cache_hits": 0,
+            "cache_misses": 1,
+            "failures": 0,
+            "total_qa_pairs": 1,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(__import__("json").dumps(stats), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any(
+            "empty" in error.lower() and "question" in error.lower() for error in result.errors
+        )
+
+    def test_validate_empty_answer(self, tmp_path: Path) -> None:
+        """Test validation fails when Q&A pair has empty answer."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create qa_pairs.json with empty answer
+        qa_pairs = [
+            {
+                "question": "What is IAM?",
+                "answer": "",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(__import__("json").dumps(qa_pairs), encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 1,
+            "cache_hits": 0,
+            "cache_misses": 1,
+            "failures": 0,
+            "total_qa_pairs": 1,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(__import__("json").dumps(stats), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any(
+            "empty" in error.lower() and "answer" in error.lower() for error in result.errors
+        )
+
+    def test_validate_invalid_aws_service(self, tmp_path: Path) -> None:
+        """Test validation fails when Q&A pair has empty aws_service."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create qa_pairs.json with empty aws_service
+        qa_pairs = [
+            {
+                "question": "What is IAM?",
+                "answer": "Identity and Access Management",
+                "aws_service": "",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(__import__("json").dumps(qa_pairs), encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 1,
+            "cache_hits": 0,
+            "cache_misses": 1,
+            "failures": 0,
+            "total_qa_pairs": 1,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(__import__("json").dumps(stats), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any("aws_service" in error.lower() for error in result.errors)
+
+    def test_validate_duplicate_questions(self, tmp_path: Path) -> None:
+        """Test validation fails when duplicate questions exist."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create qa_pairs.json with duplicate questions
+        qa_pairs = [
+            {
+                "question": "What is IAM?",
+                "answer": "Answer 1",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            },
+            {
+                "question": "What is IAM?",
+                "answer": "Answer 2",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "02_iam.md",
+            },
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(__import__("json").dumps(qa_pairs), encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 2,
+            "cache_hits": 0,
+            "cache_misses": 2,
+            "failures": 0,
+            "total_qa_pairs": 2,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(__import__("json").dumps(stats), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any("duplicate" in error.lower() for error in result.errors)
+
+    def test_validate_invalid_json_structure(self, tmp_path: Path) -> None:
+        """Test validation fails when JSON structure is invalid."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create invalid JSON
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text("not valid json", encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "failures": 0,
+            "total_qa_pairs": 0,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(__import__("json").dumps(stats), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any("json" in error.lower() for error in result.errors)
+
+    def test_validate_stats_missing_required_fields(self, tmp_path: Path) -> None:
+        """Test validation fails when stats.json missing required fields."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create valid qa_pairs.json
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text("[]", encoding="utf-8")
+
+        # Create stats.json missing required fields
+        stats = {"cache_hits": 0}  # Missing other required fields
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(__import__("json").dumps(stats), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any("stats.json" in error for error in result.errors)
+
+    def test_validate_nonexistent_directory(self, tmp_path: Path) -> None:
+        """Test validation fails when output directory doesn't exist."""
+        output_dir = tmp_path / "nonexistent"
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+        assert any("does not exist" in error for error in result.errors)
+
+    def test_validation_writes_failure_file(self, tmp_path: Path) -> None:
+        """Test validation failure writes to validation_failures.json."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create invalid qa_pairs.json (empty question)
+        qa_pairs = [
+            {
+                "question": "",
+                "answer": "Answer",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(__import__("json").dumps(qa_pairs), encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 1,
+            "cache_hits": 0,
+            "cache_misses": 1,
+            "failures": 0,
+            "total_qa_pairs": 1,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(__import__("json").dumps(stats), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase2_output"]
+        ).validate_phase2_output(output_dir)
+
+        assert result.success is False
+
+        # Check that validation_failures.json was created
+        failures_file = output_dir / "validation_failures.json"
+        assert failures_file.exists()
+
+        # Verify it contains the errors
+        failures_data = __import__("json").loads(failures_file.read_text())
+        assert "errors" in failures_data
+        assert len(failures_data["errors"]) > 0

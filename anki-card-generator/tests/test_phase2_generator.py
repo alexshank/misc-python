@@ -89,9 +89,7 @@ class TestAugmentQAPairs:
         section_header = "EC2 Basics"
         source_file = "section_001.md"
 
-        result = augment_qa_pairs(
-            qa_pairs, source_markdown, section_header, source_file
-        )
+        result = augment_qa_pairs(qa_pairs, source_markdown, section_header, source_file)
 
         assert len(result) == 2
         assert all(isinstance(pair, QAPair) for pair in result)
@@ -134,8 +132,7 @@ class TestProcessSections:
             mock_client = Mock(spec=GeminiClient)
             mock_client.model = "gemini-2.5-flash"
             mock_client.generate_qa_pairs.return_value = [
-                {"q": f"Q{i}", "a": f"A{i}", "aws_service": "EC2"}
-                for i in range(2)
+                {"q": f"Q{i}", "a": f"A{i}", "aws_service": "EC2"} for i in range(2)
             ]
 
             stats = process_sections(
@@ -180,9 +177,7 @@ class TestProcessSections:
 
             # Setup cache hit
             mock_compute_hash.return_value = "test_hash"
-            cached_response = [
-                {"q": "Cached Q", "a": "Cached A", "aws_service": "S3"}
-            ]
+            cached_response = [{"q": "Cached Q", "a": "Cached A", "aws_service": "S3"}]
             mock_get_cache.return_value = cached_response
 
             mock_client = Mock(spec=GeminiClient)
@@ -315,9 +310,7 @@ class TestProcessSections:
                 {"q": "Question 1", "a": "Answer 1", "aws_service": "S3"}
             ]
 
-            process_sections(
-                manifest, sections_dir, mock_client, cache_dir, template, output_dir
-            )
+            process_sections(manifest, sections_dir, mock_client, cache_dir, template, output_dir)
 
             qa_file = output_dir / "qa_pairs.json"
             assert qa_file.exists()
@@ -359,9 +352,7 @@ class TestProcessSections:
                 {"q": "Q", "a": "A", "aws_service": "EC2"}
             ]
 
-            process_sections(
-                manifest, sections_dir, mock_client, cache_dir, template, output_dir
-            )
+            process_sections(manifest, sections_dir, mock_client, cache_dir, template, output_dir)
 
             stats_file = output_dir / "stats.json"
             assert stats_file.exists()

@@ -1,8 +1,9 @@
 """Tests for CLI main entry point."""
 
+import json
 import sys
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -148,3 +149,223 @@ class TestMain:
         """Test main function with validate1 missing arguments."""
         with patch.object(sys, "argv", ["main.py", "validate1"]), pytest.raises(SystemExit):
             main()
+
+
+class TestPhase2Command:
+    """Tests for phase2 command."""
+
+    def test_phase2_requires_phase1_completion(self, tmp_path: Path) -> None:
+        """Test phase2 command fails if Phase 1 not completed."""
+        sections_dir = tmp_path / "sections"
+        output_dir = tmp_path / "output"
+
+        # No manifest exists (Phase 1 incomplete)
+        with pytest.raises(FileNotFoundError, match="Phase 1 output not found"):
+            __import__("anki_generator.main", fromlist=["phase2_command"]).phase2_command(
+                str(sections_dir), str(output_dir)
+            )
+
+    def test_phase2_creates_qa_pairs_and_stats(self, tmp_path: Path) -> None:
+        """Test phase2 command creates qa_pairs.json and stats.json."""
+        sections_dir = tmp_path / "sections"
+        sections_dir.mkdir()
+        output_dir = tmp_path / "output"
+
+        # Create Phase 1 output
+        section1 = sections_dir / "01_section.md"
+        section1.write_text("## Test Section\nContent here", encoding="utf-8")
+
+        manifest = sections_dir / "manifest.txt"
+        manifest.write_text("01_section.md", encoding="utf-8")
+
+        # Create prompt template
+        prompt_dir = tmp_path / "prompts"
+        prompt_dir.mkdir()
+        prompt_file = prompt_dir / "gemini_qa_prompt.txt"
+        prompt_file.write_text("Template: {{MARKDOWN_CONTENT}}", encoding="utf-8")
+
+        # Mock GeminiClient and load_prompt_template
+        with (
+            patch("anki_generator.main.GeminiClient") as mock_client_class,
+            patch("anki_generator.main.load_prompt_template") as mock_load_template,
+        ):
+            mock_load_template.return_value = "Template: {{MARKDOWN_CONTENT}}"
+            mock_client = MagicMock()
+            mock_client.generate_qa_pairs.return_value = [
+                {
+                    "q": "Test question?",
+                    "a": "Test answer",
+                    "aws_service": "IAM",
+                }
+            ]
+            mock_client.model = "gemini-1.5-pro"
+            mock_client_class.return_value = mock_client
+
+            __import__("anki_generator.main", fromlist=["phase2_command"]).phase2_command(
+                str(sections_dir), str(output_dir)
+            )
+
+        # Verify outputs created
+        assert (output_dir / "qa_pairs.json").exists()
+        assert (output_dir / "stats.json").exists()
+
+        # Verify stats.json has required fields
+        stats = json.loads((output_dir / "stats.json").read_text())
+        assert "total_sections" in stats
+        assert "cache_hits" in stats
+        assert "cache_misses" in stats
+        assert "failures" in stats
+        assert "total_qa_pairs" in stats
+
+    def test_phase2_displays_cache_statistics(
+        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Test phase2 command displays cache statistics."""
+        import logging
+
+        sections_dir = tmp_path / "sections"
+        sections_dir.mkdir()
+        output_dir = tmp_path / "output"
+
+        # Create Phase 1 output
+        section1 = sections_dir / "01_section.md"
+        section1.write_text("## Test\nContent", encoding="utf-8")
+
+        manifest = sections_dir / "manifest.txt"
+        manifest.write_text("01_section.md", encoding="utf-8")
+
+        # Mock GeminiClient and load_prompt_template
+        with (
+            patch("anki_generator.main.GeminiClient") as mock_client_class,
+            patch("anki_generator.main.load_prompt_template") as mock_load_template,
+            caplog.at_level(logging.INFO),
+        ):
+            mock_load_template.return_value = "Template: {{MARKDOWN_CONTENT}}"
+            mock_client = MagicMock()
+            mock_client.generate_qa_pairs.return_value = [
+                {"q": "Q?", "a": "A", "aws_service": "IAM"}
+            ]
+            mock_client.model = "gemini-1.5-pro"
+            mock_client_class.return_value = mock_client
+
+            __import__("anki_generator.main", fromlist=["phase2_command"]).phase2_command(
+                str(sections_dir), str(output_dir)
+            )
+
+        # Check that cache statistics were logged
+        log_messages = [record.message for record in caplog.records]
+        assert any("cache" in msg.lower() for msg in log_messages)
+
+
+class TestValidate2Command:
+    """Tests for validate2 command."""
+
+    def test_validate2_runs_validation(self, tmp_path: Path) -> None:
+        """Test validate2 command runs Phase 2 validation."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create valid qa_pairs.json
+        qa_pairs = [
+            {
+                "question": "What is IAM?",
+                "answer": "Identity and Access Management",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(json.dumps(qa_pairs), encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 1,
+            "cache_hits": 0,
+            "cache_misses": 1,
+            "failures": 0,
+            "total_qa_pairs": 1,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(json.dumps(stats), encoding="utf-8")
+
+        # Should not raise
+        __import__("anki_generator.main", fromlist=["validate2_command"]).validate2_command(
+            str(output_dir)
+        )
+
+    def test_validate2_fails_on_invalid_output(self, tmp_path: Path) -> None:
+        """Test validate2 command fails on invalid Phase 2 output."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create invalid qa_pairs.json (empty question)
+        qa_pairs = [
+            {
+                "question": "",
+                "answer": "Answer",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(json.dumps(qa_pairs), encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 1,
+            "cache_hits": 0,
+            "cache_misses": 1,
+            "failures": 0,
+            "total_qa_pairs": 1,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(json.dumps(stats), encoding="utf-8")
+
+        with pytest.raises(ValueError, match="Validation failed"):
+            __import__("anki_generator.main", fromlist=["validate2_command"]).validate2_command(
+                str(output_dir)
+            )
+
+    def test_validate2_displays_failure_details(
+        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Test validate2 command displays validation failure details."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create invalid qa_pairs.json
+        qa_pairs = [
+            {
+                "question": "",
+                "answer": "Answer",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = output_dir / "qa_pairs.json"
+        qa_file.write_text(json.dumps(qa_pairs), encoding="utf-8")
+
+        # Create valid stats.json
+        stats = {
+            "total_sections": 1,
+            "cache_hits": 0,
+            "cache_misses": 1,
+            "failures": 0,
+            "total_qa_pairs": 1,
+        }
+        stats_file = output_dir / "stats.json"
+        stats_file.write_text(json.dumps(stats), encoding="utf-8")
+
+        with pytest.raises(ValueError, match="Validation failed"):
+            __import__("anki_generator.main", fromlist=["validate2_command"]).validate2_command(
+                str(output_dir)
+            )
+
+        # Check error details were logged
+        assert any("error" in record.message.lower() for record in caplog.records)
