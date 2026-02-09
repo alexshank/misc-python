@@ -368,3 +368,150 @@ class TestValidate2Command:
 
         # Check error details were logged
         assert any("error" in record.message.lower() for record in caplog.records)
+
+
+class TestPhase3Command:
+    """Tests for phase3 command."""
+
+    def test_phase3_requires_phase2_completion(self, tmp_path: Path) -> None:
+        """Test phase3 command fails if Phase 2 not completed."""
+        phase2_dir = tmp_path / "phase2"
+        phase3_dir = tmp_path / "phase3"
+
+        # No qa_pairs.json exists (Phase 2 incomplete)
+        with pytest.raises(FileNotFoundError, match="Phase 2 output not found"):
+            __import__("anki_generator.main", fromlist=["phase3_command"]).phase3_command(
+                str(phase2_dir), str(phase3_dir)
+            )
+
+    def test_phase3_creates_anki_import(self, tmp_path: Path) -> None:
+        """Test phase3 command creates anki_import.txt."""
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+        phase3_dir = tmp_path / "phase3"
+
+        # Create Phase 2 output
+        qa_pairs = [
+            {
+                "question": "What is IAM?",
+                "answer": "Identity and Access Management",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = phase2_dir / "qa_pairs.json"
+        qa_file.write_text(json.dumps(qa_pairs), encoding="utf-8")
+
+        __import__("anki_generator.main", fromlist=["phase3_command"]).phase3_command(
+            str(phase2_dir), str(phase3_dir)
+        )
+
+        # Verify output created
+        assert (phase3_dir / "anki_import.txt").exists()
+
+    def test_phase3_displays_success_message(
+        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Test phase3 command displays success message with file path."""
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+        phase3_dir = tmp_path / "phase3"
+
+        # Create Phase 2 output
+        qa_pairs = [
+            {
+                "question": "Q?",
+                "answer": "A",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = phase2_dir / "qa_pairs.json"
+        qa_file.write_text(json.dumps(qa_pairs), encoding="utf-8")
+
+        with caplog.at_level(logging.INFO):
+            __import__("anki_generator.main", fromlist=["phase3_command"]).phase3_command(
+                str(phase2_dir), str(phase3_dir)
+            )
+
+        # Check that success message was logged
+        log_messages = [record.message for record in caplog.records]
+        assert any("anki_import.txt" in msg.lower() for msg in log_messages)
+
+
+class TestValidate3Command:
+    """Tests for validate3 command."""
+
+    def test_validate3_runs_validation(self, tmp_path: Path) -> None:
+        """Test validate3 command runs Phase 3 validation."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create valid anki_import.txt
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_text(
+            "Question 1\tAnswer 1\taws_service:IAM section:IAM\n",
+            encoding="utf-8",
+        )
+
+        # Create Phase 2 qa_pairs.json
+        qa_pairs = [
+            {
+                "question": "Q1",
+                "answer": "A1",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            }
+        ]
+        qa_file = phase2_dir / "qa_pairs.json"
+        qa_file.write_text(json.dumps(qa_pairs), encoding="utf-8")
+
+        # Should not raise
+        __import__("anki_generator.main", fromlist=["validate3_command"]).validate3_command(
+            str(phase3_dir), str(phase2_dir)
+        )
+
+    def test_validate3_fails_on_invalid_output(self, tmp_path: Path) -> None:
+        """Test validate3 command fails on invalid Phase 3 output."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create invalid anki_import.txt (only 2 fields)
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_text("Question\tAnswer\n", encoding="utf-8")
+
+        with pytest.raises(ValueError, match="Validation failed"):
+            __import__("anki_generator.main", fromlist=["validate3_command"]).validate3_command(
+                str(phase3_dir), str(phase2_dir)
+            )
+
+    def test_validate3_displays_failure_details(
+        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Test validate3 command displays validation failure details."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create invalid anki_import.txt
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_text("Question\tAnswer\n", encoding="utf-8")
+
+        with pytest.raises(ValueError, match="Validation failed"):
+            __import__("anki_generator.main", fromlist=["validate3_command"]).validate3_command(
+                str(phase3_dir), str(phase2_dir)
+            )
+
+        # Check error details were logged
+        assert any("error" in record.message.lower() for record in caplog.records)

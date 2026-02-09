@@ -592,3 +592,204 @@ class TestValidatePhase2Output:
         failures_data = __import__("json").loads(failures_file.read_text())
         assert "errors" in failures_data
         assert len(failures_data["errors"]) > 0
+
+
+class TestValidatePhase3Output:
+    """Tests for Phase 3 output validation."""
+
+    def test_validate_valid_phase3_output(self, tmp_path: Path) -> None:
+        """Test validation of valid Phase 3 output."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create valid anki_import.txt
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_text(
+            "Question 1\tAnswer 1\taws_service:IAM section:IAM\n"
+            "Question 2\tAnswer 2\taws_service:S3 section:S3\n",
+            encoding="utf-8",
+        )
+
+        # Create Phase 2 qa_pairs.json for count validation
+        qa_pairs = [
+            {
+                "question": "Q1",
+                "answer": "A1",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            },
+            {
+                "question": "Q2",
+                "answer": "A2",
+                "aws_service": "S3",
+                "source_markdown": "## S3",
+                "section_header": "S3",
+                "source_file": "02_s3.md",
+            },
+        ]
+        qa_file = phase2_dir / "qa_pairs.json"
+        qa_file.write_text(__import__("json").dumps(qa_pairs), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase3_output"]
+        ).validate_phase3_output(phase3_dir, phase2_dir)
+
+        assert result.success is True
+        assert len(result.errors) == 0
+
+    def test_validate_missing_anki_file(self, tmp_path: Path) -> None:
+        """Test validation fails when anki_import.txt is missing."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase3_output"]
+        ).validate_phase3_output(phase3_dir, phase2_dir)
+
+        assert result.success is False
+        assert any("anki_import.txt" in error for error in result.errors)
+
+    def test_validate_incorrect_field_count(self, tmp_path: Path) -> None:
+        """Test validation fails when lines don't have exactly 3 fields."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create anki_import.txt with incorrect field count
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_text(
+            "Question 1\tAnswer 1\n"  # Only 2 fields
+            "Question 2\tAnswer 2\ttag1 tag2\n",
+            encoding="utf-8",
+        )
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase3_output"]
+        ).validate_phase3_output(phase3_dir, phase2_dir)
+
+        assert result.success is False
+        assert any("3 tab-separated fields" in error for error in result.errors)
+
+    def test_validate_empty_lines(self, tmp_path: Path) -> None:
+        """Test validation fails when file contains empty lines."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create anki_import.txt with empty line
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_text(
+            "Question 1\tAnswer 1\ttag1\n"
+            "\n"  # Empty line
+            "Question 2\tAnswer 2\ttag2\n",
+            encoding="utf-8",
+        )
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase3_output"]
+        ).validate_phase3_output(phase3_dir, phase2_dir)
+
+        assert result.success is False
+        assert any("is empty" in error.lower() for error in result.errors)
+
+    def test_validate_invalid_utf8(self, tmp_path: Path) -> None:
+        """Test validation fails for invalid UTF-8 encoding."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create anki_import.txt with invalid UTF-8
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_bytes(b"\xff\xfeInvalid UTF-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase3_output"]
+        ).validate_phase3_output(phase3_dir, phase2_dir)
+
+        assert result.success is False
+        assert any("UTF-8" in error for error in result.errors)
+
+    def test_validate_line_count_mismatch(self, tmp_path: Path) -> None:
+        """Test validation fails when line count doesn't match Q&A count."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create anki_import.txt with 2 cards
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_text(
+            "Question 1\tAnswer 1\ttag1\nQuestion 2\tAnswer 2\ttag2\n",
+            encoding="utf-8",
+        )
+
+        # Create Phase 2 qa_pairs.json with 3 pairs (mismatch)
+        qa_pairs = [
+            {
+                "question": "Q1",
+                "answer": "A1",
+                "aws_service": "IAM",
+                "source_markdown": "## IAM",
+                "section_header": "IAM",
+                "source_file": "01_iam.md",
+            },
+            {
+                "question": "Q2",
+                "answer": "A2",
+                "aws_service": "S3",
+                "source_markdown": "## S3",
+                "section_header": "S3",
+                "source_file": "02_s3.md",
+            },
+            {
+                "question": "Q3",
+                "answer": "A3",
+                "aws_service": "EC2",
+                "source_markdown": "## EC2",
+                "section_header": "EC2",
+                "source_file": "03_ec2.md",
+            },
+        ]
+        qa_file = phase2_dir / "qa_pairs.json"
+        qa_file.write_text(__import__("json").dumps(qa_pairs), encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase3_output"]
+        ).validate_phase3_output(phase3_dir, phase2_dir)
+
+        assert result.success is False
+        assert any("count" in error.lower() for error in result.errors)
+
+    def test_validation_writes_failure_file(self, tmp_path: Path) -> None:
+        """Test validation failure writes to validation_failures.txt."""
+        phase3_dir = tmp_path / "phase3"
+        phase3_dir.mkdir()
+        phase2_dir = tmp_path / "phase2"
+        phase2_dir.mkdir()
+
+        # Create invalid anki_import.txt (only 2 fields)
+        anki_file = phase3_dir / "anki_import.txt"
+        anki_file.write_text("Question\tAnswer\n", encoding="utf-8")
+
+        result = __import__(
+            "anki_generator.validators", fromlist=["validate_phase3_output"]
+        ).validate_phase3_output(phase3_dir, phase2_dir)
+
+        assert result.success is False
+
+        # Check that validation_failures.txt was created
+        failures_file = phase3_dir / "validation_failures.txt"
+        assert failures_file.exists()
+
+        # Verify it contains the errors
+        failures_content = failures_file.read_text()
+        assert len(failures_content) > 0
