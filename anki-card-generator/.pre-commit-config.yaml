@@ -16,3 +16,6 @@ repos:
         name: mypy
         args: [--strict]
         files: ^anki-card-generator/src/
+        additional_dependencies:
+          - google-generativeai>=0.8.3
+          - types-requests
