@@ -10,23 +10,62 @@ class TestQAPair:
 
     def test_creation(self) -> None:
         """Test creating a QAPair instance."""
-        qa_pair = QAPair(question="What is Python?", answer="A programming language")
+        qa_pair = QAPair(
+            question="What is Python?",
+            answer="A programming language",
+            aws_service="General",
+            source_markdown="# Python",
+            section_header="Introduction",
+            source_file="python.md",
+        )
 
         assert qa_pair.question == "What is Python?"
         assert qa_pair.answer == "A programming language"
+        assert qa_pair.aws_service == "General"
+        assert qa_pair.source_markdown == "# Python"
+        assert qa_pair.section_header == "Introduction"
+        assert qa_pair.source_file == "python.md"
 
     def test_immutable(self) -> None:
         """Test that QAPair instances are immutable."""
-        qa_pair = QAPair(question="Q", answer="A")
+        qa_pair = QAPair(
+            question="Q",
+            answer="A",
+            aws_service="EC2",
+            source_markdown="# Test",
+            section_header="Header",
+            source_file="test.md",
+        )
 
         with pytest.raises(AttributeError):
             qa_pair.question = "New Q"  # type: ignore[misc]
 
     def test_equality(self) -> None:
         """Test QAPair equality comparison."""
-        qa1 = QAPair(question="Q", answer="A")
-        qa2 = QAPair(question="Q", answer="A")
-        qa3 = QAPair(question="Q", answer="B")
+        qa1 = QAPair(
+            question="Q",
+            answer="A",
+            aws_service="S3",
+            source_markdown="# MD",
+            section_header="Header",
+            source_file="file.md",
+        )
+        qa2 = QAPair(
+            question="Q",
+            answer="A",
+            aws_service="S3",
+            source_markdown="# MD",
+            section_header="Header",
+            source_file="file.md",
+        )
+        qa3 = QAPair(
+            question="Q",
+            answer="B",
+            aws_service="S3",
+            source_markdown="# MD",
+            section_header="Header",
+            source_file="file.md",
+        )
 
         assert qa1 == qa2
         assert qa1 != qa3
