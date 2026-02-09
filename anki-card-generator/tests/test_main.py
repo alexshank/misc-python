@@ -515,3 +515,124 @@ class TestValidate3Command:
 
         # Check error details were logged
         assert any("error" in record.message.lower() for record in caplog.records)
+
+
+class TestAllCommand:
+    """Tests for all command."""
+
+    def test_all_runs_full_pipeline(self, tmp_path: Path) -> None:
+        """Test all command runs phase1→validate1→phase2→validate2→phase3→validate3."""
+        input_file = tmp_path / "input.md"
+        input_file.write_text("## Section 1\nContent here", encoding="utf-8")
+
+        output_base = tmp_path / "output"
+        config_file = tmp_path / "config.ini"
+        config_file.write_text("[api]\ngemini_api_key = test-key-123\n", encoding="utf-8")
+
+        # Mock GeminiClient and load_prompt_template
+        with (
+            patch("anki_generator.main.GeminiClient") as mock_client_class,
+            patch("anki_generator.main.load_prompt_template") as mock_load_template,
+        ):
+            mock_load_template.return_value = "Template"
+            mock_client = MagicMock()
+            mock_client.generate_qa_pairs.return_value = [
+                {"q": "Q?", "a": "A", "aws_service": "IAM"}
+            ]
+            mock_client.model = "gemini-1.5-pro"
+            mock_client_class.return_value = mock_client
+
+            __import__("anki_generator.main", fromlist=["all_command"]).all_command(
+                str(input_file), str(output_base), str(config_file)
+            )
+
+        # Verify all outputs created
+        assert (output_base / "phase1" / "manifest.txt").exists()
+        assert (output_base / "phase2" / "qa_pairs.json").exists()
+        assert (output_base / "phase3" / "anki_import.txt").exists()
+
+    def test_all_halts_at_validation_failure(self, tmp_path: Path) -> None:
+        """Test all command halts at first validation failure."""
+        input_file = tmp_path / "input.md"
+        input_file.write_text("## Section\nContent", encoding="utf-8")
+
+        output_base = tmp_path / "output"
+        config_file = tmp_path / "config.ini"
+        config_file.write_text("[api]\ngemini_api_key = test-key-123\n", encoding="utf-8")
+
+        # Mock validate1_command to raise validation failure
+        with patch("anki_generator.main.validate1_command") as mock_validate1:
+            mock_validate1.side_effect = ValueError("Validation failed")
+
+            with pytest.raises(ValueError, match="Validation failed"):
+                __import__("anki_generator.main", fromlist=["all_command"]).all_command(
+                    str(input_file), str(output_base), str(config_file)
+                )
+
+        # Phase 2 and 3 should not exist
+        assert not (output_base / "phase2").exists()
+        assert not (output_base / "phase3").exists()
+
+    def test_all_displays_summary(self, tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+        """Test all command displays summary of all phases completed."""
+        input_file = tmp_path / "input.md"
+        input_file.write_text("## Section 1\nContent", encoding="utf-8")
+
+        output_base = tmp_path / "output"
+        config_file = tmp_path / "config.ini"
+        config_file.write_text("[api]\ngemini_api_key = test-key-123\n", encoding="utf-8")
+
+        # Mock GeminiClient and load_prompt_template
+        with (
+            patch("anki_generator.main.GeminiClient") as mock_client_class,
+            patch("anki_generator.main.load_prompt_template") as mock_load_template,
+            caplog.at_level(logging.INFO),
+        ):
+            mock_load_template.return_value = "Template"
+            mock_client = MagicMock()
+            mock_client.generate_qa_pairs.return_value = [
+                {"q": "Q?", "a": "A", "aws_service": "IAM"}
+            ]
+            mock_client.model = "gemini-1.5-pro"
+            mock_client_class.return_value = mock_client
+
+            __import__("anki_generator.main", fromlist=["all_command"]).all_command(
+                str(input_file), str(output_base), str(config_file)
+            )
+
+        # Check summary was logged
+        log_messages = [record.message for record in caplog.records]
+        assert any("pipeline complete" in msg.lower() for msg in log_messages)
+
+    def test_all_displays_cache_statistics(
+        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Test all command displays final cache statistics summary."""
+        input_file = tmp_path / "input.md"
+        input_file.write_text("## Section 1\nContent", encoding="utf-8")
+
+        output_base = tmp_path / "output"
+        config_file = tmp_path / "config.ini"
+        config_file.write_text("[api]\ngemini_api_key = test-key-123\n", encoding="utf-8")
+
+        # Mock GeminiClient and load_prompt_template
+        with (
+            patch("anki_generator.main.GeminiClient") as mock_client_class,
+            patch("anki_generator.main.load_prompt_template") as mock_load_template,
+            caplog.at_level(logging.INFO),
+        ):
+            mock_load_template.return_value = "Template"
+            mock_client = MagicMock()
+            mock_client.generate_qa_pairs.return_value = [
+                {"q": "Q?", "a": "A", "aws_service": "IAM"}
+            ]
+            mock_client.model = "gemini-1.5-pro"
+            mock_client_class.return_value = mock_client
+
+            __import__("anki_generator.main", fromlist=["all_command"]).all_command(
+                str(input_file), str(output_base), str(config_file)
+            )
+
+        # Check cache statistics were logged
+        log_messages = [record.message for record in caplog.records]
+        assert any("cache" in msg.lower() for msg in log_messages)

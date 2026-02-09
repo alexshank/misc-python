@@ -1,6 +1,7 @@
 """CLI entry point for Anki Card Generator."""
 
 import argparse
+import json
 import logging
 import sys
 from pathlib import Path
@@ -285,10 +286,90 @@ def validate3_command(output_dir: str, phase2_dir: str) -> None:
     logger.info("Validation passed!")
 
 
+def all_command(input_file: str, output_base: str, config_file: str = "config.ini") -> None:
+    """Execute entire pipeline: phase1→validate1→phase2→validate2→phase3→validate3.
+
+    Runs all phases sequentially with validation gates.
+    Halts at first validation failure.
+
+    Args:
+        input_file: Path to input markdown file.
+        output_base: Base directory for all output (phase1/, phase2/, phase3/).
+        config_file: Path to configuration file (default: config.ini).
+
+    Raises:
+        ValueError: If any validation fails.
+        FileNotFoundError: If input file or config missing.
+
+    Example:
+        >>> all_command("notes.md", "output/", "config.ini")
+        # Creates output/phase1/, output/phase2/, output/phase3/
+    """
+    output_path = Path(output_base)
+
+    # Define phase directories
+    phase1_dir = output_path / "phase1"
+    phase2_dir = output_path / "phase2"
+    phase3_dir = output_path / "phase3"
+
+    logger.info("=" * 60)
+    logger.info("STARTING FULL PIPELINE")
+    logger.info("=" * 60)
+
+    # Phase 1: Parse markdown
+    logger.info("\n[Phase 1] Parsing markdown into sections...")
+    phase1_command(input_file, str(phase1_dir))
+
+    logger.info("[Phase 1] Validating output...")
+    validate1_command(str(phase1_dir))
+
+    # Phase 2: Generate Q&A pairs
+    logger.info("\n[Phase 2] Generating Q&A pairs...")
+    phase2_command(str(phase1_dir), str(phase2_dir), config_file)
+
+    logger.info("[Phase 2] Validating output...")
+    validate2_command(str(phase2_dir))
+
+    # Phase 3: Format for Anki
+    logger.info("\n[Phase 3] Formatting for Anki import...")
+    phase3_command(str(phase2_dir), str(phase3_dir))
+
+    logger.info("[Phase 3] Validating output...")
+    validate3_command(str(phase3_dir), str(phase2_dir))
+
+    # Display summary
+    logger.info("")
+    logger.info("=" * 60)
+    logger.info("PIPELINE COMPLETE!")
+    logger.info("=" * 60)
+
+    # Load and display cache statistics
+    stats_file = phase2_dir / "stats.json"
+    if stats_file.exists():
+        stats = json.loads(stats_file.read_text(encoding="utf-8"))
+        logger.info("\nCache Statistics Summary:")
+        logger.info("  Total sections processed: %d", stats.get("total_sections", 0))
+        logger.info("  Cache hits: %d", stats.get("cache_hits", 0))
+        logger.info("  Cache misses: %d", stats.get("cache_misses", 0))
+        logger.info("  Total Q&A pairs generated: %d", stats.get("total_qa_pairs", 0))
+
+    # Display output locations
+    logger.info("\nOutput Locations:")
+    logger.info("  Phase 1 (sections): %s", phase1_dir)
+    logger.info("  Phase 2 (Q&A pairs): %s", phase2_dir)
+    logger.info("  Phase 3 (Anki import): %s", phase3_dir)
+
+    anki_file = phase3_dir / "anki_import.txt"
+    logger.info("\nNext Step:")
+    logger.info("  Import %s into Anki", anki_file)
+    logger.info("=" * 60)
+
+
 def main() -> None:
     """Main CLI entry point with argument parsing.
 
     Supports commands:
+    - all: Run entire pipeline sequentially
     - phase1: Parse markdown into sections
     - validate1: Validate Phase 1 output
     - phase2: Generate Q&A pairs from sections
@@ -298,6 +379,7 @@ def main() -> None:
 
     Example:
         >>> # From command line:
+        >>> # python -m anki_generator.main all input.md output/
         >>> # python -m anki_generator.main phase1 input.md output/
         >>> # python -m anki_generator.main validate1 output/
         >>> # python -m anki_generator.main phase2 sections/ qa_output/
@@ -309,6 +391,25 @@ def main() -> None:
         description="Anki Card Generator - Generate flashcards from markdown",
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # All command
+    all_parser = subparsers.add_parser(
+        "all",
+        help="Run entire pipeline (phase1→validate1→phase2→validate2→phase3→validate3)",
+    )
+    all_parser.add_argument(
+        "input_file",
+        help="Path to input markdown file",
+    )
+    all_parser.add_argument(
+        "output_base",
+        help="Base directory for all output (creates phase1/, phase2/, phase3/)",
+    )
+    all_parser.add_argument(
+        "--config",
+        default="config.ini",
+        help="Path to configuration file (default: config.ini)",
+    )
 
     # Phase 1 command
     phase1_parser = subparsers.add_parser(
@@ -394,7 +495,9 @@ def main() -> None:
     args = parser.parse_args()
 
     # Execute command
-    if args.command == "phase1":
+    if args.command == "all":
+        all_command(args.input_file, args.output_base, args.config)
+    elif args.command == "phase1":
         phase1_command(args.input_file, args.output_dir)
     elif args.command == "validate1":
         validate1_command(args.output_dir)
