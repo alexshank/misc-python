@@ -1,0 +1,117 @@
+## 09-15-2025 - Learn Cantrill (Transit Gateway, VPC, Continued)
+
+- Transite Gateway (Deep Dive)
+	- can peer transit gateways (up to 50 peers)
+		- across regions and accounts
+		- data is encrypted just like with VPC peering
+	- all attachments propogate routes to the TGW's one route table (RT)
+		- NO ROUTE PROPOGATION OVER PEERING, THOUGH
+		- must use STATIC ROUTES
+	- should configure unique ASNs for future route propogation features
+	- association vs propogation is key for more advanced architecures
+		- can use this to isolate routing domains, which is critical in practice
+- Advanced VPC Routing
+	- subnets have one route table, typically the implicit one inherited from parent VPC
+	- can have 50 static routes and 100 propgated routes
+	- send traffic based on destination, target, and priority order
+	- more specific routes (longest prefix) always win
+	- static routes have higher priority than dynamic (propogated routes)
+	- good example of how to use route tables to ameliorate overlapping VPC CIDR ranges
+	- routing is typically about EGRESS not INGRESS
+		- can use Gateway Route Tables for devices like IGW and VGW
+		- e.g., forward all returning public internet traffic through a security appliance
+- Accelerated Site-to-Site VPN
+	- can use TGW to allow a pair of VPN tunnels to access multiple VPCs
+	- acceleration gets your traffic onto the AWS network sooner, so less public network performance variance
+	- you CANNOT use VGWs with the acceleration, ONLY TGW
+	- fixed fee + transfer fees for acceleration
+	- combines three services: S2S VPN, TGW, and the Global Accelerator
+	- remember, TGW is almost always recommended now
+- AWS Client VPN
+	- managed implementation of OpenVPN
+	- connect to a Client VPN endpoint
+	- connect to single VPC
+	- connect to 1+ Target Networks (subnets, high-availability)
+		- can only pick one subnet per AZ
+	- charged based on network association (an ENI device is created in each subnet)
+	- integrates with identity providers and CloudWatch Logs
+	- the client's existing route tables are completely replaced
+		- couldn't even access their local network
+		- this can be fixed using Split Tunnel Client VPN
+		- Split Tunnel is NOT the default, needs to be enabled
+- Direct Connect (DX)
+	- physical connection (1, 10, 100 Gbps)
+	- goes from on premsie --> DX Location --> AWS Region
+	- really just a Port Allocation at a DX Location
+		- need to have a 3rd-party telecom actually connect you to the port
+	- pay for Port Hourly Cost and ONLY Outbound Data Transfer
+	- NO INTERNET, just private and public AWS services
+	- DX Locations are typically large regional data centers NOT owned by AWS
+	- "Cages" for various customers in the data centers
+	- Physical Connection Architecture
+		- details about port configurations and fiber connections
+		- seems like more detail than needed for the AWS Sol Arch Pro exam
+	- MACsec (deals with lack of DX encryption)
+		- adds encryption to layer 2 of networking stack
+		- needed so that we do not need to trust the datacenter where port connection occurs
+		- works hop-by-hop between switches / routers
+		- can also be set up on a Link Aggregation Group (LAG)
+		- does NOT replace IPSEC over DX
+		- is capable of massive speeds (terrabit performance)
+		- uses unidirectional channels
+		- Secure Channel Identifier (SCI)
+		- Secure Associations (sessions), exist one at a time
+		- MACsec encapsulation (MACsec tag and Integrity Check VAlue (ICV))
+		- MACSec Key Agreement
+	- DX Connection Process
+		- Letter of Authorization Customer Facility Access (LOA-CFA)
+		- used at datacenter to allow your rented cage to connect to AWS' rented cage
+		- the two routers are then connected (layer 1 physical connection networking is established)
+		- there's now a continuous layer 2 data link connection between AWS and the on-premise network
+			- DX Connections are a layer 2 connection!!!
+	- DX Virtaul Interfaces
+		- Virtual Interfaces (VIFs) allow multiple L3 networks to run on the DX Connection
+			- these networks would be VPCs and the AWS public zone
+		- concretely, VIFs are just BGP Peering Session
+		- VLAN Tagging is used to isolate these networks
+		- BGP exchanges routes and authenticates
+		- VIF types
+			- Public VIF - for public zone services (no VPC), or VPC services that have public IP addressing
+			- Private VIF - anything connecting to a VPC from your on-premise network using private addresses
+			- Transit VIF - allow communication between DX and TGW
+		- each VIF is a VLAN/BGP Session
+			- they can be extended into customer premises via Q-in-Q
+	- Private VIFs
+		- access 1* VPC using private IPs
+		- attaches to VGWs
+			- don't always need to terminate VIFs into VGWs
+			- e.g., Direct Connect Gateway
+		- IN THE SAME REGION as your terminating DX location
+		- no encryption of VIFs (you must add HTTPS, for example)
+		- if using VGW, Route Propogation IS enabled by default
+		- when creating VIF, need to setup...
+			- if in a multi-account setup, the destination account would be the interface owner (must accept)
+			- VLAN ID (match customer side)
+			- BGP ASN of on-premise network (public or private)
+			- peer IP addresses (could auto generate)
+			- you advertise either default network prefixes or specific corp prefixes
+				- there is a HARD MAX of 100 prefixes before interface breaks
+		- AWS then advertises the VPC CIDR and its BGP Peer IPs (/30's)
+		- you can download the config file to speed up your customer configuration
+		- Private VIFs can ONLY connect to VPCs in the SAME REGION as the DX Location
+			- solved by DX Gateway
+		- configure your ASN on the VIF, AWS ASN is configured on the VGW
+			- your ASN is either a publically owned one, or 64512-65535
+	- Public VIFs 
+		- access Public Zone services
+			- includes elastic IPs (EC2 instances) and public services (e.g., S3)
+		- can access ALL public zone regions
+		- AWS advertises all AWS public IP ranges to you
+		- you advertise any public IPs you own over BGP
+		- tangential - BGP Communities are used
+			- filter routes you receive by geography
+		- your prefixes don't leave AWS (not transitive)
+			- this means you won't advertise your public IPs to other AWS customers
+			- HOWEVER you could access ANY Elatsic IP address for, e.g., an EC2 instance???
+		- configuration is much like Privat VIFs
+		- there's some verification on AWS's end for the BGP prefixe advertisements

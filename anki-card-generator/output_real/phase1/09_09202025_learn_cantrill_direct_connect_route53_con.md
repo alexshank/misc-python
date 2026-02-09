@@ -1,0 +1,109 @@
+## 09-20-2025 - Learn Cantrill (Direct Connect, Route53, Continued)
+
+- DX, VPN and Public VIF
+	- can combine VPN with Public VIF for security, speed, consistency
+	- note: uses PUBLIC vif, since connecting to VGW or TGW public endpoints
+	- MACsec still used here for single hop in data center
+	- typical to run VPN over public internet first, or for redundancy
+	- you can benefit from the global AWS network and connect to remote regions
+- DX Gateway (DXGW)
+	- DX is a regional service
+	- add multiple for high availablity
+	- Public VIF can access all AWS Public Regions
+	- Private VIF can only access VPCs in the same region via VGW
+	- DX Gateway solves this by allowing On-Premise to talk to any VPC
+	- DX Gateway is a global service
+	- it DOES NOT allow the VPCs to talk to one another, though
+	- limit:
+		- 1 Private VIF can connect to 1 DX Gateway
+		- 10 VGW per DX Gateway
+		- 50 Private VIFs per DX Connection = 50 DX Gateways
+		- 50 DX Gateways with 10 VPCs each = 500 VPCs connected
+		- also: 1 DXGW can accept up to 30 Private or Transit VIFs
+			- DXGW never uses Public VIFs
+	- DX Gateway is free (pay for underlying traffic)
+	- could get around inter-VPC talking issue by going through customer router back to DX Gateway
+	- DX Gateway works in multi-account
+		- create "Shared Services" account
+		- other accounts create an "association proposal"
+		- if accepted, other accounts can access on-prem via Private VIF
+- DX, Transit VIFs and TGW
+	- a DX Connection can have a single Transit VIF
+		- this might be 4 now???
+		- Public VIF and Private VIF limit might be 50 total???
+	- Transit VIF is used to connect up to 3 TGWs to the DXGW
+		- this means you cannot use the DXGW anymore for a Private VIF!!!
+		- i.e., you CANNOT mix Private VIFs and Transit VIFs in a single DXGW
+	- DXGW doesn't route between attachments, use TGW Peering
+	- each TGW can be attached to up to 20 DXGWs
+	- TGWs support 5,000 attachments, and can peer with 50 other TGWs (each with 5,000 attachments)
+	- main benefit of TGWs is that you can route across DX Gateway attachments
+		- this is for the case where you are within the same AWS Region
+		- e.g., going through DXGW from one on-premise site to another
+		- this would not be possible with just DXGWs
+	- to route across DX Gateways in multiple regions...
+		- simply peer the TGWs you have in separate AWS regions
+		- the DXGWs automatically can send traffic between on-prem locations
+- DX Resilience
+	- DX is not a resilient product, it's physical and has many single points of failure (SPOFs)
+	- potential fixes
+		- provision two DX Connections at same location
+			- these will be on separate AWS DX Routers
+		- have two customer routers
+		- two physical cable paths from DX location to customer premises
+		- two completely separate customer premises
+		- two completely separate DX locations
+		- most exteme, two DX locations each with...
+			- two DX Connections (separate cross-connect cables)
+			- two AWS DX Routers
+			- two customer routers
+	- note that a S2S VPN backup is another alternative for achieving high-availability
+- DX Link Aggregation Groups (LAGs)
+	- multiple physical connections configured to act as one
+		- this means multiple DX Connections being viewed as one
+	- up to 200 Gbps total speed per LAG
+	- although they provide some level of resiliency (switch port), AWS does NOT market them this way
+	- complete hardware (switch) failure is still SPOF, so focus on speed benefit during exam!!!
+	- active / active architecture
+	- max of 4 connections per LAG
+	- all connections must be same speed
+	- all connections must terminate at same location (same DX Location)
+	- "minimumLinks" used to define if LAG is active or inactive (failed state)
+	- ports get allocated on the same AWS DX Router chassis
+		- allocate early before physical ports are taken by other people
+	- remember, this is NOT a resiliency product!!!
+- Route53 Fundamentals
+	- can register domains
+	- can host Zones that are on managed Nameservers
+	- global service (resilient)
+	- a Zone file is just a database for a particular domain
+		- has records or recordsets within it (in AWS terminology)
+	- a Hosted Zone is just AWS terminology for them managing your domain's Zone file
+- DNS Record Types
+	- Nameserver (NS)
+	- A and AAAA (same thing, host to IP, IPv4 or IPv6)
+	- CNAME (host to host, cannot point to raw IPs)
+	- MX (how a server can find the mail server for a specific domain)
+		- has priority recoreds (lowest highest) 
+	- TXT Records (provide arbitrary text to your records)
+		- used to extend DNS functionality
+		- e.g., validate that you own a domain by setting specific requested text value
+		- e.g., fight spam by whitelisting who can send emails on your behalf
+	- Time To Live (TTL), your DNS Resolver will cache (authoritative) query responses for this amount of time
+		- good to lower this days or weeks in advance of any work you're performing
+- AWS X-Ray
+	- a distributed tracing application
+	- Tracing Header (trace ID) - created by first service to track entire processing
+	- Segments - data blocks produced by services and added to trace
+	- Subsegments - more granular data (e.g., calls to other services)
+	- Service Graphs - JSON Document detailing services and resources in the application
+	- Service Map - visual version of the service graph showing traces
+	- various agents needed to produce X-Ray segments
+		- EC2 X-Ray agent
+		- ECS agent in tasks
+		- Lambda (enable option)
+		- Beanstalk preinstalled agent
+		- API Gateway per stage option
+		- SNS configuration options
+		- SQS configuration options
+	- need to provide IAM PERMISSIONS for writing data into AWS X-Ray!!!

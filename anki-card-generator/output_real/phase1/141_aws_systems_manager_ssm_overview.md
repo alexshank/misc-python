@@ -1,0 +1,26 @@
+## AWS Systems Manager (SSM) Overview
+
+- manage EC2 and on-premise systems at scale
+- SSM agent talks to Systems Manager
+  - installed by default into Linux (and some Ubuntu) AMI
+  - need proper IAM roles for SSM actions
+- resource groups -> execute a document -> rate control / error control
+- no need for SSH (because of agent)
+- integrate with ASG Lifecycle Hook (Terminating:Wait)
+- steps for Patch Manager
+  - Patch Baseline
+  - Patch Groups (could be tag-based)
+  - Maintenance Windows
+  - AWS-RunPatchBaseline Run Command (cross-platform)
+  - Rate Control (concurrency and error)
+  - Patch Compliance using SSM Inventory
+- Systems Manager Session Manager
+  - start secure shell on EC2 or on-premise server without SSH keys
+  - works through the SSM Agent
+  - cross-platform
+  - CloudWatch Logs and CloudTrail monitoring
+    - intercept StartSession events
+- Systems Manager OpsCenter
+  - OpsItems
+  - aggregates useful debugging / remediation info
+  - ex: EventBridge or SSM Automation to create OpsItems

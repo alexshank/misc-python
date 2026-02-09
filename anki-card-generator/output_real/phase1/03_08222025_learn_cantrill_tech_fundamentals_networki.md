@@ -1,0 +1,90 @@
+## 08-22-2025 - Learn Cantrill (Tech Fundamentals, Networking)
+
+- Network Address Translation (NAT)
+	- deals with IPv4 shortages
+	- governing agencies give out public IPs to ISPs and then individuals
+	- Static NAT is 1:1 private IP to public IP
+		- AWS IGW is an example
+	- Dynamic NAT is for when you have more private IPs than public IPs
+	- Port Address Translation (PAT) aka "overloading"
+		- map many private IPs to a single public IP
+		- AWS NATGW is an example
+	- IPv6 means you DO NOT need any form of address translation
+	- public and private addresses CANNOT communicate over public internet
+	- For PAT, the NAT device keeps track of / generates random public source ports
+		- the private source ports of the private IP devices can conflict without issue
+		- you CANNOT initiate a connection with a private device behind PAT
+- IPv4 Addressing and Subnetting
+	- you must be allocated a public IPv4 address
+	- Internet Assigned Numbers Authority (IANA)
+	- 4.29 billion IP addresses
+	- address spaces
+		- Class A (first octet, huge businesses in early days)
+		- Class B (first two octets, fewer IPs for each network)
+		- Class C (first three octets, for small businesses)
+		- Class D and E also exist, but are their own topic
+	- private IPs are carved out of the Class A, B, C address spaces
+	- 172.31 private network is used for default AWS VPC
+	- should still always aim to avoid private network IP address overlaps
+	- subnetting = splitting an original network into multiple address spaces
+	- use a suffix like /16 to specify the starting bits of a subnetwork
+		- larger the prefix value, smaller the network
+		- one /16 network == two /17 networks
+		- /0 is the entire internet
+		- /32 is a single IP address
+	- typically have an even number of subnets, but could just split one of the halves again to get 3
+- SSL and TLS
+	- privacy and data integrity between client and server
+	- TLS is newer version of SSL
+	- combination of asymmetric and symmetric encryption
+	- identity verification (typically only verify the server, but could do both)
+	- reliable connection (detect alternations)
+	- TLS begins with an established TCP connection
+	- three main phases for initiation
+		- cipher suites (server returns certificate with public key)
+		- authentication (client checks server's certificate via a known CA)
+			- operating system and browser vendors have list of trusted Certificate Authorities (CA)
+			- server makes a Certificate Signing Request (CSR)
+			- CA then generates a signed certificate for the server to use
+		- key exchange (get from asymm to symm encryption for efficiency)
+			- client creates pre-master key
+			- pre-master key is shared via public key encrypt and private key decrypt
+			- server and client each generate the same master secret
+	- the application layer (e.g., HTTPS or FTPS) decides if TLS should be intiated
+		- TLS is technically considered layer 6 presentation layer
+		- TLS is practically considered layer 4 transport layer
+ - Recovery Point Objective (RPO) and Recovery Time Objective (RTO)
+	- Recovery Point Objective
+		- maximum amount of data (time) that can be lost (stomached) by the organization
+		- i.e., time between successful backups
+		- may be different between systems (e.g., can't lose bank transactions, but could lose internal tool's data)
+	- Recovery Time Objective
+		- maximum tolerable length of time a system can be down
+		- starts the second the error happens, ends when you hand the system back to the business folks
+		- need good monitoring or you don't know the true start time of the outage
+	- aim for GOLDILOCKS scenario (as close to the true business requirements as possible)
+- VLANs, TRUNKS, and QinQ
+	- remember LAN is a shared broadcast domain on network layer 2
+	- remember each port of a switch is a separate collision domain
+	- we want to separate broadcast domains to relevant parties (e.g., sales, security, IoT, whatever)
+	- issue is dealing with physical hardware plugged into switches (what if devices are in separate buildings?)
+	- Virtual Local Area Networks (VLANs) solve this issue
+	- they add a VLAN ID to 802.1Q ethernet frames
+	- creates up to 4096 broadcast domains in the same physical network
+		- 802.1AD ethernet frames allow ISPs to use stacked VLANS
+		- also called nested QinQ VLANs
+		- introduces another field in the frames
+		- advanced networking topic, out of scope
+	- ACCESS and TRUNK ports on networking switches
+	- now, your physical network is managed via switch software
+	- you cannot communicate between these networks without layer 3 device (like a router)
+	- Public and Privte VIFs in AWS Direct Connect work using VLANs
+- DNS
+	- funtionally, a big database for looking up IPs by domain name
+	- DNS Zone = database containing records (e.g., "\*.netflix.com")
+	- ZoneFile = file storing the zone on disk
+	- Name Server (NS) server that hosts 1 or more Zones (1 or more ZoneFiles)
+	- authoritive servers are the geniune source of truth
+	- there are thirteen root DNS server IPs around the world (U of Maryland, NASA, etc.)
+		- these thirteen IPs use any-cast so there are realistically many more servers
+		- the IP protocol has unicast, broadcast, multicast, anycast, and geocast addressing models

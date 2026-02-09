@@ -1,0 +1,24 @@
+## Amazon Kinesis Data Firehouse
+
+- store data into target destinations
+- batch writes for efficiency
+  - "near real-time"
+- need to remember specifically
+  - Redshift
+  - S3
+  - OpenSearch
+  - Splunk
+- automatic scaling (unlike Kinesis Data Streams)
+- Lambda can be used for arbitrary transformations
+- ORC data conversion is only for S3
+  - possibly parquet as well???
+- compression support to S3 and Redshift (GZIP)
+- Spark and Kinesis Client Library (KCL) do NOT read from Kinesis Data Firehose (KDF)
+  - only from Kinesis Data Streams (KDS)
+- "blueprint" transformation lambdas
+- S3 + copy command used to go to Amazon Redshift
+- source records and transformation failures, and delivery failures can be written to an S3 bucket
+  - no data loss is the key
+- 1 minute minimum for buffer timeout
+- KDF vs KDS
+  - enhanced fan-out for stream latency???
