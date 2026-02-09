@@ -20,8 +20,8 @@ from google.api_core.exceptions import (
 logger = logging.getLogger(__name__)
 
 # Constants for error logging
-_LOG_PROMPT_MAX_CHARS = 1000
-_LOG_RESPONSE_MAX_CHARS = 2000
+_LOG_PROMPT_MAX_CHARS = 10_000
+_LOG_RESPONSE_MAX_CHARS = 20_000
 
 
 class GeminiAPIError(Exception):
@@ -132,13 +132,17 @@ class GeminiClient:
                     logger.error("=" * 80)  # noqa: TRY400
                     logger.error("GEMINI API RESPONSE PARSING ERROR")  # noqa: TRY400
                     logger.error("=" * 80)  # noqa: TRY400
-                    logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
+                    logger.error(
+                        "INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS
+                    )  # noqa: TRY400
                     prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
                     if len(prompt) > _LOG_PROMPT_MAX_CHARS:
                         prompt_excerpt += "..."
                     logger.error("%s", prompt_excerpt)  # noqa: TRY400
                     logger.error("-" * 80)  # noqa: TRY400
-                    logger.error("FULL RESPONSE TEXT (first %d chars):", _LOG_RESPONSE_MAX_CHARS)  # noqa: TRY400
+                    logger.error(
+                        "FULL RESPONSE TEXT (first %d chars):", _LOG_RESPONSE_MAX_CHARS
+                    )  # noqa: TRY400
                     response_excerpt = response.text[:_LOG_RESPONSE_MAX_CHARS]
                     if len(response.text) > _LOG_RESPONSE_MAX_CHARS:
                         response_excerpt += "..."
@@ -148,8 +152,12 @@ class GeminiClient:
 
             except (ResourceExhausted, ServiceUnavailable) as e:
                 # Rate limit or service unavailable - retry with exponential backoff
-                logger.warning("Gemini API rate limit/unavailable (attempt %d/%d): %s",
-                             attempt + 1, self.max_retries, str(e))
+                logger.warning(
+                    "Gemini API rate limit/unavailable (attempt %d/%d): %s",
+                    attempt + 1,
+                    self.max_retries,
+                    str(e),
+                )
                 sleep_time = 2**attempt  # Exponential backoff: 1, 2, 4 seconds
                 time.sleep(sleep_time)
 
@@ -160,7 +168,9 @@ class GeminiClient:
                 logger.error("=" * 80)  # noqa: TRY400
                 logger.error("GEMINI API RETRY LIMIT EXCEEDED")  # noqa: TRY400
                 logger.error("=" * 80)  # noqa: TRY400
-                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
+                logger.error(
+                    "INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS
+                )  # noqa: TRY400
                 prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
                 if len(prompt) > _LOG_PROMPT_MAX_CHARS:
                     prompt_excerpt += "..."
@@ -178,7 +188,9 @@ class GeminiClient:
                 logger.error("GEMINI API TIMEOUT ERROR")  # noqa: TRY400
                 logger.error("=" * 80)  # noqa: TRY400
                 logger.error("Timeout after %d seconds", self.timeout)  # noqa: TRY400
-                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
+                logger.error(
+                    "INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS
+                )  # noqa: TRY400
                 prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
                 if len(prompt) > _LOG_PROMPT_MAX_CHARS:
                     prompt_excerpt += "..."
@@ -192,7 +204,9 @@ class GeminiClient:
                 logger.error("GEMINI GOOGLE API ERROR")  # noqa: TRY400
                 logger.error("=" * 80)  # noqa: TRY400
                 logger.error("Error: %s", str(e))  # noqa: TRY400
-                logger.error("INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS)  # noqa: TRY400
+                logger.error(
+                    "INPUT PROMPT (first %d chars):", _LOG_PROMPT_MAX_CHARS
+                )  # noqa: TRY400
                 prompt_excerpt = prompt[:_LOG_PROMPT_MAX_CHARS]
                 if len(prompt) > _LOG_PROMPT_MAX_CHARS:
                     prompt_excerpt += "..."
