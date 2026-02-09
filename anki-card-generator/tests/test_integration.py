@@ -49,8 +49,8 @@ class TestPipelineIntegration:
             call_count[0] += 1
             return [
                 {
-                    "q": f"Question {call_count[0]}?",
-                    "a": f"Answer {call_count[0]}",
+                    "question": f"Question {call_count[0]}?",
+                    "answer": f"Answer {call_count[0]}",
                     "aws_service": f"Service{call_count[0]}",
                 }
             ]

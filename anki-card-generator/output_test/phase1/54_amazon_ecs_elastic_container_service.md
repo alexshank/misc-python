@@ -1,0 +1,32 @@
+## Amazon ECS - Elastic Container Service
+
+- container management platforms
+  - Amazon ECS
+  - Amazon EKS (managed Kubernetes)
+  - AWS Fargate
+    - serverless
+    - works with both ECS and EKS
+- useful for running batch processing / scheduled tasks on EC2 instances
+- migrate legacy on-premise applications by containerizing them
+- ECS IAM Roles
+  - EC2 Instance Profile (talk to ECS, etc)
+  - ECS Task IAM Role (talk to S3, Dynamo, etc.)
+- Dynamic Port Mapping (ALB integration)
+- inject secrets / configuration as env vars to running containers
+- ECS Tasks Networking
+  - none
+  - bridge
+  - host
+  - awsvpc (default)
+- Amazon ECS leverages AWS Application Auto Scaling
+  - this services is used for scaling various other AWS resources
+  - scaling strategies
+    - Target Tracking
+    - Step Scaling
+    - Scheduled Scaling
+- CPU and RAM tracked in CloudWatch at ECS Service level
+  - Note the previous comment that "RAM IS NOT INCLUDED IN AWS EC2 METRICS"
+- Fargate Auto Scaling is easier, because you don't need your ECS Service Auto Scaling to be in lockstep with your EC2 Auto Scaling
+- FARGATE_SPOT for cost-savings
+- ECR public and private repositories
+  - IAM policies needed to give EC2 instance role access to images
