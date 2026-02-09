@@ -169,8 +169,8 @@ pipenv run python -m anki_generator.main phase2 output/phase1 output/phase2
 # (Optional) Phase 2: Generate Q&A pairs from sections using Gemini API, but limit number of items processed
 pipenv run python -m anki_generator.main phase2 output/phase1 output/phase2 --item-count 3
 
-# TODO: Validate Phase 2 output
-# pipenv run python -m anki_generator.main validate2 output/phase2
+# Validate Phase 2 output
+pipenv run python -m anki_generator.main validate2 output/phase2
 
 # TODO: Phase 3: Format Q&A pairs as Anki cards
 # pipenv run python -m anki_generator.main phase3 output/phase2 output/phase3
